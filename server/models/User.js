@@ -1,88 +1,68 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const UserSchema = new mongoose.Schema({
-  userType: {
-    type: String,
-    enum: ['customer', 'service_provider', 'admin'],
-    default: 'customer',
-    required: true
-  },
-  username: {
-    type: String,
-    required: [true, 'Please provide a username'],
-    unique: true,
-    trim: true,
-    minlength: 3,
-    maxlength: 30
-  },
-  password: {
-    type: String,
-    required: [true, 'Please provide a password'],
-    minlength: 6,
-    select: false
-  },
   firstName: {
     type: String,
-    required: [true, 'Please provide your first name'],
-    trim: true
+    required: [true, 'Please add a first name']
   },
   lastName: {
     type: String,
-    required: [true, 'Please provide your last name'],
-    trim: true
+    required: [true, 'Please add a last name']
   },
   email: {
     type: String,
-    required: [true, 'Please provide an email'],
+    required: [true, 'Please add an email'],
     unique: true,
     match: [
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-      'Please provide a valid email'
+      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      'Please add a valid email'
     ]
   },
   phone: {
     type: String,
-    trim: true
+    required: [true, 'Please add a phone number']
   },
-  address: {
-    street: String,
-    city: String,
-    state: String,
-    zipCode: String,
-    country: String
+  password: {
+    type: String,
+    required: [true, 'Please add a password'],
+    minlength: 6,
+    select: false
   },
-  registrationDate: {
-    type: Date,
-    default: Date.now
+  userType: {
+    type: String,
+    enum: ['user', 'service_provider', 'admin'],
+    default: 'user'
   },
   profilePicture: {
     type: String,
     default: 'default-profile.jpg'
   },
   resetPasswordToken: String,
-  resetPasswordExpire: Date
-}, { timestamps: true });
+  resetPasswordExpire: Date,
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
 
-// Encrypt password before saving
+// Encrypt password using bcrypt
 UserSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
     next();
   }
-  
+
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
 // Sign JWT and return
 UserSchema.methods.getSignedJwtToken = function() {
-  return jwt.sign(
-    { id: this._id, userType: this.userType },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRE }
-  );
+  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE
+  });
 };
 
 // Match user entered password to hashed password in database
@@ -102,7 +82,7 @@ UserSchema.methods.getResetPasswordToken = function() {
     .digest('hex');
 
   // Set expire
-  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
 
   return resetToken;
 };
