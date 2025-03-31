@@ -1,0 +1,187 @@
+# Fixly API Documentation
+
+## Authentication Endpoints
+
+### Register User
+- URL: /api/auth/register
+- Method: POST
+- Auth Required: No
+- Request Body:
+  {
+    "userType": "customer", // Options: "customer", "service_provider", "admin"
+    "username": "johndoe",
+    "password": "password123",
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com",
+    "phone": "1234567890",
+    "address": {
+      "street": "123 Main St",
+      "city": "Anytown",
+      "state": "State",
+      "zipCode": "12345",
+      "country": "Country"
+    }
+  }
+- Success Response: 
+  - Code: 201
+  - Content: 
+    {
+      "success": true,
+      "token": "JWT_TOKEN_HERE"
+    }
+
+### Login User
+- URL: /api/auth/login
+- Method: POST
+- Auth Required: No
+- Request Body:
+  {
+    "email": "john@example.com",
+    "password": "password123"
+  }
+- Success Response: 
+  - Code: 200
+  - Content: 
+    {
+      "success": true,
+      "token": "JWT_TOKEN_HERE"
+    }
+- Error Response: 
+  - Code: 401
+  - Content: 
+    {
+      "success": false,
+      "message": "Invalid credentials"
+    }
+
+### Get Current User
+- URL: /api/auth/me
+- Method: GET
+- Auth Required: Yes (Bearer Token)
+- Success Response: 
+  - Code: 200
+  - Content: 
+    {
+      "success": true,
+      "data": {
+        "userType": "customer",
+        "username": "johndoe",
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "john@example.com",
+        "phone": "1234567890",
+        "address": {
+          "street": "123 Main St",
+          "city": "Anytown",
+          "state": "State",
+          "zipCode": "12345",
+          "country": "Country"
+        },
+        "registrationDate": "2023-07-15T12:00:00.000Z",
+        "profilePicture": "default-profile.jpg"
+      }
+    }
+
+### Update User Profile
+- URL: /api/auth/updateprofile
+- Method: PUT
+- Auth Required: Yes (Bearer Token)
+- Request Body:
+  {
+    "firstName": "John",
+    "lastName": "Smith",
+    "email": "john@example.com",
+    "phone": "9876543210",
+    "address": {
+      "street": "456 New St",
+      "city": "Newtown",
+      "state": "State",
+      "zipCode": "54321",
+      "country": "Country"
+    }
+  }
+- Success Response: 
+  - Code: 200
+  - Content: 
+    {
+      "success": true,
+      "data": {
+        // Updated user object
+      }
+    }
+
+### Update Password
+- URL: /api/auth/updatepassword
+- Method: PUT
+- Auth Required: Yes (Bearer Token)
+- Request Body:
+  {
+    "currentPassword": "password123",
+    "newPassword": "newpassword123"
+  }
+- Success Response: 
+  - Code: 200
+  - Content: 
+    {
+      "success": true,
+      "token": "NEW_JWT_TOKEN_HERE"
+    }
+
+### Forgot Password
+- URL: /api/auth/forgotpassword
+- Method: POST
+- Auth Required: No
+- Request Body:
+  {
+    "email": "john@example.com"
+  }
+- Success Response: 
+  - Code: 200
+  - Content: 
+    {
+      "success": true,
+      "data": "Email sent"
+    }
+
+### Reset Password
+- URL: /api/auth/resetpassword/:resettoken
+- Method: PUT
+- Auth Required: No
+- URL Parameters: resettoken=[string]
+- Request Body:
+  {
+    "password": "newpassword123"
+  }
+- Success Response: 
+  - Code: 200
+  - Content: 
+    {
+      "success": true,
+      "token": "NEW_JWT_TOKEN_HERE"
+    }
+
+### Logout
+- URL: /api/auth/logout
+- Method: GET
+- Auth Required: Yes (Bearer Token)
+- Success Response: 
+  - Code: 200
+  - Content: 
+    {
+      "success": true,
+      "data": {}
+    }
+
+## Authentication Notes
+
+1. For protected routes, include the JWT token in the Authorization header:
+   Authorization: Bearer YOUR_JWT_TOKEN
+
+2. Tokens expire after the configured time period (typically 30 days).
+
+3. When updating password, a new token is issued and the old one becomes invalid.
+
+4. Base URL for all API endpoints: http://localhost:5001
+
+5. All requests and responses use JSON format.

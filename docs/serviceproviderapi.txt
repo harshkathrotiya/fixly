@@ -1,0 +1,392 @@
+# Service Provider API Documentation
+This documentation outlines the available endpoints for the Service Provider module in the Fixly application. These APIs allow for registration, profile management, and listing management for service providers.
+
+## Base URL
+All endpoints are relative to: http://localhost:5000/api/providers
+
+## Authentication
+Protected endpoints require a Bearer token in the Authorization header:
+
+```plaintext
+Authorization: Bearer <your_jwt_token>
+ ```
+```
+
+## Endpoints
+### 1. Register as Service Provider
+Register a new user as a service provider.
+
+- URL : /register
+- Method : POST
+- Auth Required : No
+- Request Body :
+  ```json
+  {
+    "firstName": "John",
+    "lastName": "Smith",
+    "email": "johnsmith@example.com",
+    "password": "password123",
+    "phone": "1234567890",
+    "serviceDescription": "Professional plumbing services with 10 years of experience",
+    "serviceCategory": ["64a7b2e5c3e4f12d4c567890"],
+    "availability": "Weekdays",
+    "bankDetails": {
+      "accountName": "John Smith",
+      "accountNumber": "1234567890",
+      "bankName": "Example Bank",
+      "ifscCode": "EXBK0001234"
+    }
+  }
+   ```
+  ```
+- Success Response :
+  - Code : 201 Created
+  - Content :
+    ```json
+    {
+      "success": true,
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "data": {
+        "_id": "64a7b2e5c3e4f12d4c567892",
+        "userId": "64a7b2e5c3e4f12d4c567893",
+        "serviceDescription": "Professional plumbing services with 10 years of experience",
+        "serviceCategory": ["64a7b2e5c3e4f12d4c567890"],
+        "availability": "Weekdays",
+        "verificationStatus": "Pending",
+        "createdAt": "2023-07-07T10:30:45.123Z",
+        "updatedAt": "2023-07-07T10:30:45.123Z"
+      }
+    }
+     ```
+    ```
+### 2. Get All Service Providers
+Retrieve a list of all verified service providers with optional filtering.
+
+- URL : /
+- Method : GET
+- Auth Required : No
+- Query Parameters :
+  - category : Filter by service category ID
+  - minRating : Filter by minimum rating (0-5)
+  - availability : Filter by availability type (Weekdays, Weekends, All Days, Custom)
+  - lat : Latitude for location-based search
+  - lng : Longitude for location-based search
+  - distance : Search radius in kilometers (default: 10)
+  - page : Page number for pagination (default: 1)
+  - limit : Number of results per page (default: 10)
+  - sort : Sort by field (rating, newest)
+- Success Response :
+  - Code : 200 OK
+  - Content :
+    ```json
+    {
+      "success": true,
+      "count": 2,
+      "pagination": {
+        "total": 10,
+        "page": 1,
+        "pages": 5
+      },
+      "data": [
+        {
+          "_id": "64a7b2e5c3e4f12d4c567892",
+          "userId": {
+            "_id": "64a7b2e5c3e4f12d4c567893",
+            "firstName": "John",
+            "lastName": "Smith",
+            "email": "johnsmith@example.com",
+            "profilePicture": "default-profile.jpg"
+          },
+          "serviceCategory": [
+            {
+              "_id": "64a7b2e5c3e4f12d4c567890",
+              "categoryName": "Plumbing"
+            }
+          ],
+          "serviceDescription": "Professional plumbing services with 10 years of experience",
+          "availability": "Weekdays",
+          "rating": 4.8,
+          "verificationStatus": "Verified"
+        },
+        {
+          "_id": "64a7b2e5c3e4f12d4c567894",
+          "userId": {
+            "_id": "64a7b2e5c3e4f12d4c567895",
+            "firstName": "Jane",
+            "lastName": "Doe",
+            "email": "janedoe@example.com",
+            "profilePicture": "default-profile.jpg"
+          },
+          "serviceCategory": [
+            {
+              "_id": "64a7b2e5c3e4f12d4c567891",
+              "categoryName": "Electrical"
+            }
+          ],
+          "serviceDescription": "Certified electrician with expertise in residential wiring",
+          "availability": "All Days",
+          "rating": 4.5,
+          "verificationStatus": "Verified"
+        }
+      ]
+    }
+     ```
+    ```
+### 3. Get Service Provider by ID
+Retrieve a specific service provider by their ID.
+
+- URL : /:id
+- Method : GET
+- Auth Required : No
+- URL Parameters :
+  - id : Service provider ID
+- Success Response :
+  - Code : 200 OK
+  - Content :
+    ```json
+    {
+      "success": true,
+      "data": {
+        "_id": "64a7b2e5c3e4f12d4c567892",
+        "userId": {
+          "_id": "64a7b2e5c3e4f12d4c567893",
+          "firstName": "John",
+          "lastName": "Smith",
+          "email": "johnsmith@example.com",
+          "profilePicture": "default-profile.jpg"
+        },
+        "serviceCategory": [
+          {
+            "_id": "64a7b2e5c3e4f12d4c567890",
+            "categoryName": "Plumbing",
+            "categoryDescription": "All plumbing related services"
+          }
+        ],
+        "serviceDescription": "Professional plumbing services with 10 years of experience",
+        "availability": "Weekdays",
+        "rating": 4.8,
+        "verificationStatus": "Verified",
+        "location": {
+          "type": "Point",
+          "coordinates": [-122.4194, 37.7749]
+        },
+        "createdAt": "2023-07-07T10:30:45.123Z",
+        "updatedAt": "2023-07-07T10:30:45.123Z"
+      }
+    }
+     ```
+    ```
+### 4. Get Provider Profile
+Retrieve the authenticated service provider's profile.
+
+- URL : /me
+- Method : GET
+- Auth Required : Yes (service_provider role)
+- Success Response :
+  - Code : 200 OK
+  - Content :
+    ```json
+    {
+      "success": true,
+      "data": {
+        "_id": "64a7b2e5c3e4f12d4c567892",
+        "userId": "64a7b2e5c3e4f12d4c567893",
+        "serviceCategory": [
+          {
+            "_id": "64a7b2e5c3e4f12d4c567890",
+            "categoryName": "Plumbing",
+            "categoryDescription": "All plumbing related services"
+          }
+        ],
+        "serviceDescription": "Professional plumbing services with 10 years of experience",
+        "availability": "Weekdays",
+        "availabilityDetails": {},
+        "rating": 4.8,
+        "verificationStatus": "Verified",
+        "commissionRate": 10,
+        "bankDetails": {
+          "accountName": "John Smith",
+          "accountNumber": "1234567890",
+          "bankName": "Example Bank",
+          "ifscCode": "EXBK0001234"
+        },
+        "totalEarnings": 5000,
+        "totalCommissionPaid": 500,
+        "documentsVerified": true,
+        "location": {
+          "type": "Point",
+          "coordinates": [-122.4194, 37.7749]
+        },
+        "createdAt": "2023-07-07T10:30:45.123Z",
+        "updatedAt": "2023-07-07T10:30:45.123Z"
+      }
+    }
+     ```
+    ```
+### 5. Update Provider Profile
+Update the authenticated service provider's profile information.
+
+- URL : /profile
+- Method : PUT
+- Auth Required : Yes (service_provider role)
+- Request Body :
+  ```json
+  {
+    "serviceDescription": "Updated service description with new skills",
+    "serviceCategory": ["64a7b2e5c3e4f12d4c567890"],
+    "availability": "Weekends",
+    "availabilityDetails": {
+      "saturday": ["9:00-17:00"],
+      "sunday": ["10:00-15:00"]
+    },
+    "bankDetails": {
+      "accountName": "John Smith",
+      "accountNumber": "9876543210",
+      "bankName": "Updated Bank",
+      "ifscCode": "UPBK0001234"
+    }
+  }
+   ```
+  ```
+- Success Response :
+  - Code : 200 OK
+  - Content :
+    ```json
+    {
+      "success": true,
+      "data": {
+        "_id": "64a7b2e5c3e4f12d4c567892",
+        "userId": "64a7b2e5c3e4f12d4c567893",
+        "serviceCategory": ["64a7b2e5c3e4f12d4c567890"],
+        "serviceDescription": "Updated service description with new skills",
+        "availability": "Weekends",
+        "availabilityDetails": {
+          "saturday": ["9:00-17:00"],
+          "sunday": ["10:00-15:00"]
+        },
+        "bankDetails": {
+          "accountName": "John Smith",
+          "accountNumber": "9876543210",
+          "bankName": "Updated Bank",
+          "ifscCode": "UPBK0001234"
+        },
+        "updatedAt": "2023-07-07T11:45:30.123Z"
+      }
+    }
+     ```
+    ```
+### 6. Update Provider Location
+Update the authenticated service provider's location coordinates.
+
+- URL : /location
+- Method : PUT
+- Auth Required : Yes (service_provider role)
+- Request Body :
+  ```json
+  {
+    "latitude": 37.7749,
+    "longitude": -122.4194
+  }
+   ```
+- Success Response :
+  - Code : 200 OK
+  - Content :
+    ```json
+    {
+      "success": true,
+      "data": {
+        "_id": "64a7b2e5c3e4f12d4c567892",
+        "location": {
+          "type": "Point",
+          "coordinates": [-122.4194, 37.7749]
+        },
+        "updatedAt": "2023-07-07T12:15:20.123Z"
+      }
+    }
+     ```
+    ```
+### 7. Get Provider Listings
+Retrieve all service listings created by the authenticated service provider.
+
+- URL : /me/listings
+- Method : GET
+- Auth Required : Yes (service_provider role)
+- Success Response :
+  - Code : 200 OK
+  - Content :
+    ```json
+    {
+      "success": true,
+      "count": 2,
+      "data": [
+        {
+          "_id": "64a7b2e5c3e4f12d4c567896",
+          "serviceProviderId": "64a7b2e5c3e4f12d4c567892",
+          "categoryId": {
+            "_id": "64a7b2e5c3e4f12d4c567890",
+            "categoryName": "Plumbing"
+          },
+          "serviceTitle": "Emergency Plumbing Service",
+          "servicePrice": 75.99,
+          "serviceDetails": "24/7 emergency plumbing services for residential and commercial properties",
+          "tags": ["emergency", "plumbing", "24/7"],
+          "isActive": true,
+          "createdAt": "2023-07-07T14:30:45.123Z",
+          "updatedAt": "2023-07-07T14:30:45.123Z"
+        },
+        {
+          "_id": "64a7b2e5c3e4f12d4c567897",
+          "serviceProviderId": "64a7b2e5c3e4f12d4c567892",
+          "categoryId": {
+            "_id": "64a7b2e5c3e4f12d4c567890",
+            "categoryName": "Plumbing"
+          },
+          "serviceTitle": "Bathroom Renovation",
+          "servicePrice": 499.99,
+          "serviceDetails": "Complete bathroom renovation services including fixtures, tiling, and plumbing",
+          "tags": ["renovation", "bathroom", "plumbing"],
+          "isActive": true,
+          "createdAt": "2023-07-07T15:45:30.123Z",
+          "updatedAt": "2023-07-07T15:45:30.123Z"
+        }
+      ]
+    }
+     ```
+    ```
+## Error Responses
+All endpoints may return the following error responses:
+
+### 400 Bad Request
+```json
+{
+  "success": false,
+  "message": "Please provide all required information"
+}
+ ```
+```
+
+### 401 Unauthorized
+```json
+{
+  "success": false,
+  "message": "Not authorized to access this route"
+}
+ ```
+```
+
+### 404 Not Found
+```json
+{
+  "success": false,
+  "message": "Service provider not found"
+}
+ ```
+```
+
+### 500 Server Error
+```json
+{
+  "success": false,
+  "message": "Server Error"
+}
+ ```
