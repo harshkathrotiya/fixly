@@ -1,133 +1,126 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import "./tasker.css";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
-function TaskerForm() {
-  const [tasker, setTasker] = useState({
-    fullName: "",
-    phone: "",
-    address: "",
-    jobTitle: "",
-    jobDescription: "",
-    skills: "",
-    budget: "",
-    idProof: null,
-    idNumber: "",
-    availability: "Full-time",
+const Tasker = () => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    phone: '',
+    serviceDescription: '',
+    serviceCategory: '',
+    availability: 'Weekdays',
+    accountName: '',
+    accountNumber: '',
+    bankName: '',
+    ifscCode: '',
+    street: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    country: '',
+    experience: '',
+    qualifications: '',
+    certifications: ''
   });
 
-  const [taskerId, setTaskerId] = useState(null);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    const savedTasker = JSON.parse(localStorage.getItem("tasker"));
-    if (savedTasker) {
-      setTasker(savedTasker);
-      setTaskerId(savedTasker.id);
-    }
+    axios.get('http://localhost:5000/api/categories/select')
+      .then(res => setCategories(res.data))
+      .catch(err => console.error('Failed to fetch categories:', err));
   }, []);
 
   const handleChange = (e) => {
-    setTasker({ ...tasker, [e.target.name]: e.target.value });
-  };
-
-  const handleFileChange = (e) => {
-    setTasker({ ...tasker, idProof: e.target.files[0] });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!tasker.fullName || !tasker.phone) {
-      alert("Full Name and Phone Number are required!");
-      return;
-    }
+    const payload = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      password: formData.password,
+      phone: formData.phone,
+      serviceDescription: formData.serviceDescription,
+      serviceCategory: [formData.serviceCategory],
+      availability: formData.availability,
+      bankDetails: {
+        accountName: formData.accountName,
+        accountNumber: formData.accountNumber,
+        bankName: formData.bankName,
+        ifscCode: formData.ifscCode
+      },
+      address: {
+        street: formData.street,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zipCode,
+        country: formData.country
+      },
+      experience: formData.experience,
+      qualifications: formData.qualifications,
+      certifications: [formData.certifications]
+    };
 
     try {
-      const formData = new FormData();
-      Object.entries(tasker).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
-
-      if (taskerId) {
-        await axios.put(`http://localhost:5000/taskers/${taskerId}`, formData);
-        alert("Tasker details updated!");
-      } else {
-        const res = await axios.post("http://localhost:5000/taskers", formData);
-        setTaskerId(res.data.id);
-        alert("Registration successful!");
-      }
-
-      localStorage.setItem("tasker", JSON.stringify(tasker));
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (taskerId) {
-      await axios.delete(`http://localhost:5000/taskers/${taskerId}`);
-      alert("Account deleted!");
-      setTaskerId(null);
-      setTasker({
-        fullName: "",
-        phone: "",
-        address: "",
-        jobTitle: "",
-        jobDescription: "",
-        skills: "",
-        budget: "",
-        idProof: null,
-        idNumber: "",
-        availability: "Full-time",
-      });
-      localStorage.removeItem("tasker");
+      const response = await axios.post('http://localhost:5000/api/providers/register', payload);
+      console.log('Registration success:', response.data);
+      alert("Registration Successful!");
+    } catch (err) {
+      console.error('Registration failed:', err.response?.data || err.message);
+      alert("Registration Failed.");
     }
   };
 
   return (
-    <div className="form-container">
-      <h2>{taskerId ? "Edit Tasker Details" : "Tasker Registration"}</h2>
-      <form onSubmit={handleSubmit} encType="multipart/form-data">
-        <label>Full Name</label>
-        <input type="text" name="fullName" value={tasker.fullName} onChange={handleChange} required />
+    <form onSubmit={handleSubmit} style={{ maxWidth: 600, margin: 'auto' }}>
+      <h2>Tasker Registration</h2>
 
-        <label>Phone Number</label>
-        <input type="tel" name="phone" value={tasker.phone} onChange={handleChange} required />
+      <input name="firstName" placeholder="First Name" onChange={handleChange} required />
+      <input name="lastName" placeholder="Last Name" onChange={handleChange} required />
+      <input name="email" type="email" placeholder="Email" onChange={handleChange} required />
+      <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
+      <input name="phone" placeholder="Phone" onChange={handleChange} required />
 
-        <label>Address</label>
-        <input type="text" name="address" value={tasker.address} onChange={handleChange} />
+      <textarea name="serviceDescription" placeholder="Service Description" onChange={handleChange} required />
 
-        <label>Job Title</label>
-        <input type="text" name="jobTitle" value={tasker.jobTitle} onChange={handleChange} />
+      <select name="serviceCategory" onChange={handleChange} required>
+        <option value="">Select Category</option>
+        {categories.map((cat) => (
+          <option key={cat._id} value={cat._id}>{cat.name}</option>
+        ))}
+      </select>
 
-        <label>Job Description</label>
-        <textarea name="jobDescription" value={tasker.jobDescription} onChange={handleChange}></textarea>
+      <select name="availability" onChange={handleChange} required>
+      <option value="">Select Availability</option>
+      <option value="Weekdays">Weekdays</option>
+      <option value="Weekends">Weekends</option>
+      <option value="All Days">All Days</option>
+      </select>
+      <input name="accountName" placeholder="Account Name" onChange={handleChange} required />
+      <input name="accountNumber" placeholder="Account Number" onChange={handleChange} required />
+      <input name="bankName" placeholder="Bank Name" onChange={handleChange} required />
+      <input name="ifscCode" placeholder="IFSC Code" onChange={handleChange} required />
 
-        <label>Skills</label>
-        <input type="text" name="skills" value={tasker.skills} onChange={handleChange} placeholder="E.g., Plumbing, Electrical" />
+      <input name="street" placeholder="Street" onChange={handleChange} required />
+      <input name="city" placeholder="City" onChange={handleChange} required />
+      <input name="state" placeholder="State" onChange={handleChange} required />
+      <input name="zipCode" placeholder="ZIP Code" onChange={handleChange} required />
+      <input name="country" placeholder="Country" onChange={handleChange} required />
 
-        <label>Budget ($)</label>
-        <input type="number" name="budget" value={tasker.budget} onChange={handleChange} />
+      <input name="experience" placeholder="Experience (in years)" onChange={handleChange} required />
+      <input name="qualifications" placeholder="Qualifications" onChange={handleChange} required />
+      <input name="certifications" placeholder="Certifications" onChange={handleChange} required />
 
-        <label>ID Proof</label>
-        <input type="file" name="idProof" accept="image/*,application/pdf" onChange={handleFileChange} />
-
-        <label>ID Number</label>
-        <input type="text" name="idNumber" value={tasker.idNumber} onChange={handleChange} />
-
-        <label>Availability</label>
-        <select name="availability" value={tasker.availability} onChange={handleChange}>
-          <option value="Full-time">Full-time</option>
-          <option value="Part-time">Part-time</option>
-          <option value="On-demand">On-demand</option>
-        </select>
-
-        <button type="submit">{taskerId ? "Update" : "Register"}</button>
-
-        {taskerId && <button type="button" onClick={handleDelete} className="delete-btn">Delete Account</button>}
-      </form>
-    </div>
+      <button type="submit">Register</button>
+    </form>
   );
-}
+};
 
-export default TaskerForm;
+export default Tasker;

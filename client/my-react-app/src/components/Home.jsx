@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import "./Home.css";
 import { Link } from "react-router-dom";
 import heroimg from "./images/Designer.png";
@@ -21,6 +21,9 @@ const Home = () => {
       <div className="nav-links">
         {location.pathname !== '/' && (
           <Link to="/" className="btn home">Home</Link>
+        )}
+        {!location.pathname.includes('/services') && (
+          <Link to="/services" className="btn login">Services</Link>
         )}
         {!location.pathname.includes('/login') && (
           <Link to="/login" className="btn login">Login</Link>
