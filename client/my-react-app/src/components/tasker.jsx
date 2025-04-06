@@ -28,9 +28,15 @@ const Tasker = () => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/categories/select')
-      .then(res => setCategories(res.data))
-      .catch(err => console.error('Failed to fetch categories:', err));
+    axios.get('http://localhost:5000/api/categories')
+      .then(res => {
+        // Make sure we're accessing the data array from the response
+        setCategories(res.data.data || []);
+      })
+      .catch(err => {
+        console.error('Failed to fetch categories:', err);
+        setCategories([]); // Set empty array on error
+      });
   }, []);
 
   const handleChange = (e) => {
@@ -92,8 +98,10 @@ const Tasker = () => {
 
       <select name="serviceCategory" onChange={handleChange} required>
         <option value="">Select Category</option>
-        {categories.map((cat) => (
-          <option key={cat._id} value={cat._id}>{cat.name}</option>
+        {Array.isArray(categories) && categories.map((category) => (
+          <option key={category._id} value={category._id}>
+            {category.categoryName}
+          </option>
         ))}
       </select>
 
