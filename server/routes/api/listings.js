@@ -5,7 +5,8 @@ const {
   getListings,
   getListingById,
   updateListing,
-  deleteListing
+  deleteListing,
+  getListingsByProviderId  // Add this import
 } = require('../../controllers/serviceListingController');
 
 const { protect, authorize } = require('../../middleware/auth');
@@ -46,5 +47,8 @@ router.put(
   serviceImageUpload.single('image'),
   uploadListingImage
 );
+
+// Get listings by provider ID
+router.get('/provider/:providerId', getListingsByProviderId);
 
 module.exports = router;

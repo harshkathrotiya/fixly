@@ -1,30 +1,134 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import './Navbar.css';
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/authcontext";
+import "./Navbar.css";
 
 function Navbar() {
+  const navigate = useNavigate();
   const location = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [userType, setUserType] = useState(null);
   
+  // Get auth context directly
+  const auth = useAuth();
+
+  // Check authentication on mount and when auth changes
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem('authToken');
+      setIsAuthenticated(!!token);
+      
+      if (token) {
+        try {
+          // Get user type if authenticated
+          const response = await fetch('http://localhost:5000/api/auth/me', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const data = await response.json();
+          setUserType(data.userType || (data.data && data.data.userType));
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      }
+    };
+    
+    // Check immediately
+    checkAuth();
+    
+    // Set up event listeners
+    const handleAuthChange = () => {
+      checkAuth();
+    };
+    
+    window.addEventListener('auth-change', handleAuthChange);
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('auth-change', handleAuthChange);
+    };
+  }, [location.pathname]);
+  
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    
+    if (auth && auth.logout) {
+      auth.logout();
+    }
+    
+    // Dispatch event to notify other components
+    window.dispatchEvent(new Event('auth-change'));
+    setIsAuthenticated(false);
+    setUserType(null);
+    navigate('/');
+  };
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   return (
-    <div className="navbar">
-      <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-        <h1>Fixly</h1>
-      </Link>
-      <div className="nav-links">
-        {location.pathname !== '/' && (
-          <Link to="/" className="btn home">Home</Link>
-        )}
-        {!location.pathname.includes('/login') && (
-          <Link to="/login" className="btn login">Login</Link>
-        )}
-        {!location.pathname.includes('/signup') && (
-          <Link to="/signup" className="btn signup">Sign up</Link>
-        )}
-        {!location.pathname.includes('/tasker') && (
-          <Link to="/tasker" className="btn tasker">Become a Tasker</Link>
-        )}
+    <nav className="navbar">
+      <div className="navbar-container">
+        <Link to="/" className="navbar-logo">
+          Fixly
+        </Link>
+        
+        <div className="menu-icon" onClick={toggleMenu}>
+          <i className={isMenuOpen ? "fas fa-times" : "fas fa-bars"}></i>
+        </div>
+        
+        <ul className={isMenuOpen ? "nav-menu active" : "nav-menu"}>
+          <li className="nav-item">
+            <Link to="/" className={location.pathname === '/' ? 'nav-link active' : 'nav-link'} onClick={() => setIsMenuOpen(false)}>
+              Home
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/services" className={location.pathname === '/services' ? 'nav-link active' : 'nav-link'} onClick={() => setIsMenuOpen(false)}>
+              Services
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/about" className={location.pathname === '/about' ? 'nav-link active' : 'nav-link'} onClick={() => setIsMenuOpen(false)}>
+              About
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/contact" className={location.pathname === '/contact' ? 'nav-link active' : 'nav-link'} onClick={() => setIsMenuOpen(false)}>
+              Contact
+            </Link>
+          </li>
+        </ul>
+        
+        <div className="nav-auth">
+          {isAuthenticated ? (
+            <>
+              {userType === 'service_provider' ? (
+                <Link to="/provider/dashboard" className="auth-button dashboard-button">
+                  Dashboard
+                </Link>
+              ) : null}
+              <button onClick={handleLogout} className="auth-button logout-button">
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="auth-button login-button">
+                Login
+              </Link>
+              <Link to="/signup" className="auth-button signup-button">
+                Sign Up
+              </Link>
+              <Link to="/tasker" className="auth-button tasker-button">
+                Become a Professional
+              </Link>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </nav>
   );
 }
 

@@ -1,86 +1,151 @@
-.form-container {
-  width: 400px;
-  margin: 30px auto;
-  padding: 20px;
+/* Tasker page styles */
+.tasker-page {
+  min-height: 100vh;
   background-color: #f9f9f9;
+}
+
+.tasker-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: white;
   border-radius: 8px;
-  border: 2px solid #ddd;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.form-container h2 {
+.form-header {
   text-align: center;
-  margin-bottom: 20px;
-  color: #333;
+  margin-bottom: 2rem;
 }
 
-label {
-  display: block;
-  margin-top: 10px;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #555;
+.form-header h1 {
+  color: #8A91B5;
+  margin-bottom: 0.5rem;
 }
 
-input, select, textarea {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
+.form-header p {
+  color: #666;
+  font-size: 1.1rem;
 }
 
-textarea {
-  height: 100px;
-  resize: vertical;
+.form-message {
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  text-align: center;
 }
 
-button {
-  padding: 12px;
-  background-color: #ADB2D4;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  width: 100%;
-  margin-top: 15px;
+.form-message.success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
 }
 
-button:hover {
-  background-color: #9CA3C4;
+.form-message.error {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
 }
 
-.delete-btn {
-  background-color: #EEF1DA;
-  color: #333333;
-  font-weight: 600;
-  margin-top: 10px;
-  border: 1px solid #333333;
+.tasker-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
-.delete-btn:hover {
-  background-color: #DDE0C9;
-  color: #000000;
+.form-section {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 1.5rem;
+  background-color: #fafafa;
+}
+
+.form-section h2 {
+  color: #8A91B5;
+  font-size: 1.3rem;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
 }
 
 .form-row {
   display: flex;
-  gap: 15px;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
-.form-row > div {
+.form-group {
   flex: 1;
+  margin-bottom: 1rem;
 }
 
-@media (max-width: 500px) {
-  .form-container {
-    width: 90%;
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #8A91B5;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(138, 145, 181, 0.2);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.submit-button {
+  background-color: #8A91B5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+  background-color: #7a80a3;
+}
+
+.submit-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .tasker-container {
+    margin: 1rem;
+    padding: 1.5rem;
   }
   
   .form-row {
     flex-direction: column;
     gap: 0;
+  }
+  
+  .form-section {
+    padding: 1rem;
   }
 }

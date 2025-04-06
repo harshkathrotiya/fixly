@@ -1,6 +1,6 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import "./Home.css";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import heroimg from "./images/Designer.png";
 import PainterImg from "./images/painter.png";
 import PlumberImg from "./images/plumbing.png";
@@ -9,41 +9,28 @@ import ElectricalImg from "./images/electrical.png";
 import CleanerImg from "./images/cleaning.png";
 import ReviewCard from "./review";
 import { useNavigate } from "react-router-dom";
+import Navbar from "./Navbar"; // Import the default Navbar component
 
 
 const Home = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    
     return(
       <>
-      <div className="navbar">
-      <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-        <h1>Fixly</h1>
-      </Link>
-      <div className="nav-links">
-        {location.pathname !== '/' && (
-          <Link to="/" className="btn home">Home</Link>
-        )}
-        {!location.pathname.includes('/login') && (
-          <Link to="/login" className="btn login">Login</Link>
-        )}
-        {!location.pathname.includes('/signup') && (
-          <Link to="/signup" className="btn signup">Sign up</Link>
-        )}
-        {!location.pathname.includes('/tasker') && (
-          <Link to="/tasker" className="btn tasker">Become a Tasker</Link>
-        )}
-      </div>
-    </div>
+      {/* Replace the custom navbar with the default Navbar component */}
+      <Navbar />
     
-    <div className="main">
-      <div className="hero">
-        <div className="hero-text">
-          <h1>Book Trusted Professionals for Home Services</h1>
-          <p>Quality service providers at your doorstep. Book verified experts for all your home needs.</p>
-          <Link to="/Login" className="book-now">Book Now</Link>
+      <div className="main">
+        <div className="hero">
+          <div className="hero-text">
+            <h1>Book Trusted Professionals for Home Services</h1>
+            <p>Quality service providers at your doorstep. Book verified experts for all your home needs.</p>
+            <Link to="/login" className="book-now">Book Now</Link>
+          </div>
+          <img src={heroimg} alt="Home services illustration" />
         </div>
-        <img src={heroimg} alt="Home services illustration" />
       </div>
-    </div>
 
 
     <div className="services">
@@ -98,7 +85,7 @@ const Home = () => {
             <h4>Quick Links</h4>
             <ul>
               <li><Link to="/">Home</Link></li>
-              <li><Link to="/">Services</Link></li>
+              <li><Link to="/services">Services</Link></li>
               <li><Link to="/tasker">Become a Tasker</Link></li>
               <li><Link to="/login">Login</Link></li>
             </ul>
@@ -110,7 +97,7 @@ const Home = () => {
           </div>
         </div>
         <div className="last">
-          <p>Made with {"\u2764\uFE0F"} For India | © 2025 Fixly</p>
+          <p>Made with {"\u2764\uFE0F"} For India | © {new Date().getFullYear()} Fixly</p>
         </div>
       </footer>
 
@@ -121,8 +108,6 @@ const Home = () => {
       
       </>
     )
-
 };
-
 
 export default Home;

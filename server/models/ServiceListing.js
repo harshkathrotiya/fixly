@@ -29,7 +29,14 @@ const ServiceListingSchema = new mongoose.Schema({
   },
   serviceImage: {
     type: String,
-    default: 'default-service.jpg'
+    required: false,
+    default: '',
+    set: function(url) {
+      return url || '';
+    },
+    get: function(url) {
+      return url || '';
+    }
   },
   isActive: {
     type: Boolean,
@@ -70,6 +77,21 @@ ServiceListingSchema.pre('save', async function(next) {
       console.error('Error calculating commission:', err);
     }
   }
+  next();
+});
+
+// Add a middleware to log image URL before saving
+ServiceListingSchema.pre('save', function(next) {
+  console.log('Saving listing with image URL:', this.serviceImage);
+  next();
+});
+
+// Add this middleware before the commission calculation
+ServiceListingSchema.pre('save', function(next) {
+  if (this.serviceImage === undefined || this.serviceImage === null) {
+    this.serviceImage = '';
+  }
+  console.log('Pre-save image URL:', this.serviceImage);
   next();
 });
 

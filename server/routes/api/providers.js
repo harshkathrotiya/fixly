@@ -10,6 +10,7 @@ const {
 } = require('../../controllers/serviceProviderController');
 
 const { protect, authorize } = require('../../middleware/auth');
+const { validateProviderRegistration } = require('../../middleware/validateProvider');
 
 const router = express.Router();
 
@@ -17,8 +18,8 @@ const router = express.Router();
 router.get('/', getServiceProviders);
 router.get('/:id', getServiceProviderById);
 
-// Register as service provider (public)
-router.post('/register', registerAsProvider);
+// Register as service provider (public) - Add validation middleware
+router.post('/register', validateProviderRegistration, registerAsProvider);
 
 // Protected routes
 router.get('/me', protect, authorize('service_provider'), getProviderProfile);
@@ -27,3 +28,5 @@ router.put('/location', protect, authorize('service_provider'), updateProviderLo
 router.get('/me/listings', protect, authorize('service_provider'), getProviderListings);
 
 module.exports = router;
+
+

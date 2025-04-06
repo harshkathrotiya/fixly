@@ -7,7 +7,17 @@ const { cloudinary } = require('../config/cloudinary');
 // @route   POST /api/listings
 // @access  Private (Service providers only)
 exports.createListing = asyncHandler(async (req, res) => {
-  const { categoryId, serviceTitle, servicePrice, serviceDetails, tags } = req.body;
+  const { 
+    categoryId, 
+    serviceTitle, 
+    servicePrice, 
+    serviceDetails, 
+    tags,
+    serviceImage  // Extract from request body
+  } = req.body;
+  
+  console.log('Received data:', req.body);
+  console.log('Image URL received:', serviceImage);
   
   // Find the service provider profile for the current user
   const serviceProvider = await ServiceProvider.findOne({ userId: req.user.id });
@@ -27,15 +37,18 @@ exports.createListing = asyncHandler(async (req, res) => {
     });
   }
   
-  // Create the service listing
+  // Create the service listing with the image URL
   const listing = await ServiceListing.create({
     serviceProviderId: serviceProvider._id,
     categoryId,
     serviceTitle,
     servicePrice,
     serviceDetails,
+    serviceImage: serviceImage || '', // Ensure we have a default value
     tags: tags ? tags.split(',').map(tag => tag.trim()) : []
   });
+  
+  console.log('Created listing with image:', listing);
   
   res.status(201).json({
     success: true,
@@ -268,7 +281,7 @@ exports.deleteListing = asyncHandler(async (req, res) => {
 });
 
 // @desc    Get provider's own listings
-// @route   GET /api/providers/listings
+// @route   GET /api/listings/provider
 // @access  Private (Service providers only)
 exports.getProviderListings = asyncHandler(async (req, res) => {
   // Find the service provider profile for the current user
@@ -283,6 +296,36 @@ exports.getProviderListings = asyncHandler(async (req, res) => {
   
   const listings = await ServiceListing.find({ 
     serviceProviderId: serviceProvider._id 
+  })
+    .populate('categoryId', 'categoryName')
+    .sort({ createdAt: -1 });
+  
+  res.status(200).json({
+    success: true,
+    count: listings.length,
+    data: listings
+  });
+});
+
+// @desc    Get listings by provider ID
+// @route   GET /api/listings/provider/:providerId
+// @access  Public
+exports.getListingsByProviderId = asyncHandler(async (req, res) => {
+  const providerId = req.params.providerId;
+  
+  // Check if provider exists
+  const serviceProvider = await ServiceProvider.findById(providerId);
+  
+  if (!serviceProvider) {
+    return res.status(404).json({
+      success: false,
+      message: 'Service provider not found'
+    });
+  }
+  
+  const listings = await ServiceListing.find({ 
+    serviceProviderId: providerId,
+    isActive: true 
   })
     .populate('categoryId', 'categoryName')
     .sort({ createdAt: -1 });

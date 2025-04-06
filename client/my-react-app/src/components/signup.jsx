@@ -1,17 +1,21 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import Navbar from "./Navbar";
 import "./signup.css";
 
 function SignUp() {
-  const [fullName, setFullName] = useState("");
+  // Removed userType state and set a default value in the signup data
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
-  const [district, setDistrict] = useState("");
-  const [pincode, setPincode] = useState("");
-  const [passward, setPassward] = useState("");
+  const [street, setStreet] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [zipCode, setZipCode] = useState("");
+  const [country, setCountry] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
@@ -20,109 +24,229 @@ function SignUp() {
     e.preventDefault();
     setError("");
 
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      return;
+    }
+
+    const signupData = {
+      userType: "user", // Hardcoded as "user" since we removed the selection
+      username,
+      password,
+      firstName,
+      lastName,
+      email,
+      phone,
+      address: {
+        street,
+        city,
+        state,
+        zipCode,
+        country,
+      },
+    };
+
+    console.log("Sending data:", signupData);
+
     try {
-      const response = await axios.post("", {
-        fullName,
-        username,
-        phone,
-        email,
-        address,
-        district,
-        pincode,
-        passward,
+      const response = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(signupData),
       });
 
-      if (response.data.success) {
+      const data = await response.json();
+
+      if (response.status === 201 && data.success) {
+        localStorage.setItem("token", data.token);
         alert("Signup Successful! Please login.");
-        navigate("/Home");
+        navigate("/login");
       } else {
-        setError("Signup Failed. Please try again.");
+        setError(data.message || "Signup Failed. Please try again.");
       }
     } catch (error) {
+      console.error("Error during signup:", error);
       setError("Server error. Please try again later.");
     }
   };
 
   return (
-    <div className="signup-container">
-      <h2>Create Your Account</h2>
-      {error && <p className="error-message">{error}</p>}
-
-      <form onSubmit={handleSignup}>
-      <label className='label'>Full Name</label>
-        <input
-          type="text"
-          placeholder=""
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          required
-        />
-        <label>Username</label>
-        <input
-          type="text"
-          placeholder=""
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-        <label>Phone Number</label>
-        <input
-          type="tel"
-          placeholder=""
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          pattern="[0-9]{10}"
-          required
-        />
-        <label>Email</label>
-        <input
-          type="email"
-          placeholder="abc@gmail.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <label>Address</label>
-        <input
-          type="text"
-          placeholder=""
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          required
-        />
-        <label>District</label>
-        <input
-          type="text"
-          placeholder=""
-          value={district}
-          onChange={(e) => setDistrict(e.target.value)}
-          required
-        />
-        <label>Pincode</label>
-        <input
-          type="text"
-          placeholder=""
-          value={pincode}
-          onChange={(e) => setPincode(e.target.value)}
-          pattern="[0-9]{6}"
-          required
-        />
-        <label>Passward</label>
-        <input
-          type="password"
-          placeholder=""
-          value={passward}
-          onChange={(e) => setPassward(e.target.value)}
-          required
-        />
-        <button type="submit">Sign Up</button>
-      </form>
+    <div className="app-container">
+      <Navbar />
       
-      <div className="signup-footer">
-        <p>Already have an account? <Link to="/login">Sign in</Link></p>
+      <div className="main-content">
+        <div className="signup-container">
+          <h2>Create Your Account</h2>
+          
+          {error && <div className="error-message">{error}</div>}
+          
+          <form onSubmit={handleSignup}>
+            {/* Removed account type selector */}
+            
+            <div className="form-group">
+              <label htmlFor="firstName">First Name</label>
+              <input
+                type="text"
+                id="firstName"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="lastName">Last Name</label>
+              <input
+                type="text"
+                id="lastName"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="username">Username</label>
+              <input
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="phone">Phone</label>
+              <input
+                type="tel"
+                id="phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="street">Street Address</label>
+              <input
+                type="text"
+                id="street"
+                value={street}
+                onChange={(e) => setStreet(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="city">City</label>
+              <input
+                type="text"
+                id="city"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="state">State</label>
+              <input
+                type="text"
+                id="state"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="zipCode">Zip Code</label>
+              <input
+                type="text"
+                id="zipCode"
+                value={zipCode}
+                onChange={(e) => setZipCode(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="country">Country</label>
+              <input
+                type="text"
+                id="country"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                required
+              />
+            </div>
+            
+            <button type="submit">Sign Up</button>
+          </form>
+          
+          <div className="signup-footer">
+            <p>Already have an account? <Link to="/login">Login</Link></p>
+          </div>
+        </div>
       </div>
+      
+      <footer className="main-footer">
+        <div className="footer-content">
+          <div className="footer-logo">
+            <h3>Fixly</h3>
+            <p>Your trusted platform for home services</p>
+          </div>
+          <div className="footer-links">
+            <div className="footer-section">
+              <h4>Quick Links</h4>
+              <ul>
+                <li><Link to="/">Home</Link></li>
+                <li><Link to="/services">Services</Link></li>
+                <li><Link to="/about">About Us</Link></li>
+                <li><Link to="/contact">Contact</Link></li>
+              </ul>
+            </div>
+            <div className="footer-section">
+              <h4>For Providers</h4>
+              <ul>
+                <li><Link to="/tasker">Become a Provider</Link></li>
+                <li><Link to="/provider/dashboard">Provider Dashboard</Link></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <p>&copy; {new Date().getFullYear()} Fixly. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 }
 
 export default SignUp;
+

@@ -1,0 +1,94 @@
+This API allows for the creation, management, and retrieval of service listings by verified service providers. It includes both private endpoints for authenticated users and public endpoints for general access.
+
+🔐 Service Provider Endpoints (Private)
+
+📤 Create Service Listing
+Endpoint: POST /api/listings
+Access: Private (Verified Service Providers only)
+Description: Creates a new service listing.
+Request Body:
+
+{
+  "categoryId": "string (required)",
+  "serviceTitle": "string (required)",
+  "servicePrice": "number (required)",
+  "serviceDetails": "string (required)",
+  "tags": "string (optional, comma-separated)"
+}
+Response: Returns the created listing object.
+
+🖼️ Upload Listing Image
+Endpoint: PUT /api/listings/:id/image
+Access: Private (Owner of the listing only)
+Description: Uploads an image for a specific service listing.
+Request: Multipart form-data with an image file.
+
+Response: Returns the updated listing with the image URL.
+
+📄 Get Provider's Own Listings
+Endpoint: GET /api/providers/listings
+Access: Private (Service Providers only)
+Description: Retrieves all listings created by the authenticated provider.
+Response: Returns an array of the provider's listings.
+
+🌍 Public Endpoints
+
+📋 Get All Listings
+Endpoint: GET /api/listings
+Access: Public
+Description: Retrieves all active service listings with optional filters.
+Query Parameters:
+
+category — Filter by category ID
+provider — Filter by service provider ID
+minPrice — Minimum price
+maxPrice — Maximum price
+tags — Filter by tags (comma-separated)
+search — Keyword search in title and details
+page — Page number (default: 1)
+limit — Results per page (default: 10)
+sort — Sorting options:
+price-asc: Price ascending
+price-desc: Price descending
+rating: By provider rating
+newest: By creation date (default)
+Response: Returns a paginated list of listings.
+
+🔍 Get Listing by ID
+Endpoint: GET /api/listings/:id
+Access: Public
+Description: Retrieves detailed information about a specific listing.
+Response: Returns the listing with provider and category info.
+
+⚙️ Management Endpoints
+
+✏️ Update Listing
+Endpoint: PUT /api/listings/:id
+Access: Private (Owner of the listing only)
+Description: Updates an existing listing.
+Request Body:
+
+{
+  "serviceTitle": "string (optional)",
+  "servicePrice": "number (optional)",
+  "serviceDetails": "string (optional)",
+  "isActive": "boolean (optional)",
+  "tags": "string (optional, comma-separated)"
+}
+Response: Returns the updated listing.
+
+❌ Delete Listing
+Endpoint: DELETE /api/listings/:id
+Access: Private (Owner of the listing only)
+Description: Soft deletes the listing by marking it as inactive.
+Response: Returns a success message.
+
+🧩 Data Relationships
+
+Each listing belongs to one service provider.
+Each listing belongs to one category.
+Listings can have multiple tags.
+Service providers must be verified to create listings.
+When listings are retrieved, they include:
+Provider ratings
+Category information
