@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.jsx';
+import { useAuth } from '../context/authcontext.jsx';
 import { uploadToCloudinary } from '../utils/cloudinary';
 import './ProviderProfile.css';
 
@@ -26,25 +26,32 @@ function ProviderProfile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/auth/me', {
+        // Get user data from the auth endpoint
+        const userResponse = await axios.get('http://localhost:5000/api/auth/me', {
           headers: { Authorization: `Bearer ${token}` }
         });
         
-        // Make sure we're accessing the correct data structure
-        const userData = response.data.data || response.data;
-        console.log('Fetched user data:', userData); // For debugging
-
+        // Log the user data to see what we're getting
+        console.log('User data:', userResponse.data);
+        
+        // Get the user data
+        const userData = userResponse.data.data || userResponse.data;
+        
+        // Extract all necessary information from the user data
+        // The verification status might be in the user data already
         setProfile({
           firstName: userData.firstName || '',
           lastName: userData.lastName || '',
           email: userData.email || '',
           phone: userData.phone || '',
           businessName: userData.businessName || '',
-          businessAddress: userData.businessAddress || '',
+          businessAddress: userData.address || '',
           description: userData.description || '',
           profilePicture: userData.profilePicture || '',
-          verificationStatus: userData.verificationStatus || 'pending'
+          // Check if verification status is available in user data
+          verificationStatus: userData.verificationStatus || userData.isVerified ? 'verified' : 'pending'
         });
+        
         setLoading(false);
       } catch (err) {
         console.error('Profile fetch error:', err);
@@ -69,11 +76,14 @@ function ProviderProfile() {
     if (file) {
       try {
         setLoading(true);
+        // Upload to Cloudinary
         const imageUrl = await uploadToCloudinary(file);
+        console.log('Image uploaded to Cloudinary:', imageUrl);
         
-        await axios.put(
-          'http://localhost:5000/api/providers/profile',
-          { ...profile, profilePicture: imageUrl },
+        // Update the user profile with the new image URL
+        const response = await axios.put(
+          'http://localhost:5000/api/auth/updateprofile', // Use the auth endpoint instead
+          { profilePicture: imageUrl }, // Only send the profile picture field
           {
             headers: { 
               Authorization: `Bearer ${token}`,
@@ -81,11 +91,15 @@ function ProviderProfile() {
             }
           }
         );
-
+        
+        console.log('Profile update response:', response.data);
+        
+        // Update local state with the new image URL
         setProfile(prev => ({ ...prev, profilePicture: imageUrl }));
         setSuccessMessage('Profile image updated successfully');
       } catch (err) {
-        setError('Failed to upload profile image');
+        console.error('Failed to upload profile image:', err);
+        setError('Failed to upload profile image: ' + (err.response?.data?.message || err.message));
       } finally {
         setLoading(false);
       }
@@ -95,22 +109,41 @@ function ProviderProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put('http://localhost:5000/api/providers/profile', profile, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      setLoading(true);
+      // Update the user profile using the same endpoint as the image upload
+      const response = await axios.put(
+        'http://localhost:5000/api/auth/updateprofile',
+        {
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          phone: profile.phone,
+          businessName: profile.businessName,
+          address: profile.businessAddress,
+          description: profile.description,
+          profilePicture: profile.profilePicture // Make sure to include the profile picture
+        },
+        {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
-      });
+      );
+      
+      console.log('Full profile update response:', response.data);
       setSuccessMessage('Profile updated successfully!');
       setTimeout(() => {
         navigate('/provider/dashboard');
       }, 1500);
     } catch (err) {
+      console.error('Profile update error:', err);
       if (err.response?.status === 401) {
         logout();
         navigate('/login');
       }
-      setError('Failed to update profile');
+      setError('Failed to update profile: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
     }
   };
 

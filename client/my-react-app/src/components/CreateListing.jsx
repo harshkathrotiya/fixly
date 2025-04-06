@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
-// Fix the CSS import path if the file doesn't exist
-// import './CreateListing.css';
+import { useAuth } from "../context/authcontext"; // Ensure correct case
+import './CreateListing.css'; // Make sure this import is present
 import { uploadToCloudinary } from '../utils/cloudinary';
 
 function CreateListing() {

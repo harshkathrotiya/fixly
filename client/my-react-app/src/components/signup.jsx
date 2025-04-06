@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import Navbar from "./Navbar";
 import "./signup.css";
 
 function SignUp() {
-  const [userType, setUserType] = useState("user");
+  // Removed userType state and set a default value in the signup data
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
@@ -29,7 +30,7 @@ function SignUp() {
     }
 
     const signupData = {
-      userType,
+      userType: "user", // Hardcoded as "user" since we removed the selection
       username,
       password,
       firstName,
@@ -72,41 +73,177 @@ function SignUp() {
   };
 
   return (
-    <div className="signup-container">
-      <h2>Create Your Account</h2>
-      {error && <p className="error-message">{error}</p>}
-      <form onSubmit={handleSignup}>
-        <label>User Type</label>
-        <select value={userType} onChange={(e) => setUserType(e.target.value)}>
-          <option value="user">User</option>
-        </select>
-        <label>First Name</label>
-        <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
-        <label>Last Name</label>
-        <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
-        <label>Username</label>
-        <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
-        <label>Phone Number</label>
-        <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} pattern="[0-9]{10}" required />
-        <label>Email</label>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <label>Street</label>
-        <input type="text" value={street} onChange={(e) => setStreet(e.target.value)} required />
-        <label>City</label>
-        <input type="text" value={city} onChange={(e) => setCity(e.target.value)} required />
-        <label>State</label>
-        <input type="text" value={state} onChange={(e) => setState(e.target.value)} required />
-        <label>Zip Code</label>
-        <input type="text" value={zipCode} onChange={(e) => setZipCode(e.target.value)} pattern="[0-9]{5}" required />
-        <label>Country</label>
-        <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} required />
-        <label>Password</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <button type="submit">Sign Up</button>
-      </form>
-      <div className="signup-footer">
-        <p>Already have an account? <Link to="/login">Sign in</Link></p>
+    <div className="app-container">
+      <Navbar />
+      
+      <div className="main-content">
+        <div className="signup-container">
+          <h2>Create Your Account</h2>
+          
+          {error && <div className="error-message">{error}</div>}
+          
+          <form onSubmit={handleSignup}>
+            {/* Removed account type selector */}
+            
+            <div className="form-group">
+              <label htmlFor="firstName">First Name</label>
+              <input
+                type="text"
+                id="firstName"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="lastName">Last Name</label>
+              <input
+                type="text"
+                id="lastName"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="username">Username</label>
+              <input
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="phone">Phone</label>
+              <input
+                type="tel"
+                id="phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="street">Street Address</label>
+              <input
+                type="text"
+                id="street"
+                value={street}
+                onChange={(e) => setStreet(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="city">City</label>
+              <input
+                type="text"
+                id="city"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="state">State</label>
+              <input
+                type="text"
+                id="state"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="zipCode">Zip Code</label>
+              <input
+                type="text"
+                id="zipCode"
+                value={zipCode}
+                onChange={(e) => setZipCode(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="country">Country</label>
+              <input
+                type="text"
+                id="country"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                required
+              />
+            </div>
+            
+            <button type="submit">Sign Up</button>
+          </form>
+          
+          <div className="signup-footer">
+            <p>Already have an account? <Link to="/login">Login</Link></p>
+          </div>
+        </div>
       </div>
+      
+      <footer className="main-footer">
+        <div className="footer-content">
+          <div className="footer-logo">
+            <h3>Fixly</h3>
+            <p>Your trusted platform for home services</p>
+          </div>
+          <div className="footer-links">
+            <div className="footer-section">
+              <h4>Quick Links</h4>
+              <ul>
+                <li><Link to="/">Home</Link></li>
+                <li><Link to="/services">Services</Link></li>
+                <li><Link to="/about">About Us</Link></li>
+                <li><Link to="/contact">Contact</Link></li>
+              </ul>
+            </div>
+            <div className="footer-section">
+              <h4>For Providers</h4>
+              <ul>
+                <li><Link to="/tasker">Become a Provider</Link></li>
+                <li><Link to="/provider/dashboard">Provider Dashboard</Link></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <p>&copy; {new Date().getFullYear()} Fixly. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 }

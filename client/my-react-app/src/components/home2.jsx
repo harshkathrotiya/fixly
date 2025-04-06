@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function home2(){
+    const navigate = useNavigate();
+    
+    const handleLogout = () => {
+        localStorage.removeItem('authToken');
+        window.dispatchEvent(new Event('auth-change'));
+        navigate('/');
+    };
+    
     return(
         <>
             <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem 2rem", background: "#333", color: "#fff", fontSize: "1.2rem" }}>

@@ -38,9 +38,12 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData, authToken) => {
+    console.log('Setting user in context:', userData);
     setUser(userData);
     setToken(authToken);
     localStorage.setItem('authToken', authToken);
+    // Dispatch auth change event here too for redundancy
+    window.dispatchEvent(new Event('auth-change'));
   };
 
   const logout = () => {

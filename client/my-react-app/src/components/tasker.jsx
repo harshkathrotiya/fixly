@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './tasker.css'; // We'll create this CSS file
+import Navbar from './Navbar'; // Import Navbar for consistent layout
 
 const Tasker = () => {
   const [formData, setFormData] = useState({
@@ -26,6 +28,8 @@ const Tasker = () => {
   });
 
   const [categories, setCategories] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formStatus, setFormStatus] = useState({ message: '', type: '' });
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/categories')
@@ -46,6 +50,8 @@ const Tasker = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setFormStatus({ message: '', type: '' });
 
     const payload = {
       firstName: formData.firstName,
@@ -77,57 +83,342 @@ const Tasker = () => {
     try {
       const response = await axios.post('http://localhost:5000/api/providers/register', payload);
       console.log('Registration success:', response.data);
-      alert("Registration Successful!");
+      setFormStatus({ 
+        message: "Registration Successful! You'll be contacted for verification.", 
+        type: 'success' 
+      });
+      // Reset form after successful submission
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+        phone: '',
+        serviceDescription: '',
+        serviceCategory: '',
+        availability: 'Weekdays',
+        accountName: '',
+        accountNumber: '',
+        bankName: '',
+        ifscCode: '',
+        street: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        country: '',
+        experience: '',
+        qualifications: '',
+        certifications: ''
+      });
     } catch (err) {
       console.error('Registration failed:', err.response?.data || err.message);
-      alert("Registration Failed.");
+      setFormStatus({ 
+        message: err.response?.data?.message || "Registration Failed. Please try again.", 
+        type: 'error' 
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: 600, margin: 'auto' }}>
-      <h2>Tasker Registration</h2>
+    <div className="tasker-page">
+      <Navbar />
+      
+      <div className="tasker-container">
+        <div className="form-header">
+          <h1>Become a Service Provider</h1>
+          <p>Join our network of professionals and grow your business</p>
+        </div>
 
-      <input name="firstName" placeholder="First Name" onChange={handleChange} required />
-      <input name="lastName" placeholder="Last Name" onChange={handleChange} required />
-      <input name="email" type="email" placeholder="Email" onChange={handleChange} required />
-      <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
-      <input name="phone" placeholder="Phone" onChange={handleChange} required />
+        {formStatus.message && (
+          <div className={`form-message ${formStatus.type}`}>
+            {formStatus.message}
+          </div>
+        )}
 
-      <textarea name="serviceDescription" placeholder="Service Description" onChange={handleChange} required />
+        <form onSubmit={handleSubmit} className="tasker-form">
+          <div className="form-section">
+            <h2>Personal Information</h2>
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="firstName">First Name</label>
+                <input 
+                  id="firstName"
+                  name="firstName" 
+                  value={formData.firstName}
+                  placeholder="First Name" 
+                  onChange={handleChange} 
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="lastName">Last Name</label>
+                <input 
+                  id="lastName"
+                  name="lastName" 
+                  value={formData.lastName}
+                  placeholder="Last Name" 
+                  onChange={handleChange} 
+                  required 
+                />
+              </div>
+            </div>
 
-      <select name="serviceCategory" onChange={handleChange} required>
-        <option value="">Select Category</option>
-        {Array.isArray(categories) && categories.map((category) => (
-          <option key={category._id} value={category._id}>
-            {category.categoryName}
-          </option>
-        ))}
-      </select>
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="email">Email</label>
+                <input 
+                  id="email"
+                  name="email" 
+                  type="email" 
+                  value={formData.email}
+                  placeholder="Email" 
+                  onChange={handleChange} 
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input 
+                  id="password"
+                  name="password" 
+                  type="password" 
+                  value={formData.password}
+                  placeholder="Password" 
+                  onChange={handleChange} 
+                  required 
+                />
+              </div>
+            </div>
 
-      <select name="availability" onChange={handleChange} required>
-      <option value="">Select Availability</option>
-      <option value="Weekdays">Weekdays</option>
-      <option value="Weekends">Weekends</option>
-      <option value="All Days">All Days</option>
-      </select>
-      <input name="accountName" placeholder="Account Name" onChange={handleChange} required />
-      <input name="accountNumber" placeholder="Account Number" onChange={handleChange} required />
-      <input name="bankName" placeholder="Bank Name" onChange={handleChange} required />
-      <input name="ifscCode" placeholder="IFSC Code" onChange={handleChange} required />
+            <div className="form-group">
+              <label htmlFor="phone">Phone Number</label>
+              <input 
+                id="phone"
+                name="phone" 
+                value={formData.phone}
+                placeholder="Phone" 
+                onChange={handleChange} 
+                required 
+              />
+            </div>
+          </div>
 
-      <input name="street" placeholder="Street" onChange={handleChange} required />
-      <input name="city" placeholder="City" onChange={handleChange} required />
-      <input name="state" placeholder="State" onChange={handleChange} required />
-      <input name="zipCode" placeholder="ZIP Code" onChange={handleChange} required />
-      <input name="country" placeholder="Country" onChange={handleChange} required />
+          <div className="form-section">
+            <h2>Service Details</h2>
+            <div className="form-group">
+              <label htmlFor="serviceCategory">Service Category</label>
+              <select 
+                id="serviceCategory"
+                name="serviceCategory" 
+                value={formData.serviceCategory}
+                onChange={handleChange} 
+                required
+              >
+                <option value="">Select Category</option>
+                {Array.isArray(categories) && categories.map((category) => (
+                  <option key={category._id} value={category._id}>
+                    {category.categoryName}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-      <input name="experience" placeholder="Experience (in years)" onChange={handleChange} required />
-      <input name="qualifications" placeholder="Qualifications" onChange={handleChange} required />
-      <input name="certifications" placeholder="Certifications" onChange={handleChange} required />
+            <div className="form-group">
+              <label htmlFor="serviceDescription">Service Description</label>
+              <textarea 
+                id="serviceDescription"
+                name="serviceDescription" 
+                value={formData.serviceDescription}
+                placeholder="Describe the services you offer" 
+                onChange={handleChange} 
+                required 
+                rows="4"
+              />
+            </div>
 
-      <button type="submit">Register</button>
-    </form>
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="experience">Experience (years)</label>
+                <input 
+                  id="experience"
+                  name="experience" 
+                  value={formData.experience}
+                  placeholder="Years of experience" 
+                  onChange={handleChange} 
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="availability">Availability</label>
+                <select 
+                  id="availability"
+                  name="availability" 
+                  value={formData.availability}
+                  onChange={handleChange} 
+                  required
+                >
+                  <option value="">Select Availability</option>
+                  <option value="Weekdays">Weekdays</option>
+                  <option value="Weekends">Weekends</option>
+                  <option value="All Days">All Days</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="qualifications">Qualifications</label>
+                <input 
+                  id="qualifications"
+                  name="qualifications" 
+                  value={formData.qualifications}
+                  placeholder="Your qualifications" 
+                  onChange={handleChange} 
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="certifications">Certifications</label>
+                <input 
+                  id="certifications"
+                  name="certifications" 
+                  value={formData.certifications}
+                  placeholder="Relevant certifications" 
+                  onChange={handleChange} 
+                  required 
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="form-section">
+            <h2>Address Information</h2>
+            <div className="form-group">
+              <label htmlFor="street">Street Address</label>
+              <input 
+                id="street"
+                name="street" 
+                value={formData.street}
+                placeholder="Street" 
+                onChange={handleChange} 
+                required 
+              />
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="city">City</label>
+                <input 
+                  id="city"
+                  name="city" 
+                  value={formData.city}
+                  placeholder="City" 
+                  onChange={handleChange} 
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="state">State</label>
+                <input 
+                  id="state"
+                  name="state" 
+                  value={formData.state}
+                  placeholder="State" 
+                  onChange={handleChange} 
+                  required 
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="zipCode">ZIP Code</label>
+                <input 
+                  id="zipCode"
+                  name="zipCode" 
+                  value={formData.zipCode}
+                  placeholder="ZIP Code" 
+                  onChange={handleChange} 
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="country">Country</label>
+                <input 
+                  id="country"
+                  name="country" 
+                  value={formData.country}
+                  placeholder="Country" 
+                  onChange={handleChange} 
+                  required 
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="form-section">
+            <h2>Bank Details</h2>
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="accountName">Account Holder Name</label>
+                <input 
+                  id="accountName"
+                  name="accountName" 
+                  value={formData.accountName}
+                  placeholder="Account Name" 
+                  onChange={handleChange} 
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="accountNumber">Account Number</label>
+                <input 
+                  id="accountNumber"
+                  name="accountNumber" 
+                  value={formData.accountNumber}
+                  placeholder="Account Number" 
+                  onChange={handleChange} 
+                  required 
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="bankName">Bank Name</label>
+                <input 
+                  id="bankName"
+                  name="bankName" 
+                  value={formData.bankName}
+                  placeholder="Bank Name" 
+                  onChange={handleChange} 
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="ifscCode">IFSC Code</label>
+                <input 
+                  id="ifscCode"
+                  name="ifscCode" 
+                  value={formData.ifscCode}
+                  placeholder="IFSC Code" 
+                  onChange={handleChange} 
+                  required 
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="form-actions">
+            <button type="submit" className="submit-button" disabled={isSubmitting}>
+              {isSubmitting ? 'Submitting...' : 'Register as Service Provider'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 
