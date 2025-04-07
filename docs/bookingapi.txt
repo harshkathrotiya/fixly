@@ -1,0 +1,264 @@
+# Booking API Documentation for Postman Testing
+
+Base URL: http://localhost:5000/api/v1
+
+## Authentication
+All protected routes require a Bearer token in the Authorization header:
+`Authorization: Bearer <your_jwt_token>`
+
+## 1. Create Booking
+Create a new service booking.
+
+```
+POST /bookings
+Authorization: Bearer <user_token>
+
+Request Body:
+{
+    "listingId": "65f1a2b3c4d5e6f7g8h9i0j1",
+    "serviceDate": "2024-04-01T10:00:00Z",
+    "location": {
+        "address": "123 Main St",
+        "city": "Toronto",
+        "postalCode": "M5V 2T6"
+    },
+    "specialInstructions": "Please bring eco-friendly cleaning supplies"
+}
+
+Response (200 OK):
+{
+    "success": true,
+    "data": {
+        "_id": "65f1a2b3c4d5e6f7g8h9i0j2",
+        "listingId": "65f1a2b3c4d5e6f7g8h9i0j1",
+        "customerId": "65f1a2b3c4d5e6f7g8h9i0j3",
+        "providerId": "65f1a2b3c4d5e6f7g8h9i0j4",
+        "status": "pending",
+        "serviceDate": "2024-04-01T10:00:00Z",
+        "location": {
+            "address": "123 Main St",
+            "city": "Toronto",
+            "postalCode": "M5V 2T6"
+        },
+        "specialInstructions": "Please bring eco-friendly cleaning supplies",
+        "createdAt": "2024-03-15T08:30:00Z"
+    }
+}
+```
+
+## 2. Get Customer's Bookings
+Retrieve all bookings for the authenticated customer.
+
+```
+GET /bookings/customer
+Authorization: Bearer <user_token>
+
+Response (200 OK):
+{
+    "success": true,
+    "count": 2,
+    "data": [
+        {
+            "_id": "65f1a2b3c4d5e6f7g8h9i0j2",
+            "listingId": {
+                "_id": "65f1a2b3c4d5e6f7g8h9i0j1",
+                "title": "House Cleaning Service",
+                "price": 80
+            },
+            "status": "pending",
+            "serviceDate": "2024-04-01T10:00:00Z",
+            "createdAt": "2024-03-15T08:30:00Z"
+        },
+        {
+            "_id": "65f1a2b3c4d5e6f7g8h9i0j5",
+            "listingId": {
+                "_id": "65f1a2b3c4d5e6f7g8h9i0j6",
+                "title": "Plumbing Repair",
+                "price": 120
+            },
+            "status": "completed",
+            "serviceDate": "2024-03-10T14:00:00Z",
+            "createdAt": "2024-03-01T10:15:00Z"
+        }
+    ]
+}
+```
+
+## 3. Get Provider's Bookings
+Retrieve all bookings for the authenticated service provider.
+
+```
+GET /bookings/provider
+Authorization: Bearer <provider_token>
+
+Response (200 OK):
+{
+    "success": true,
+    "count": 1,
+    "data": [
+        {
+            "_id": "65f1a2b3c4d5e6f7g8h9i0j2",
+            "customerId": {
+                "_id": "65f1a2b3c4d5e6f7g8h9i0j3",
+                "name": "John Doe",
+                "email": "john@example.com"
+            },
+            "listingId": {
+                "_id": "65f1a2b3c4d5e6f7g8h9i0j1",
+                "title": "House Cleaning Service"
+            },
+            "status": "pending",
+            "serviceDate": "2024-04-01T10:00:00Z",
+            "location": {
+                "address": "123 Main St",
+                "city": "Toronto",
+                "postalCode": "M5V 2T6"
+            },
+            "specialInstructions": "Please bring eco-friendly cleaning supplies"
+        }
+    ]
+}
+```
+
+## 4. Get Specific Booking
+Retrieve details of a specific booking.
+
+```
+GET /bookings/:id
+Authorization: Bearer <token>
+
+Response (200 OK):
+{
+    "success": true,
+    "data": {
+        "_id": "65f1a2b3c4d5e6f7g8h9i0j2",
+        "listingId": {
+            "_id": "65f1a2b3c4d5e6f7g8h9i0j1",
+            "title": "House Cleaning Service",
+            "price": 80,
+            "description": "Professional house cleaning service"
+        },
+        "customerId": {
+            "_id": "65f1a2b3c4d5e6f7g8h9i0j3",
+            "name": "John Doe",
+            "email": "john@example.com"
+        },
+        "providerId": {
+            "_id": "65f1a2b3c4d5e6f7g8h9i0j4",
+            "name": "Clean Pro Services",
+            "email": "cleanpro@example.com"
+        },
+        "status": "pending",
+        "serviceDate": "2024-04-01T10:00:00Z",
+        "location": {
+            "address": "123 Main St",
+            "city": "Toronto",
+            "postalCode": "M5V 2T6"
+        },
+        "specialInstructions": "Please bring eco-friendly cleaning supplies",
+        "createdAt": "2024-03-15T08:30:00Z",
+        "updatedAt": "2024-03-15T08:30:00Z"
+    }
+}
+```
+
+## 5. Update Booking Status
+Update the status of a booking.
+
+```
+PUT /bookings/:id/status
+Authorization: Bearer <token>
+
+Request Body:
+{
+    "status": "accepted" // Options: pending, accepted, rejected, completed, cancelled
+}
+
+Response (200 OK):
+{
+    "success": true,
+    "data": {
+        "_id": "65f1a2b3c4d5e6f7g8h9i0j2",
+        "status": "accepted",
+        "updatedAt": "2024-03-15T09:00:00Z"
+    }
+}
+```
+
+## 6. Get All Bookings (Admin Only)
+Retrieve all bookings in the system.
+
+```
+GET /bookings
+Authorization: Bearer <admin_token>
+
+Response (200 OK):
+{
+    "success": true,
+    "count": 2,
+    "data": [
+        {
+            "_id": "65f1a2b3c4d5e6f7g8h9i0j2",
+            "customerId": {
+                "_id": "65f1a2b3c4d5e6f7g8h9i0j3",
+                "name": "John Doe"
+            },
+            "providerId": {
+                "_id": "65f1a2b3c4d5e6f7g8h9i0j4",
+                "name": "Clean Pro Services"
+            },
+            "listingId": {
+                "_id": "65f1a2b3c4d5e6f7g8h9i0j1",
+                "title": "House Cleaning Service"
+            },
+            "status": "accepted",
+            "serviceDate": "2024-04-01T10:00:00Z"
+        },
+        {
+            "_id": "65f1a2b3c4d5e6f7g8h9i0j5",
+            "customerId": {
+                "_id": "65f1a2b3c4d5e6f7g8h9i0j6",
+                "name": "Jane Smith"
+            },
+            "providerId": {
+                "_id": "65f1a2b3c4d5e6f7g8h9i0j7",
+                "name": "Plumb Perfect"
+            },
+            "listingId": {
+                "_id": "65f1a2b3c4d5e6f7g8h9i0j8",
+                "title": "Plumbing Service"
+            },
+            "status": "completed",
+            "serviceDate": "2024-03-10T14:00:00Z"
+        }
+    ]
+}
+```
+
+## Error Responses
+
+```
+401 Unauthorized:
+{
+    "success": false,
+    "error": "Not authorized to access this route"
+}
+
+403 Forbidden:
+{
+    "success": false,
+    "error": "User role not authorized to access this route"
+}
+
+404 Not Found:
+{
+    "success": false,
+    "error": "Booking not found with id of xxx"
+}
+
+400 Bad Request:
+{
+    "success": false,
+    "error": "Invalid booking status"
+}
+```

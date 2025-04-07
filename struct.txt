@@ -1,0 +1,103 @@
+.
+├── client
+│   ├── a.txt
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── public
+│   │   └── vite.svg
+│   ├── README.md
+│   ├── src
+│   │   ├── App.jsx
+│   │   ├── assets
+│   │   │   └── react.svg
+│   │   ├── components
+│   │   │   ├── appointments.jsx
+│   │   │   ├── authchoice.jsx
+│   │   │   ├── BookingDetails.jsx
+│   │   │   ├── CreateListing.css
+│   │   │   ├── CreateListing.jsx
+│   │   │   ├── EditListing.jsx
+│   │   │   ├── Home.css
+│   │   │   ├── Home.jsx
+│   │   │   ├── home2.jsx
+│   │   │   ├── images
+│   │   │   │   ├── carpentary.png
+│   │   │   │   ├── cleaning.png
+│   │   │   │   ├── Designer.png
+│   │   │   │   ├── electrical.png
+│   │   │   │   ├── painter.png
+│   │   │   │   └── plumbing.png
+│   │   │   ├── joblisting.css
+│   │   │   ├── joblisting.jsx
+│   │   │   ├── ListingDetails.jsx
+│   │   │   ├── login.css
+│   │   │   ├── login.jsx
+│   │   │   ├── Navbar.css
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── ProviderDashboard.css
+│   │   │   ├── ProviderDashboard.jsx
+│   │   │   ├── ProviderProfile.css
+│   │   │   ├── ProviderProfile.jsx
+│   │   │   ├── review.css
+│   │   │   ├── review.jsx
+│   │   │   ├── reviewform.jsx
+│   │   │   ├── ServiceDetails.css
+│   │   │   ├── ServiceDetails.jsx
+│   │   │   ├── services.css
+│   │   │   ├── services.jsx
+│   │   │   ├── signup.css
+│   │   │   ├── signup.jsx
+│   │   │   ├── tasker.css
+│   │   │   └── tasker.jsx
+│   │   ├── context
+│   │   │   └── AuthContext.jsx
+│   │   ├── index.css
+│   │   ├── main.jsx
+│   │   ├── styles
+│   │   │   └── global.css
+│   │   └── utils
+│   │       └── cloudinary.js
+│   └── vite.config.js
+├── docs
+│   ├── authapi.txt
+│   ├── listingapi.txt
+│   └── serviceproviderapi.txt
+├── G_33_srs.pdf
+├── package-lock.json
+├── package.json
+├── server
+│   ├── config
+│   │   ├── cloudinary.js
+│   │   └── db.js
+│   ├── controllers
+│   │   ├── authController.js
+│   │   ├── serviceCategoryController.js
+│   │   ├── serviceListingController.js
+│   │   └── serviceProviderController.js
+│   ├── middleware
+│   │   ├── auth.js
+│   │   ├── errorHandler.js
+│   │   └── validateProvider.js
+│   ├── models
+│   │   ├── ServiceCategory.js
+│   │   ├── ServiceListing.js
+│   │   ├── ServiceProvider.js
+│   │   └── User.js
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── routes
+│   │   ├── api
+│   │   │   ├── auth.js
+│   │   │   ├── categories.js
+│   │   │   ├── listings.js
+│   │   │   └── providers.js
+│   │   └── index.js
+│   ├── server.js
+│   └── utils
+│       ├── asyncHandler.js
+│       └── sendEmail.js
+└── struct.txt
+
+19 directories, 82 files
