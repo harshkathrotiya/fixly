@@ -1,0 +1,57 @@
+.admin-layout {
+  @apply min-h-screen bg-gray-50 flex;
+}
+
+.admin-sidebar {
+  background-color: #1a202c; /* bg-gray-900 */
+  color: #ffffff; /* text-white */
+  width: 16rem; /* w-64 */
+  flex-shrink: 0;
+  display: none; /* hidden */
+}
+
+@media (min-width: 768px) { /* md: breakpoint */
+  .admin-sidebar {
+    display: block;
+  }
+}
+
+.admin-main {
+  @apply flex-1 flex flex-col;
+}
+
+.admin-header {
+  @apply bg-white border-b border-gray-200 shadow-sm;
+}
+
+.admin-content {
+  @apply flex-1 p-6 overflow-auto;
+}
+
+.admin-card {
+  @apply bg-white rounded-lg shadow-sm p-6;
+}
+
+.admin-table-container {
+  @apply bg-white rounded-lg shadow overflow-hidden;
+}
+
+.admin-table {
+  @apply min-w-full divide-y divide-gray-200;
+}
+
+.admin-table-header {
+  @apply bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+}
+
+.admin-table-cell {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-500;
+}
+
+.admin-button-primary {
+  @apply inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
+}
+
+.admin-button-secondary {
+  @apply inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
+}

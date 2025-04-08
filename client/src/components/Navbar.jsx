@@ -11,7 +11,7 @@ function Navbar() {
   const [userType, setUserType] = useState(null);
   
   // Get auth context directly
-  const auth = useAuth();
+  const { user, logout } = useAuth();
 
   // Check authentication on mount and when auth changes
   useEffect(() => {
@@ -52,8 +52,8 @@ function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     
-    if (auth && auth.logout) {
-      auth.logout();
+    if (logout) {
+      logout();
     }
     
     // Dispatch event to notify other components
@@ -99,6 +99,13 @@ function Navbar() {
               Contact
             </Link>
           </li>
+          {isAuthenticated && (
+            <li className="nav-item">
+              <Link to="/bookings" className={location.pathname === '/bookings' ? 'nav-link active' : 'nav-link'} onClick={() => setIsMenuOpen(false)}>
+                <i className="fas fa-calendar-alt"></i> My Bookings
+              </Link>
+            </li>
+          )}
         </ul>
         
         <div className="nav-auth">
@@ -107,6 +114,10 @@ function Navbar() {
               {userType === 'service_provider' ? (
                 <Link to="/provider/dashboard" className="auth-button dashboard-button">
                   Dashboard
+                </Link>
+              ) : userType === 'admin' ? (
+                <Link to="/admin" className="auth-button dashboard-button">
+                  Admin Dashboard
                 </Link>
               ) : null}
               <button onClick={handleLogout} className="auth-button logout-button">

@@ -18,61 +18,41 @@ function Login() {
     setError("");
 
     try {
-      console.log('Attempting to login...');
-      
       const response = await axios.post("http://localhost:5000/api/auth/login", {
         email,
         password,
       });
 
+      console.log('Login Response:', response.data); // Debug log
+
       if (response.data.success) {
         const token = response.data.token;
+        
         localStorage.setItem('authToken', token);
+
+        // Fetch user details from /api/auth/me
+        const userResponse = await axios.get("http://localhost:5000/api/auth/me", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const userData = userResponse.data.data || {};
+        console.log('User Data:', userData); // Debug log
+
+        login(userData, token);
         
-        // Dispatch auth change event
-        window.dispatchEvent(new Event('auth-change'));
-        console.log('Auth change event dispatched');
-        
-        // Use the login function from context
-        if (login) {
-          login(response.data.data || {}, token);
-        }
-        
-        console.log('Login successful, token received:', token);
-        
-        // Get user details after successful login
-        try {
-          const decoded = jwtDecode(token);
-          console.log('Decoded token:', decoded);
-          
-          // Fetch user details
-          const userResponse = await axios.get('http://localhost:5000/api/auth/me', {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          
-          console.log('User details:', userResponse.data);
-          
-          // Check userType from the response
-          const userType = userResponse.data.userType || 
-                          (userResponse.data.data && userResponse.data.data.userType);
-          
-          console.log('User type from API:', userType);
-          
-          // Navigate based on user type
-          if (userType === 'service_provider') {
-            navigate('/provider/dashboard');
-          } else {
-            navigate('/');
-          }
-        } catch (err) {
-          console.error('Error getting user details:', err);
+        // Updated userType check
+        if (userData.userType && userData.userType.toLowerCase() === 'admin') {
+          navigate('/admin');
+        } else if (userData.userType === 'service_provider') {
+          navigate('/provider/dashboard');
+        } else {
           navigate('/');
         }
       } else {
         setError(response.data.message || "Login failed");
       }
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('Login Error:', err.response?.data); // Debug log
       setError(err.response?.data?.message || "An error occurred during login");
     }
   };

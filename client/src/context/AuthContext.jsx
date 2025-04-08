@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
           const response = await axios.get('http://localhost:5000/api/auth/me', {
             headers: { Authorization: `Bearer ${storedToken}` }
           });
-          setUser(response.data);
+          setUser(response.data.data || response.data);
           setToken(storedToken);
         } catch (error) {
           localStorage.removeItem('authToken');
@@ -39,7 +39,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = (userData, authToken) => {
     console.log('Setting user in context:', userData);
-    setUser(userData);
+    // Ensure we're setting the correct user data structure
+    const userToSet = userData.data || userData;
+    setUser(userToSet);
     setToken(authToken);
     localStorage.setItem('authToken', authToken);
     // Dispatch auth change event here too for redundancy

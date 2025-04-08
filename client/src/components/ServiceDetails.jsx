@@ -7,12 +7,11 @@ import { useAuth } from '../context/authcontext';
 import PlaceholderImg from './images/plumbing.png';
 
 function ServiceDetails() {
-  // Hooks
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const imageGalleryRef = useRef(null);
-  
+
   // State for service data
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,49 +24,32 @@ function ServiceDetails() {
   
   // State for booking
   const [showBookingForm, setShowBookingForm] = useState(false);
-  const [bookingDate, setBookingDate] = useState('');
-  const [bookingTime, setBookingTime] = useState('');
-  const [bookingNotes, setBookingNotes] = useState('');
+  const [bookingDetails, setBookingDetails] = useState({
+    date: '',
+    time: '',
+    notes: ''
+  });
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingError, setBookingError] = useState(null);
-  
-  // State for reviews (could be added in the future)
-  const [reviews, setReviews] = useState([]);
 
-  // Fetch service details on component mount
   useEffect(() => {
     const fetchServiceDetails = async () => {
       setLoading(true);
       try {
         const response = await axios.get(`http://localhost:5000/api/listings/${id}`);
         setListing(response.data.data);
-        
-        // Process images - turn single serviceImage into array for gallery
-        const serviceImages = [];
-        if (response.data.data.serviceImage) {
-          // Make sure the URL is properly formatted
-          const imageUrl = response.data.data.serviceImage;
-          // Check if it's a valid URL or path
-          serviceImages.push(imageUrl);
-          console.log("Image URL loaded:", imageUrl); // Debug log
-        }
-        // Handle possibility of multiple images in the future
-        if (response.data.data.images && response.data.data.images.length > 0) {
-          serviceImages.push(...response.data.data.images);
-        }
-        
-        // If no images, add placeholder
-        if (serviceImages.length === 0) {
-          serviceImages.push(PlaceholderImg);
-        }
-        
+
+        // Fix: Check if images exists and is an array before spreading
+        const serviceImages = response.data.data.serviceImage
+          ? [response.data.data.serviceImage, ...(Array.isArray(response.data.data.images) ? response.data.data.images : [])]
+          : [PlaceholderImg];
+
         setImages(serviceImages);
-        
-        // Fetch related services in the same category
-        if (response.data.data.categoryId && response.data.data.categoryId._id) {
+
+        if (response.data.data.categoryId?._id) {
           fetchRelatedServices(response.data.data.categoryId._id, id);
         }
-        
+
         setError(null);
       } catch (err) {
         console.error('Error fetching service details:', err);
@@ -78,20 +60,14 @@ function ServiceDetails() {
     };
 
     fetchServiceDetails();
-    // Scroll to top when component mounts
     window.scrollTo(0, 0);
   }, [id]);
 
   const fetchRelatedServices = async (categoryId, currentListingId) => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/listings?category=${categoryId}&limit=3`
-      );
-      // Filter out the current listing
-      const filteredRelated = response.data.data.filter(
-        service => service._id !== currentListingId
-      );
-      setRelatedServices(filteredRelated.slice(0, 3)); // Limit to 3 related services
+      const response = await axios.get(`http://localhost:5000/api/listings?category=${categoryId}&limit=3`);
+      const filteredRelated = response.data.data.filter(service => service._id !== currentListingId);
+      setRelatedServices(filteredRelated.slice(0, 3));
     } catch (err) {
       console.error('Error fetching related services:', err);
     }
@@ -99,8 +75,6 @@ function ServiceDetails() {
 
   const handleImageChange = (index) => {
     setSelectedImageIndex(index);
-    
-    // Smooth scroll to the selected thumbnail
     if (imageGalleryRef.current) {
       const thumbnailContainer = imageGalleryRef.current.querySelector('.thumbnail-images');
       const thumbnails = thumbnailContainer.querySelectorAll('.thumbnail-container');
@@ -112,7 +86,6 @@ function ServiceDetails() {
 
   const handleBookNow = () => {
     if (!user) {
-      // Redirect to login if not authenticated
       navigate('/login', { state: { from: `/listing/${id}` } });
       return;
     }
@@ -120,82 +93,101 @@ function ServiceDetails() {
   };
 
   const handleBookingSubmit = async (e) => {
-    e.preventDefault();
-    setBookingError(null);
-    
-    try {
-      const bookingData = {
-        listingId: id,
-        date: bookingDate,
-        time: bookingTime,
-        notes: bookingNotes,
-        servicePrice: listing.servicePrice
-      };
+      e.preventDefault();
+      setBookingError(null);
       
-      await axios.post(
-        'http://localhost:5000/api/bookings', 
-        bookingData,
-        { headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` } }
-      );
-      
-      setBookingSuccess(true);
-      setShowBookingForm(false);
-      
-      // Reset form
-      setBookingDate('');
-      setBookingTime('');
-      setBookingNotes('');
-    } catch (err) {
-      console.error('Error creating booking:', err);
-      setBookingError('Failed to create booking. Please try again.');
-    }
-  };
+      try {
+        // Format the date and time properly for the backend
+        const bookingDateTime = new Date(`${bookingDetails.date}T${bookingDetails.time}`);
+        
+        // Updated booking data to match the API requirements
+        const bookingData = {
+          serviceListingId: id,
+          serviceDateTime: bookingDateTime.toISOString(),
+          specialInstructions: bookingDetails.notes || ''
+        };
+  
+        console.log('Submitting booking with data:', bookingData);
+        
+        const token = localStorage.getItem('authToken');
+        
+        if (!token) {
+          setBookingError('You must be logged in to book a service');
+          return;
+        }
+  
+        const response = await axios.post('http://localhost:5000/api/bookings', bookingData, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        console.log('Booking response:', response.data);
+  
+        // Close the form first, then show success message
+        setShowBookingForm(false);
+        setTimeout(() => {
+          setBookingSuccess(true);
+          setBookingDetails({ date: '', time: '', notes: '' });
+        }, 300);
+      } catch (err) {
+        console.error('Error creating booking:', err.response?.data || err.message || err);
+        setBookingError(err.response?.data?.message || 'Failed to create booking. Please try again.');
+      }
+    };
 
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  // Add the missing getTimeSince function
+  const getTimeSince = (dateString) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const seconds = Math.floor((now - date) / 1000);
+    
+    let interval = Math.floor(seconds / 31536000);
+    if (interval >= 1) {
+      return interval === 1 ? '1 year ago' : `${interval} years ago`;
+    }
+    
+    interval = Math.floor(seconds / 2592000);
+    if (interval >= 1) {
+      return interval === 1 ? '1 month ago' : `${interval} months ago`;
+    }
+    
+    interval = Math.floor(seconds / 86400);
+    if (interval >= 1) {
+      return interval === 1 ? '1 day ago' : `${interval} days ago`;
+    }
+    
+    interval = Math.floor(seconds / 3600);
+    if (interval >= 1) {
+      return interval === 1 ? '1 hour ago' : `${interval} hours ago`;
+    }
+    
+    interval = Math.floor(seconds / 60);
+    if (interval >= 1) {
+      return interval === 1 ? '1 minute ago' : `${interval} minutes ago`;
+    }
+    
+    return 'Just now';
+  };
+
   const handleBackToServices = () => {
     navigate('/services');
   };
 
-  const handleViewProviderProfile = (providerId) => {
-    navigate(`/provider/profile/${providerId}`);
-  };
-
-  const handleViewRelatedService = (serviceId) => {
-    navigate(`/listing/${serviceId}`);
-    // Scroll to top and refresh data
-    window.scrollTo(0, 0);
-  };
-
-  // Calculate time since listing was created
-  const getTimeSince = (dateString) => {
-    const now = new Date();
-    const createdDate = new Date(dateString);
-    const diffTime = Math.abs(now - createdDate);
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
-    return `${Math.floor(diffDays / 365)} years ago`;
-  };
-
-  // Handle sharing the service
   const handleShareService = () => {
     if (navigator.share) {
       navigator.share({
         title: listing?.serviceTitle,
         text: `Check out this service: ${listing?.serviceTitle}`,
         url: window.location.href,
-      })
-      .catch((error) => console.log('Error sharing', error));
+      }).catch((error) => console.log('Error sharing', error));
     } else {
-      // Fallback for browsers that don't support the Web Share API
       navigator.clipboard.writeText(window.location.href)
         .then(() => alert('Link copied to clipboard!'))
         .catch((err) => console.error('Could not copy text: ', err));
@@ -236,7 +228,6 @@ function ServiceDetails() {
   return (
     <div className="service-details-page">
       <Navbar />
-      
       {bookingSuccess && (
         <div className="booking-success-message">
           <i className="fas fa-check-circle"></i>
@@ -269,15 +260,13 @@ function ServiceDetails() {
         <div className="service-details-content">
           <div className="service-details-main">
             <div className="service-details-gallery" ref={imageGalleryRef}>
-              // In your render section where you display the main image:
               <div className="main-image-container">
                 <img 
                   src={images[selectedImageIndex] || PlaceholderImg} 
                   alt={listing.serviceTitle} 
                   className="main-image"
                   onError={(e) => {
-                    console.log("Image failed to load:", e.target.src);
-                    e.target.src = PlaceholderImg; // Fallback to placeholder on error
+                    e.target.src = PlaceholderImg;
                   }}
                 />
                 <div className="image-navigation">
@@ -315,7 +304,6 @@ function ServiceDetails() {
                         alt={`${listing.serviceTitle} ${index + 1}`} 
                         className="thumbnail-image"
                         onError={(e) => {
-                          e.target.onerror = null;
                           e.target.src = PlaceholderImg;
                         }}
                       />
@@ -369,8 +357,7 @@ function ServiceDetails() {
               
               <div className="service-price-section">
                 <div className="service-price">${listing.servicePrice}</div>
-                {/* Add commission info if user is provider */}
-                {user && user.role === 'provider' && (
+                {user?.role === 'provider' && (
                   <div className="price-breakdown">
                     <div className="provider-earning">
                       <span>Provider Earning:</span>
@@ -389,20 +376,13 @@ function ServiceDetails() {
                 <p>{listing.serviceDetails}</p>
               </div>
               
-              {listing.tags && listing.tags.length > 0 && (
+              {listing.tags?.length > 0 && (
                 <div className="service-tags-section">
                   <h3>Tags</h3>
                   <div className="service-tags">
-                    {Array.isArray(listing.tags) 
-                      ? listing.tags.map((tag, index) => (
-                          <span key={index} className="service-tag">{tag}</span>
-                        ))
-                      : typeof listing.tags === 'string' 
-                        ? listing.tags.split(',').map((tag, index) => (
-                            <span key={index} className="service-tag">{tag.trim()}</span>
-                          ))
-                        : null
-                    }
+                    {listing.tags.map((tag, index) => (
+                      <span key={index} className="service-tag">{tag}</span>
+                    ))}
                   </div>
                 </div>
               )}
@@ -423,16 +403,10 @@ function ServiceDetails() {
               <h3>Service Provider</h3>
               <div className="provider-info">
                 <div className="provider-avatar">
-                  {listing.serviceProviderId?.userId?.profilePicture ? (
-                    <img 
-                      src={listing.serviceProviderId.userId.profilePicture === 'default-profile.jpg' 
-                        ? PlaceholderImg 
-                        : listing.serviceProviderId.userId.profilePicture} 
-                      alt={`${listing.serviceProviderId.userId?.firstName || ''} ${listing.serviceProviderId.userId?.lastName || ''}`} 
-                    />
-                  ) : (
-                    <i className="fas fa-user-circle"></i>
-                  )}
+                  <img 
+                    src={listing.serviceProviderId?.userId?.profilePicture || PlaceholderImg} 
+                    alt={`${listing.serviceProviderId?.userId?.firstName || ''} ${listing.serviceProviderId?.userId?.lastName || ''}`} 
+                  />
                 </div>
                 <div className="provider-details">
                   <h4>
@@ -482,7 +456,7 @@ function ServiceDetails() {
               
               <button 
                 className="view-profile-button"
-                onClick={() => handleViewProviderProfile(listing.serviceProviderId._id)}
+                onClick={() => navigate(`/provider/profile/${listing.serviceProviderId._id}`)}
               >
                 View Full Profile
               </button>
@@ -490,7 +464,6 @@ function ServiceDetails() {
             
             <div className="service-info-card">
               <h3>Service Information</h3>
-              
               <div className="info-item">
                 <i className="fas fa-map-marker-alt"></i>
                 <div>
@@ -551,8 +524,8 @@ function ServiceDetails() {
                   <input
                     type="date"
                     id="bookingDate"
-                    value={bookingDate}
-                    onChange={(e) => setBookingDate(e.target.value)}
+                    value={bookingDetails.date}
+                    onChange={(e) => setBookingDetails({ ...bookingDetails, date: e.target.value })}
                     required
                     min={new Date().toISOString().split('T')[0]}
                   />
@@ -563,8 +536,8 @@ function ServiceDetails() {
                   <input
                     type="time"
                     id="bookingTime"
-                    value={bookingTime}
-                    onChange={(e) => setBookingTime(e.target.value)}
+                    value={bookingDetails.time}
+                    onChange={(e) => setBookingDetails({ ...bookingDetails, time: e.target.value })}
                     required
                   />
                 </div>
@@ -573,8 +546,8 @@ function ServiceDetails() {
                   <label htmlFor="bookingNotes">Additional Notes</label>
                   <textarea
                     id="bookingNotes"
-                    value={bookingNotes}
-                    onChange={(e) => setBookingNotes(e.target.value)}
+                    value={bookingDetails.notes}
+                    onChange={(e) => setBookingDetails({ ...bookingDetails, notes: e.target.value })}
                     placeholder="Describe your specific needs or any questions you have for the service provider..."
                     rows="4"
                   ></textarea>
@@ -596,11 +569,11 @@ function ServiceDetails() {
                   </div>
                   <div className="summary-item">
                     <span>Date:</span>
-                    <span>{bookingDate ? new Date(bookingDate).toLocaleDateString() : 'Not selected'}</span>
+                    <span>{bookingDetails.date ? new Date(bookingDetails.date).toLocaleDateString() : 'Not selected'}</span>
                   </div>
                   <div className="summary-item">
                     <span>Time:</span>
-                    <span>{bookingTime || 'Not selected'}</span>
+                    <span>{bookingDetails.time || 'Not selected'}</span>
                   </div>
                   <div className="summary-item total">
                     <span>Total:</span>
@@ -630,7 +603,6 @@ function ServiceDetails() {
                       src={service.serviceImage || service.images?.[0] || PlaceholderImg} 
                       alt={service.serviceTitle} 
                       onError={(e) => {
-                        e.target.onerror = null;
                         e.target.src = PlaceholderImg;
                       }}
                     />
@@ -653,7 +625,7 @@ function ServiceDetails() {
                     </p>
                     <button 
                       className="view-related-button"
-                      onClick={() => handleViewRelatedService(service._id)}
+                      onClick={() => navigate(`/listing/${service._id}`)}
                     >
                       View Details
                     </button>
