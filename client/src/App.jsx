@@ -23,7 +23,7 @@ import AdminListings from './components/admin/Listings';
 import AdminBookings from './components/admin/Bookings';
 import AdminCategories from './components/admin/Categories';
 import CreateAdminUser from './components/admin/CreateAdminUser';
-
+import MyBookings from './components/MyBookings';
 // Import the new components
 import Bookings from './components/Bookings';
 import PaymentForm from './components/PaymentForm';
@@ -64,11 +64,7 @@ function App() {
           <Route path="/booking/:id" element={<BookingDetails />} />
           
           {/* Admin routes */}
-          <Route path="/admin" element={
-            <ProtectedAdminRoute>
-              <AdminDashboard />
-            </ProtectedAdminRoute>
-          } />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/users" element={
             <ProtectedAdminRoute>
               <AdminUsers />
@@ -90,7 +86,7 @@ function App() {
           <Route path="/payment/:bookingId" element={<PaymentForm />} />
           <Route path="/complaint/:bookingId" element={<ComplaintForm />} />
           <Route path="/provider/:providerId/reviews" element={<Reviews />} />
-          
+          <Route path="/bookings" element={<MyBookings />} />
           {/* Service provider routes */}
           <Route path="/provider/bookings" element={<ProviderBookings />} />
           <Route path="/provider/services" element={<ServiceManagement />} />
