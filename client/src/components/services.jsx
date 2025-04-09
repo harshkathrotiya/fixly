@@ -21,6 +21,8 @@ const Services = () => {
   const [viewMode, setViewMode] = useState("all"); // all, provider
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+
+
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [tags, setTags] = useState("");
@@ -229,17 +231,7 @@ const Services = () => {
     navigate(`/listing/${listing._id}`);
   };
 
-  // Handle search
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
 
-  // Handle search submit
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    setPage(1); // Reset to first page
-    updateUrlWithFilters();
-  };
 
   // Handle price filter
   const handlePriceFilter = () => {
@@ -405,30 +397,13 @@ const Services = () => {
     return buttons;
   };
 
+
+
   return (
     <div className="services-page">
       <Navbar />
 
-      <div className="hero-section">
-        <div className="hero-content">
-          <h1>Find Your Perfect Service Provider</h1>
-          <p>Professional, Reliable, and Trusted Services for Your Home</p>
-          <form onSubmit={handleSearchSubmit} className="hero-search-form">
-            <div className="hero-search-container">
-              <input
-                type="text"
-                placeholder="What service do you need today?"
-                value={searchTerm}
-                onChange={handleSearch}
-                className="hero-search-input"
-              />
-              <button type="submit" className="hero-search-button">
-                <i className="fas fa-search"></i> Search
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+
 
       <div className="services-container" ref={servicesRef}>
         {error && (
@@ -442,17 +417,21 @@ const Services = () => {
         <div className="category-selector">
           <h2>Browse Services by Category</h2>
           <div className="category-cards">
-            {categories.map((category) => (
-              <div
+            {categories.map((category, index) => (
+              <motion.div
                 key={category._id}
                 className={`category-card ${selectedCategory === category._id ? "active" : ""}`}
                 onClick={() => handleCategoryChange(category._id)}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.05 }}
+                whileHover={{ y: -8, transition: { duration: 0.2 } }}
               >
                 <div className="category-icon">
                   <i className={getCategoryIcon(category.categoryName)}></i>
                 </div>
                 <h3>{category.categoryName}</h3>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -573,14 +552,18 @@ const Services = () => {
                       exit={{ opacity: 0, y: -20 }}
                       transition={{ duration: 0.3, delay: index * 0.05 }}
                     >
-                      <div className="service-image-wrapper">
+                      <div className="service-image-wrapper" onClick={() => handleViewDetails(listing)}>
                         <img
                           src={listing.serviceImage || PlaceholderImg}
                           alt={listing.serviceTitle || 'Service'}
-                          className="service-image"
+                          className="service-image loading"
+                          loading="lazy"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onLoad={(e) => e.target.classList.remove('loading')}
                           onError={(e) => {
                             e.target.onerror = null;
                             e.target.src = PlaceholderImg;
+                            e.target.classList.remove('loading');
                           }}
                         />
                         <button
@@ -593,6 +576,9 @@ const Services = () => {
                         >
                           <i className={favorites.includes(listing._id) ? "fas fa-heart" : "far fa-heart"}></i>
                         </button>
+                        <div className="service-category-badge">
+                          {categories.find(cat => cat._id === listing.categoryId)?.categoryName || 'Service'}
+                        </div>
                       </div>
 
                       <div className="service-content">
@@ -648,6 +634,19 @@ const Services = () => {
                           <div className="service-location">
                             <i className="fas fa-map-marker-alt"></i>
                             <span>{listing.serviceLocation || 'Available'}</span>
+                          </div>
+                        </div>
+
+                        <div className="service-stats">
+                          {listing.completedJobs > 0 && (
+                            <div className="stat-item">
+                              <i className="fas fa-check-circle"></i>
+                              <span>{listing.completedJobs} jobs completed</span>
+                            </div>
+                          )}
+                          <div className="stat-item">
+                            <i className="fas fa-clock"></i>
+                            <span>Est. {listing.estimatedHours || '1-2'} hours</span>
                           </div>
                         </div>
 
