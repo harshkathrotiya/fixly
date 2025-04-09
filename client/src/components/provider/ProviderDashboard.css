@@ -251,10 +251,43 @@
   color: #333;
 }
 
-.booking-id {
+.booking-service {
   margin: 0;
   font-size: 0.8rem;
-  color: #888;
+  color: #666;
+}
+
+.booking-status {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.booking-status.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.booking-status.confirmed {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.booking-status.completed {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.booking-status.cancelled {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.booking-status.rejected {
+  background-color: #f5f5f5;
+  color: #333333;
 }
 
 .booking-price {
@@ -502,22 +535,22 @@
   .stats-cards {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .booking-item-header {
     flex-direction: column;
     gap: 0.8rem;
   }
-  
+
   .booking-date {
     align-items: flex-start;
   }
-  
+
   .booking-item-details {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .booking-price {
     text-align: left;
   }
@@ -527,11 +560,11 @@
   .stats-cards {
     grid-template-columns: 1fr;
   }
-  
+
   .services-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .dashboard-header {
     flex-direction: column;
     align-items: flex-start;

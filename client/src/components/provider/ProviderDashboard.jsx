@@ -210,21 +210,25 @@ function ProviderDashboard() {
                     <div className="booking-item-details">
                       <div className="customer-info">
                         <img
-                          src={booking.customerAvatar || "/placeholder-user.jpg"}
-                          alt={booking.customerName}
+                          src={booking.customerId?.profilePicture || "/placeholder-user.jpg"}
+                          alt={booking.customerId ? `${booking.customerId.firstName} ${booking.customerId.lastName}` : 'Customer'}
                           className="customer-avatar"
                           onError={(e) => { e.target.src = '/placeholder-user.jpg'; }}
                         />
                         <div className="customer-details">
-                          <p className="customer-name">{booking.customerName}</p>
-                          <p className="booking-id">ID: {booking._id.substring(0, 8)}...</p>
+                          <p className="customer-name">
+                            {booking.customerId ? `${booking.customerId.firstName} ${booking.customerId.lastName}` : 'Customer'}
+                          </p>
+                          <p className="booking-service">
+                            {booking.serviceListingId?.serviceTitle || 'Service'}
+                          </p>
                         </div>
                       </div>
 
                       <div className="booking-price">
-                        <p className="price-amount">₹{booking.price?.toFixed(2)}</p>
-                        <span className={`payment-status ${booking.isPaid ? 'paid' : 'unpaid'}`}>
-                          {booking.isPaid ? 'Paid' : 'Unpaid'}
+                        <p className="price-amount">₹{booking.totalAmount?.toFixed(2) || '0.00'}</p>
+                        <span className={`booking-status ${booking.bookingStatus.toLowerCase()}`}>
+                          {booking.bookingStatus}
                         </span>
                       </div>
                     </div>

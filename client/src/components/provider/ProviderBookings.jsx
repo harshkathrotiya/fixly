@@ -198,7 +198,7 @@ function ProviderBookings() {
               <div key={booking._id} className="booking-card">
                 <div className="booking-header">
                   <div className="service-info">
-                    <h3>{booking.serviceTitle}</h3>
+                    <h3>{booking.serviceListingId?.serviceTitle || 'Service Unavailable'}</h3>
                     <span className={`status-badge ${getStatusBadgeClass(booking.bookingStatus)}`}>
                       {booking.bookingStatus}
                     </span>
@@ -216,15 +216,15 @@ function ProviderBookings() {
                   <div className="customer-info">
                     <div className="customer-avatar">
                       <img
-                        src={booking.customerAvatar || "https://via.placeholder.com/50"}
-                        alt={booking.customerName}
+                        src={booking.customerId?.profilePicture || "/placeholder-user.jpg"}
+                        alt={booking.customerId ? `${booking.customerId.firstName} ${booking.customerId.lastName}` : 'Customer'}
                         className="avatar-img"
+                        onError={(e) => { e.target.src = '/placeholder-user.jpg'; }}
                       />
                     </div>
                     <div className="customer-details">
-                      <h4>{booking.customerName}</h4>
-                      <p>{booking.customerEmail}</p>
-                      <p>{booking.customerPhone}</p>
+                      <h4>{booking.customerId ? `${booking.customerId.firstName} ${booking.customerId.lastName}` : 'Customer'}</h4>
+                      <p>Customer ID: {booking.customerId?._id.substring(0, 8) || 'N/A'}</p>
                     </div>
                   </div>
 
@@ -235,16 +235,16 @@ function ProviderBookings() {
                     </div>
                     <div className="detail-item">
                       <span className="detail-label">Service</span>
-                      <span className="detail-value">{booking.serviceTitle}</span>
+                      <span className="detail-value">{booking.serviceListingId?.serviceTitle || 'Service Unavailable'}</span>
                     </div>
                     <div className="detail-item">
                       <span className="detail-label">Price</span>
-                      <span className="detail-value price">₹{booking.price?.toFixed(2)}</span>
+                      <span className="detail-value price">₹{booking.totalAmount?.toFixed(2) || '0.00'}</span>
                     </div>
                     <div className="detail-item">
-                      <span className="detail-label">Payment Status</span>
-                      <span className={`payment-status ${booking.isPaid ? 'paid' : 'unpaid'}`}>
-                        {booking.isPaid ? 'Paid' : 'Unpaid'}
+                      <span className="detail-label">Booking Status</span>
+                      <span className={`payment-status ${booking.bookingStatus.toLowerCase()}`}>
+                        {booking.bookingStatus}
                       </span>
                     </div>
                   </div>
@@ -333,7 +333,7 @@ function ProviderBookings() {
                     </div>
                     <div className="info-item">
                       <span className="info-label">Service</span>
-                      <span className="info-value">{selectedBooking.serviceTitle}</span>
+                      <span className="info-value">{selectedBooking.serviceListingId?.serviceTitle || 'Service Unavailable'}</span>
                     </div>
                     <div className="info-item">
                       <span className="info-label">Date</span>
@@ -345,12 +345,12 @@ function ProviderBookings() {
                     </div>
                     <div className="info-item">
                       <span className="info-label">Price</span>
-                      <span className="info-value price">₹{selectedBooking.price?.toFixed(2)}</span>
+                      <span className="info-value price">₹{selectedBooking.totalAmount?.toFixed(2) || '0.00'}</span>
                     </div>
                     <div className="info-item">
-                      <span className="info-label">Payment Status</span>
-                      <span className={`payment-status ${selectedBooking.isPaid ? 'paid' : 'unpaid'}`}>
-                        {selectedBooking.isPaid ? 'Paid' : 'Unpaid'}
+                      <span className="info-label">Booking Status</span>
+                      <span className={`payment-status ${selectedBooking.bookingStatus.toLowerCase()}`}>
+                        {selectedBooking.bookingStatus}
                       </span>
                     </div>
                   </div>
@@ -361,14 +361,14 @@ function ProviderBookings() {
                   <div className="customer-profile">
                     <div className="customer-avatar large">
                       <img
-                        src={selectedBooking.customerAvatar || "https://via.placeholder.com/80"}
-                        alt={selectedBooking.customerName}
+                        src={selectedBooking.customerId?.profilePicture || "/placeholder-user.jpg"}
+                        alt={selectedBooking.customerId ? `${selectedBooking.customerId.firstName} ${selectedBooking.customerId.lastName}` : 'Customer'}
+                        onError={(e) => { e.target.src = '/placeholder-user.jpg'; }}
                       />
                     </div>
                     <div className="customer-details">
-                      <h4>{selectedBooking.customerName}</h4>
-                      <p><i className="fas fa-envelope"></i> {selectedBooking.customerEmail}</p>
-                      <p><i className="fas fa-phone"></i> {selectedBooking.customerPhone}</p>
+                      <h4>{selectedBooking.customerId ? `${selectedBooking.customerId.firstName} ${selectedBooking.customerId.lastName}` : 'Customer'}</h4>
+                      <p><i className="fas fa-user"></i> Customer ID: {selectedBooking.customerId?._id.substring(0, 8) || 'N/A'}</p>
                     </div>
                   </div>
                 </div>
