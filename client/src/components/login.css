@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  position: relative;
 }
 
 .main-content {
@@ -21,6 +22,7 @@
   padding: 2rem;
   width: 100%;
   max-width: 450px;
+  margin: auto;
 }
 
 .login-container h2 {
@@ -68,6 +70,7 @@
 .login-footer {
   margin-top: 1.5rem;
   text-align: center;
+  padding-bottom: 1rem;
 }
 
 .login-footer p {
@@ -94,79 +97,9 @@
   text-align: center;
 }
 
-/* Footer styles */
-.main-footer {
-  background-color: #333;
-  color: white;
-  padding: 2rem 0;
-}
-
-.footer-content {
-  display: flex;
-  justify-content: space-between;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
-}
-
-.footer-logo h3 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.5rem;
-}
-
-.footer-logo p {
-  margin: 0;
-  color: #ccc;
-}
-
-.footer-links {
-  display: flex;
-}
-
-.footer-section {
-  margin-left: 3rem;
-}
-
-.footer-section h4 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-}
-
-.footer-section ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.footer-section li {
-  margin-bottom: 0.5rem;
-}
-
-.footer-section a {
-  color: #ccc;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.footer-section a:hover {
-  color: white;
-}
-
-.footer-bottom {
-  text-align: center;
-  padding-top: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  border-top: 1px solid #444;
-  margin-top: 2rem;
-}
-
-.footer-bottom p {
-  margin: 0;
-  color: #ccc;
-}
-
-/* Make sure we're not overriding Navbar styles */
-.navbar {
-  /* Only add styles here if you want to override the default Navbar styles specifically for the login page */
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .login-container {
+    padding: 1.5rem;
+  }
 }

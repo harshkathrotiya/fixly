@@ -18,15 +18,31 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initAuth = async () => {
       const storedToken = localStorage.getItem('authToken');
+      const storedUserData = localStorage.getItem('userData');
+
       if (storedToken) {
         try {
+          // First set user from localStorage if available for immediate UI update
+          if (storedUserData) {
+            const userData = JSON.parse(storedUserData);
+            setUser(userData);
+          }
+
+          // Then fetch fresh data from the server
           const response = await axios.get('http://localhost:5000/api/auth/me', {
             headers: { Authorization: `Bearer ${storedToken}` }
           });
-          setUser(response.data.data || response.data);
+
+          const freshUserData = response.data.data || response.data;
+          setUser(freshUserData);
           setToken(storedToken);
+
+          // Update localStorage with fresh data
+          localStorage.setItem('userData', JSON.stringify(freshUserData));
         } catch (error) {
+          console.error('Auth initialization error:', error);
           localStorage.removeItem('authToken');
+          localStorage.removeItem('userData');
           setUser(null);
           setToken(null);
         }
@@ -43,7 +59,11 @@ export const AuthProvider = ({ children }) => {
     const userToSet = userData.data || userData;
     setUser(userToSet);
     setToken(authToken);
+
+    // Store both the token and user data in localStorage
     localStorage.setItem('authToken', authToken);
+    localStorage.setItem('userData', JSON.stringify(userToSet));
+
     // Dispatch auth change event here too for redundancy
     window.dispatchEvent(new Event('auth-change'));
   };
@@ -52,6 +72,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setToken(null);
     localStorage.removeItem('authToken');
+    localStorage.removeItem('userData');
   };
 
   const isAuthenticated = () => {

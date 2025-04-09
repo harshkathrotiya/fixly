@@ -1,8 +1,9 @@
-/* Add these styles at the top of your file */
+/* Provider Dashboard Styles */
 .app-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  font-family: var(--font-family, 'Poppins', sans-serif);
 }
 
 .main-header {
@@ -25,7 +26,7 @@
 .logo a {
   font-size: 1.8rem;
   font-weight: bold;
-  color: #2c3e50;
+  color: var(--primary-color, #8A91B5);
   text-decoration: none;
 }
 
@@ -33,6 +34,8 @@
   display: flex;
   list-style: none;
   gap: 2rem;
+  padding: 0;
+  margin: 0;
 }
 
 .main-nav a {
@@ -43,7 +46,7 @@
 }
 
 .main-nav a:hover {
-  color: #4CAF50;
+  color: var(--primary-color, #8A91B5);
 }
 
 .auth-buttons {
@@ -53,7 +56,7 @@
 
 /* Main footer styles */
 .main-footer {
-  background-color: #2c3e50;
+  background-color: #1F2938;
   color: white;
   padding: 3rem 2rem 1rem;
   margin-top: auto;
@@ -84,10 +87,12 @@
 .footer-section h4 {
   margin-bottom: 1rem;
   font-size: 1.2rem;
+  color: white;
 }
 
 .footer-section ul {
   list-style: none;
+  padding: 0;
 }
 
 .footer-section li {
@@ -111,10 +116,10 @@
   border-top: 1px solid rgba(255,255,255,0.1);
 }
 
-/* Keep your existing styles below */
+/* Dashboard Layout Styles */
 .provider-dashboard {
   padding: 2rem;
-  background-color: #f8f9fa;
+  background-color: var(--bg-light, #f8f9fa);
   flex: 1;
 }
 
@@ -122,21 +127,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
+  padding: 1.5rem 2rem;
   background-color: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-sm, 0 2px 4px rgba(0,0,0,0.1));
   margin-bottom: 2rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md, 8px);
 }
 
 .dashboard-nav h1 {
-  color: #2c3e50;
+  color: var(--text-color, #2c3e50);
   margin: 0;
   font-size: 1.8rem;
+  font-weight: 600;
 }
 
-/* Add these styles to your existing CSS file */
-
+/* Navigation Buttons */
 .nav-links {
   display: flex;
   gap: 1rem;
@@ -145,19 +150,21 @@
 
 .nav-button {
   padding: 0.75rem 1.5rem;
-  border-radius: 6px;
+  border-radius: var(--radius-md, 6px);
   text-decoration: none;
   font-weight: 500;
   transition: all 0.3s ease;
+  display: inline-block;
+  text-align: center;
 }
 
 .nav-button.create {
-  background-color: #4CAF50;
+  background-color: var(--primary-color, #8A91B5);
   color: white;
 }
 
 .nav-button.profile {
-  background-color: #2196F3;
+  background-color: var(--secondary-color, #A6B8BC);
   color: white;
 }
 
@@ -175,12 +182,14 @@
 
 .nav-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-md, 0 4px 8px rgba(0,0,0,0.1));
+  opacity: 0.95;
 }
 
+/* Dashboard Stats Cards */
 .dashboard-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
@@ -188,67 +197,28 @@
 .stat-card {
   background-color: white;
   padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: var(--radius-md, 8px);
+  box-shadow: var(--shadow-sm, 0 2px 4px rgba(0,0,0,0.1));
   text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md, 0 5px 15px rgba(0,0,0,0.1));
 }
 
 .stat-card h3 {
-  color: #6c757d;
+  color: var(--text-lighter, #6c757d);
   margin: 0 0 0.5rem 0;
   font-size: 1rem;
 }
 
 .stat-card p {
-  color: #2c3e50;
+  color: var(--primary-color, #8A91B5);
   margin: 0;
   font-size: 2rem;
   font-weight: bold;
-}
-
-@media (max-width: 768px) {
-  .nav-links {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .nav-button {
-    width: 100%;
-    text-align: center;
-  }
-
-  .dashboard-stats {
-    grid-template-columns: 1fr;
-  }
-}
-
-.nav-links a, .nav-links button {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.nav-links a {
-  background-color: #4CAF50;
-  color: white;
-  transition: background-color 0.3s;
-}
-
-.nav-links a:hover {
-  background-color: #45a049;
-}
-
-.nav-links button {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.nav-links button:hover {
-  background-color: #c82333;
 }
 
 .dashboard-content {

@@ -8,15 +8,15 @@ const { error } = require('console');
 // @route   POST /api/auth/register
 // @access  Public
 exports.register = asyncHandler(async (req, res) => {
-  const { 
-    userType, 
-    username, 
-    password, 
-    firstName, 
-    lastName, 
-    email, 
-    phone, 
-    address 
+  const {
+    userType,
+    username,
+    password,
+    firstName,
+    lastName,
+    email,
+    phone,
+    address
   } = req.body;
 
   // Create user
@@ -133,13 +133,24 @@ exports.updateDetails = asyncHandler(async (req, res) => {
 // @route   PUT /api/auth/updateprofile
 // @access  Private
 exports.updateProfile = asyncHandler(async (req, res) => {
-  const fieldsToUpdate = {
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
-    phone: req.body.phone,
-    address: req.body.address
-  };
+  // Create an object with only the fields that are provided in the request
+  const fieldsToUpdate = {};
+
+  // Only add fields that are present in the request body
+  if (req.body.firstName) fieldsToUpdate.firstName = req.body.firstName;
+  if (req.body.lastName) fieldsToUpdate.lastName = req.body.lastName;
+  if (req.body.email) fieldsToUpdate.email = req.body.email;
+  if (req.body.phone) fieldsToUpdate.phone = req.body.phone;
+  if (req.body.address) fieldsToUpdate.address = req.body.address;
+  if (req.body.businessName) fieldsToUpdate.businessName = req.body.businessName;
+  if (req.body.description) fieldsToUpdate.description = req.body.description;
+
+  // Add profile picture if it's in the request
+  if (req.body.profilePicture) {
+    fieldsToUpdate.profilePicture = req.body.profilePicture;
+  }
+
+  console.log('Fields to update:', fieldsToUpdate);
 
   const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
     new: true,
@@ -302,7 +313,7 @@ exports.getUsers = asyncHandler(async (req, res) => {
 // @access  Private (Admin only)
 exports.getUserById = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id).select('-password');
-  
+
   if (!user) {
     return res.status(404).json({
       success: false,

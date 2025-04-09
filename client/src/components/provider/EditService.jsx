@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../../context/authcontext';
+import { useAuth } from '../../context/AuthContext';
 import './AddService.css'; // Reusing the same CSS as AddService
 
 function EditService() {
   const navigate = useNavigate();
   const { serviceId } = useParams();
   const { token } = useAuth();
-  
+
   const [formData, setFormData] = useState({
     serviceTitle: '',
     serviceCategory: '',
@@ -18,13 +18,13 @@ function EditService() {
     serviceLocation: '',
     serviceImages: []
   });
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [imagePreview, setImagePreview] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
-  
+
   const categories = [
     'Home Cleaning',
     'Plumbing',
@@ -48,10 +48,10 @@ function EditService() {
     const fetchServiceDetails = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`http://localhost:5000/api/services/${serviceId}`, {
+        const response = await axios.get(`http://localhost:5000/api/listings/${serviceId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        
+
         const serviceData = response.data.data;
         setFormData({
           serviceTitle: serviceData.serviceTitle || '',
@@ -62,7 +62,7 @@ function EditService() {
           serviceLocation: serviceData.serviceLocation || '',
           serviceImages: []
         });
-        
+
         if (serviceData.serviceImages && serviceData.serviceImages.length > 0) {
           setExistingImages(serviceData.serviceImages);
         }
@@ -89,11 +89,11 @@ function EditService() {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    
+
     // Preview images
     const newImagePreviews = files.map(file => URL.createObjectURL(file));
     setImagePreview([...imagePreview, ...newImagePreviews]);
-    
+
     // Store files for upload
     setFormData({
       ...formData,
@@ -105,7 +105,7 @@ function EditService() {
     const updatedPreviews = [...imagePreview];
     updatedPreviews.splice(index, 1);
     setImagePreview(updatedPreviews);
-    
+
     const updatedImages = [...formData.serviceImages];
     updatedImages.splice(index, 1);
     setFormData({
@@ -122,7 +122,7 @@ function EditService() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validation
     if (!formData.serviceTitle.trim()) {
       setError('Service title is required');
@@ -140,10 +140,10 @@ function EditService() {
       setError('Please enter a valid price');
       return;
     }
-    
+
     setIsSubmitting(true);
     setError(null);
-    
+
     try {
       // Create form data for file upload
       const serviceData = new FormData();
@@ -153,24 +153,24 @@ function EditService() {
       serviceData.append('price', formData.price);
       serviceData.append('duration', formData.duration);
       serviceData.append('serviceLocation', formData.serviceLocation);
-      
+
       // Append existing images to keep
-      existingImages.forEach((image, index) => {
+      existingImages.forEach(image => {
         serviceData.append('existingImages', image);
       });
-      
+
       // Append each new image
       formData.serviceImages.forEach(image => {
         serviceData.append('serviceImages', image);
       });
-      
-      await axios.put(`http://localhost:5000/api/services/${serviceId}`, serviceData, {
-        headers: { 
+
+      await axios.put(`http://localhost:5000/api/listings/${serviceId}`, serviceData, {
+        headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
         }
       });
-      
+
       navigate('/provider/services');
     } catch (err) {
       console.error('Error updating service:', err);
@@ -187,11 +187,11 @@ function EditService() {
   return (
     <div className="add-service-container">
       <h2>Edit Service</h2>
-      
+
       {error && (
         <div className="error-message">{error}</div>
       )}
-      
+
       <form onSubmit={handleSubmit} className="service-form">
         <div className="form-group">
           <label htmlFor="serviceTitle">Service Title *</label>
@@ -204,7 +204,7 @@ function EditService() {
             placeholder="e.g. Professional Home Cleaning"
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="serviceCategory">Category *</label>
           <select
@@ -219,7 +219,7 @@ function EditService() {
             ))}
           </select>
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="serviceDescription">Description *</label>
           <textarea
@@ -231,7 +231,7 @@ function EditService() {
             placeholder="Describe your service in detail..."
           ></textarea>
         </div>
-        
+
         <div className="form-row">
           <div className="form-group half">
             <label htmlFor="price">Price (₹) *</label>
@@ -246,7 +246,7 @@ function EditService() {
               step="0.01"
             />
           </div>
-          
+
           <div className="form-group half">
             <label htmlFor="duration">Duration (minutes)</label>
             <input
@@ -260,7 +260,7 @@ function EditService() {
             />
           </div>
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="serviceLocation">Service Location</label>
           <input
@@ -272,7 +272,7 @@ function EditService() {
             placeholder="e.g. Customer's home, My shop, etc."
           />
         </div>
-        
+
         <div className="form-group">
           <label>Current Images</label>
           {existingImages.length > 0 ? (
@@ -280,8 +280,8 @@ function EditService() {
               {existingImages.map((src, index) => (
                 <div key={`existing-${index}`} className="image-preview-item">
                   <img src={src} alt={`Service ${index + 1}`} />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="remove-image-btn"
                     onClick={() => removeExistingImage(index)}
                   >
@@ -294,7 +294,7 @@ function EditService() {
             <p className="no-images">No images available</p>
           )}
         </div>
-        
+
         <div className="form-group">
           <label>Add New Images</label>
           <div className="image-upload-container">
@@ -311,14 +311,14 @@ function EditService() {
               accept="image/*"
               className="image-upload-input"
             />
-            
+
             {imagePreview.length > 0 && (
               <div className="image-preview-container">
                 {imagePreview.map((src, index) => (
                   <div key={`new-${index}`} className="image-preview-item">
                     <img src={src} alt={`New preview ${index + 1}`} />
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="remove-image-btn"
                       onClick={() => removeNewImage(index)}
                     >
@@ -330,17 +330,17 @@ function EditService() {
             )}
           </div>
         </div>
-        
+
         <div className="form-actions">
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="cancel-btn"
             onClick={() => navigate('/provider/services')}
           >
             Cancel
           </button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="submit-btn"
             disabled={isSubmitting}
           >

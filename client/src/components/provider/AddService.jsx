@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../../context/authcontext';
+import { useAuth } from '../../context/AuthContext';
 import './AddService.css';
 
 function AddService() {
   const navigate = useNavigate();
   const { token } = useAuth();
-  
+
   const [formData, setFormData] = useState({
     serviceTitle: '',
     serviceCategory: '',
@@ -17,11 +17,11 @@ function AddService() {
     serviceLocation: '',
     serviceImages: []
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [imagePreview, setImagePreview] = useState([]);
-  
+
   const categories = [
     'Home Cleaning',
     'Plumbing',
@@ -51,11 +51,11 @@ function AddService() {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    
+
     // Preview images
     const newImagePreviews = files.map(file => URL.createObjectURL(file));
     setImagePreview([...imagePreview, ...newImagePreviews]);
-    
+
     // Store files for upload
     setFormData({
       ...formData,
@@ -67,7 +67,7 @@ function AddService() {
     const updatedPreviews = [...imagePreview];
     updatedPreviews.splice(index, 1);
     setImagePreview(updatedPreviews);
-    
+
     const updatedImages = [...formData.serviceImages];
     updatedImages.splice(index, 1);
     setFormData({
@@ -78,7 +78,7 @@ function AddService() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validation
     if (!formData.serviceTitle.trim()) {
       setError('Service title is required');
@@ -96,10 +96,10 @@ function AddService() {
       setError('Please enter a valid price');
       return;
     }
-    
+
     setIsSubmitting(true);
     setError(null);
-    
+
     try {
       // Create form data for file upload
       const serviceData = new FormData();
@@ -109,19 +109,19 @@ function AddService() {
       serviceData.append('price', formData.price);
       serviceData.append('duration', formData.duration);
       serviceData.append('serviceLocation', formData.serviceLocation);
-      
+
       // Append each image
       formData.serviceImages.forEach(image => {
         serviceData.append('serviceImages', image);
       });
-      
-      await axios.post('http://localhost:5000/api/services', serviceData, {
-        headers: { 
+
+      await axios.post('http://localhost:5000/api/listings', serviceData, {
+        headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
         }
       });
-      
+
       navigate('/provider/services');
     } catch (err) {
       console.error('Error adding service:', err);
@@ -134,11 +134,11 @@ function AddService() {
   return (
     <div className="add-service-container">
       <h2>Add New Service</h2>
-      
+
       {error && (
         <div className="error-message">{error}</div>
       )}
-      
+
       <form onSubmit={handleSubmit} className="service-form">
         <div className="form-group">
           <label htmlFor="serviceTitle">Service Title *</label>
@@ -151,7 +151,7 @@ function AddService() {
             placeholder="e.g. Professional Home Cleaning"
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="serviceCategory">Category *</label>
           <select
@@ -166,7 +166,7 @@ function AddService() {
             ))}
           </select>
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="serviceDescription">Description *</label>
           <textarea
@@ -178,7 +178,7 @@ function AddService() {
             placeholder="Describe your service in detail..."
           ></textarea>
         </div>
-        
+
         <div className="form-row">
           <div className="form-group half">
             <label htmlFor="price">Price (₹) *</label>
@@ -193,7 +193,7 @@ function AddService() {
               step="0.01"
             />
           </div>
-          
+
           <div className="form-group half">
             <label htmlFor="duration">Duration (minutes)</label>
             <input
@@ -207,7 +207,7 @@ function AddService() {
             />
           </div>
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="serviceLocation">Service Location</label>
           <input
@@ -219,7 +219,7 @@ function AddService() {
             placeholder="e.g. Customer's home, My shop, etc."
           />
         </div>
-        
+
         <div className="form-group">
           <label>Service Images</label>
           <div className="image-upload-container">
@@ -236,14 +236,14 @@ function AddService() {
               accept="image/*"
               className="image-upload-input"
             />
-            
+
             {imagePreview.length > 0 && (
               <div className="image-preview-container">
                 {imagePreview.map((src, index) => (
                   <div key={index} className="image-preview-item">
                     <img src={src} alt={`Preview ${index + 1}`} />
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="remove-image-btn"
                       onClick={() => removeImage(index)}
                     >
@@ -255,17 +255,17 @@ function AddService() {
             )}
           </div>
         </div>
-        
+
         <div className="form-actions">
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="cancel-btn"
             onClick={() => navigate('/provider/services')}
           >
             Cancel
           </button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="submit-btn"
             disabled={isSubmitting}
           >

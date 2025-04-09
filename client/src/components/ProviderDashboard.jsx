@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import './ProviderDashboard.css';
-import { useAuth } from "../context/authcontext"; // Ensure correct case
+import { useAuth } from "../context/AuthContext";
 
 function ProviderDashboard() {
   const [listings, setListings] = useState([]);
@@ -10,6 +10,16 @@ function ProviderDashboard() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { token, logout } = useAuth();
+
+  // Add these new states
+  const [dashboardStats, setDashboardStats] = useState({
+    totalBookings: 0,
+    pendingBookings: 0,
+    completedBookings: 0,
+    totalEarnings: 0
+  });
+  const [recentBookings, setRecentBookings] = useState([]);
+  const [isStatsLoading, setIsStatsLoading] = useState(true);
 
   useEffect(() => {
     // Fetch provider's listings
@@ -32,7 +42,34 @@ function ProviderDashboard() {
       }
     };
 
+    // Add a new function to fetch dashboard stats
+    const fetchDashboardStats = async () => {
+      setIsStatsLoading(true);
+      try {
+        const response = await axios.get('http://localhost:5000/api/providers/me/stats', {
+          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
+        });
+        setDashboardStats(response.data.data || {
+          totalBookings: 0,
+          pendingBookings: 0,
+          completedBookings: 0,
+          totalEarnings: 0
+        });
+
+        // Fetch recent bookings
+        const bookingsResponse = await axios.get('http://localhost:5000/api/bookings/provider/recent', {
+          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
+        });
+        setRecentBookings(bookingsResponse.data.data || []);
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+      } finally {
+        setIsStatsLoading(false);
+      }
+    };
+
     fetchListings();
+    fetchDashboardStats();
   }, []);
 
   const handleLogout = () => {
@@ -71,6 +108,12 @@ function ProviderDashboard() {
             <Link to="/provider/create-listing" className="nav-button create">
               Create New Listing
             </Link>
+            <Link to="/provider/bookings" className="nav-button">
+              Manage Bookings
+            </Link>
+            <Link to="/provider/services" className="nav-button">
+              Manage Services
+            </Link>
           </div>
         </nav>
 
@@ -79,27 +122,77 @@ function ProviderDashboard() {
             <h3>Active Listings</h3>
             <p>{listings.filter(listing => listing.isActive).length}</p>
           </div>
+
+          <div className="stat-card">
+            <h3>Total Bookings</h3>
+            <p>{isStatsLoading ? '...' : dashboardStats.totalBookings}</p>
+          </div>
+
+          <div className="stat-card">
+            <h3>Pending Requests</h3>
+            <p>{isStatsLoading ? '...' : dashboardStats.pendingBookings}</p>
+          </div>
+
+          <div className="stat-card">
+            <h3>Total Earnings</h3>
+            <p>₹{isStatsLoading ? '...' : dashboardStats.totalEarnings.toFixed(2)}</p>
+          </div>
         </div>
 
         <div className="dashboard-content">
+          {/* Recent Bookings Section */}
+          <section className="recent-bookings-section">
+            <h2>Recent Booking Requests</h2>
+
+            {isStatsLoading ? (
+              <p>Loading recent bookings...</p>
+            ) : recentBookings.length === 0 ? (
+              <p>No recent booking requests.</p>
+            ) : (
+              <div className="recent-bookings-list">
+                {recentBookings.map(booking => (
+                  <div key={booking._id} className="booking-card">
+                    <div className="booking-header">
+                      <h3>{booking.serviceTitle}</h3>
+                      <span className={`status-badge status-${booking.bookingStatus.toLowerCase()}`}>
+                        {booking.bookingStatus}
+                      </span>
+                    </div>
+                    <div className="booking-details">
+                      <p><strong>Customer:</strong> {booking.customerName}</p>
+                      <p><strong>Date:</strong> {new Date(booking.serviceDateTime).toLocaleDateString()}</p>
+                      <p><strong>Time:</strong> {new Date(booking.serviceDateTime).toLocaleTimeString()}</p>
+                      <p><strong>Price:</strong> ₹{booking.price.toFixed(2)}</p>
+                    </div>
+                    <div className="booking-actions">
+                      <Link to={`/provider/bookings`} className="view-details-btn">
+                        View All Bookings
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
           <section className="listings-section">
             <h2>My Service Listings</h2>
-            
+
             {isLoading && <p>Loading your listings...</p>}
-            
+
             {error && <p className="error-message">{error}</p>}
-            
+
             {!isLoading && !error && listings.length === 0 && (
               <p>You don't have any listings yet. Create your first listing to get started!</p>
             )}
-            
+
             {!isLoading && !error && listings.length > 0 && (
               <div className="listings-grid">
                 {listings.map(listing => (
                   <div key={listing._id} className="listing-card">
                     <div className="listing-image-container">
-                      <img 
-                        src={listing.serviceImage || '/default-service.jpg'} 
+                      <img
+                        src={listing.serviceImage || '/default-service.jpg'}
                         alt={listing.serviceTitle}
                         onError={(e) => {
                           e.target.src = '/default-service.jpg';

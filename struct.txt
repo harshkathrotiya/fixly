@@ -6,6 +6,16 @@
 │   ├── package-lock.json
 │   ├── package.json
 │   ├── public
+│   │   ├── fontawesome
+│   │   │   ├── fa-brands-400.ttf
+│   │   │   ├── fa-brands-400.woff2
+│   │   │   ├── fa-regular-400.ttf
+│   │   │   ├── fa-regular-400.woff2
+│   │   │   ├── fa-solid-900.ttf
+│   │   │   ├── fa-solid-900.woff2
+│   │   │   ├── fa-v4compatibility.ttf
+│   │   │   └── fa-v4compatibility.woff2
+│   │   ├── index.html
 │   │   └── vite.svg
 │   ├── README.md
 │   ├── src
@@ -13,9 +23,30 @@
 │   │   ├── assets
 │   │   │   └── react.svg
 │   │   ├── components
+│   │   │   ├── admin
+│   │   │   │   ├── AdminLayout.jsx
+│   │   │   │   ├── Bookings.jsx
+│   │   │   │   ├── Categories.jsx
+│   │   │   │   ├── Commissions.jsx
+│   │   │   │   ├── Complaints.jsx
+│   │   │   │   ├── CreateAdminUser.jsx
+│   │   │   │   ├── Dashboard.jsx
+│   │   │   │   ├── Header.jsx
+│   │   │   │   ├── Listings.jsx
+│   │   │   │   ├── Providers.jsx
+│   │   │   │   ├── Services.jsx
+│   │   │   │   ├── shared
+│   │   │   │   │   ├── styles.js
+│   │   │   │   │   └── TableLayout.jsx
+│   │   │   │   ├── Sidebar.jsx
+│   │   │   │   └── Users.jsx
 │   │   │   ├── appointments.jsx
 │   │   │   ├── authchoice.jsx
 │   │   │   ├── BookingDetails.jsx
+│   │   │   ├── Bookings.css
+│   │   │   ├── Bookings.jsx
+│   │   │   ├── ComplaintForm.css
+│   │   │   ├── ComplaintForm.jsx
 │   │   │   ├── CreateListing.css
 │   │   │   ├── CreateListing.jsx
 │   │   │   ├── EditListing.jsx
@@ -31,18 +62,43 @@
 │   │   │   │   └── plumbing.png
 │   │   │   ├── joblisting.css
 │   │   │   ├── joblisting.jsx
+│   │   │   ├── ListingDetails.css
 │   │   │   ├── ListingDetails.jsx
 │   │   │   ├── login.css
 │   │   │   ├── login.jsx
+│   │   │   ├── MyBookings.css
+│   │   │   ├── MyBookings.jsx
 │   │   │   ├── Navbar.css
 │   │   │   ├── Navbar.jsx
+│   │   │   ├── PaymentForm.css
+│   │   │   ├── PaymentForm.jsx
+│   │   │   ├── ProtectedAdminRoute.jsx
+│   │   │   ├── ProtectedProviderRoute.jsx
+│   │   │   ├── provider
+│   │   │   │   ├── AddService.css
+│   │   │   │   ├── AddService.jsx
+│   │   │   │   ├── EditService.css
+│   │   │   │   ├── EditService.jsx
+│   │   │   │   ├── ProviderBookings.css
+│   │   │   │   ├── ProviderBookings.jsx
+│   │   │   │   ├── ProviderDashboard.css
+│   │   │   │   ├── ProviderDashboard.jsx
+│   │   │   │   ├── ProviderLayout.css
+│   │   │   │   ├── ProviderLayout.jsx
+│   │   │   │   ├── ProviderProfile.css
+│   │   │   │   ├── ProviderProfile.jsx
+│   │   │   │   ├── ServiceManagement.css
+│   │   │   │   └── ServiceManagement.jsx
 │   │   │   ├── ProviderDashboard.css
 │   │   │   ├── ProviderDashboard.jsx
 │   │   │   ├── ProviderProfile.css
 │   │   │   ├── ProviderProfile.jsx
 │   │   │   ├── review.css
 │   │   │   ├── review.jsx
+│   │   │   ├── ReviewForm.css
 │   │   │   ├── reviewform.jsx
+│   │   │   ├── Reviews.css
+│   │   │   ├── Reviews.jsx
 │   │   │   ├── ServiceDetails.css
 │   │   │   ├── ServiceDetails.jsx
 │   │   │   ├── services.css
@@ -56,31 +112,53 @@
 │   │   ├── index.css
 │   │   ├── main.jsx
 │   │   ├── styles
-│   │   │   └── global.css
+│   │   │   ├── admin
+│   │   │   │   ├── admin.css
+│   │   │   │   └── users.css
+│   │   │   ├── admin.css
+│   │   │   ├── global.css
+│   │   │   └── tailwind.css
 │   │   └── utils
 │   │       └── cloudinary.js
+│   ├── tailwind.config.js
 │   └── vite.config.js
 ├── docs
 │   ├── authapi.txt
+│   ├── bookingapi.txt
 │   ├── listingapi.txt
 │   └── serviceproviderapi.txt
+├── fix_imports.sh
 ├── G_33_srs.pdf
-├── package-lock.json
-├── package.json
 ├── server
 │   ├── config
 │   │   ├── cloudinary.js
 │   │   └── db.js
 │   ├── controllers
+│   │   ├── adminEarningsController.js
+│   │   ├── adminServicesController.js
 │   │   ├── authController.js
+│   │   ├── bookingController.js
+│   │   ├── commissionController.js
+│   │   ├── complaintController.js
+│   │   ├── paymentController.js
+│   │   ├── reportController.js
+│   │   ├── reviewController.js
 │   │   ├── serviceCategoryController.js
 │   │   ├── serviceListingController.js
-│   │   └── serviceProviderController.js
+│   │   ├── serviceProviderController.js
+│   │   └── userController.js
 │   ├── middleware
 │   │   ├── auth.js
 │   │   ├── errorHandler.js
 │   │   └── validateProvider.js
 │   ├── models
+│   │   ├── AdminEarnings.js
+│   │   ├── Booking.js
+│   │   ├── Commission.js
+│   │   ├── Complaint.js
+│   │   ├── Payment.js
+│   │   ├── Report.js
+│   │   ├── Review.js
 │   │   ├── ServiceCategory.js
 │   │   ├── ServiceListing.js
 │   │   ├── ServiceProvider.js
@@ -89,10 +167,18 @@
 │   ├── package.json
 │   ├── routes
 │   │   ├── api
+│   │   │   ├── admin.js
 │   │   │   ├── auth.js
+│   │   │   ├── bookings.js
 │   │   │   ├── categories.js
+│   │   │   ├── commissions.js
+│   │   │   ├── complaints.js
 │   │   │   ├── listings.js
-│   │   │   └── providers.js
+│   │   │   ├── payments.js
+│   │   │   ├── providers.js
+│   │   │   ├── reports.js
+│   │   │   ├── reviews.js
+│   │   │   └── users.js
 │   │   └── index.js
 │   ├── server.js
 │   └── utils
@@ -100,4 +186,6 @@
 │       └── sendEmail.js
 └── struct.txt
 
-19 directories, 82 files
+24 directories, 163 files
+
+
