@@ -13,8 +13,8 @@ import { AuthProvider } from "./context/AuthContext";
 import ProviderDashboard from "./components/provider/ProviderDashboard";
 import CreateListingWrapper from "./components/provider/CreateListingWrapper";
 import EditListingWrapper from "./components/provider/EditListingWrapper";
-// Using the ProviderProfile that already uses ProviderLayout
-import ProviderProfile from "./components/ProviderProfile";
+// Using the ProviderProfile from the provider folder
+import ProviderProfile from "./components/provider/ProviderProfile";
 import Appointments from "./components/appointments";
 import BookingDetails from "./components/BookingDetails";
 import AdminDashboard from './components/admin/Dashboard';

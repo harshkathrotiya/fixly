@@ -141,7 +141,11 @@ exports.updateProfile = asyncHandler(async (req, res) => {
   if (req.body.lastName) fieldsToUpdate.lastName = req.body.lastName;
   if (req.body.email) fieldsToUpdate.email = req.body.email;
   if (req.body.phone) fieldsToUpdate.phone = req.body.phone;
+
+  // Handle address field - can be either direct or from businessAddress
   if (req.body.address) fieldsToUpdate.address = req.body.address;
+  else if (req.body.businessAddress) fieldsToUpdate.address = req.body.businessAddress;
+
   if (req.body.businessName) fieldsToUpdate.businessName = req.body.businessName;
   if (req.body.description) fieldsToUpdate.description = req.body.description;
 
@@ -152,15 +156,26 @@ exports.updateProfile = asyncHandler(async (req, res) => {
 
   console.log('Fields to update:', fieldsToUpdate);
 
-  const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
-    new: true,
-    runValidators: true
-  });
+  try {
+    const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
+      new: true,
+      runValidators: true
+    });
 
-  res.status(200).json({
-    success: true,
-    data: user
-  });
+    console.log('Updated user:', user);
+
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating profile',
+      error: error.message
+    });
+  }
 });
 
 // @desc    Update password

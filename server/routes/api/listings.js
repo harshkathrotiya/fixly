@@ -5,9 +5,10 @@ const {
   getListings,
   getListingById,
   updateListing,
+  updateListingStatus,
   deleteListing,
   getListingsByProviderId,
-  getProviderListings  // Add this import
+  getProviderListings
 } = require('../../controllers/serviceListingController');
 
 const { protect, authorize } = require('../../middleware/auth');
@@ -39,6 +40,13 @@ router.delete(
   protect,
   authorize('service_provider'),
   deleteListing
+);
+
+router.put(
+  '/:id/status',
+  protect,
+  authorize('service_provider'),
+  updateListingStatus
 );
 
 router.put(

@@ -53,18 +53,25 @@ function EditService() {
         });
 
         const serviceData = response.data.data;
+        console.log('Fetched service data:', serviceData);
+
+        // Make sure we have all the data we need
+        if (!serviceData) {
+          throw new Error('No service data returned from the server');
+        }
+
         setFormData({
           serviceTitle: serviceData.serviceTitle || '',
-          serviceCategory: serviceData.serviceCategory || '',
-          serviceDescription: serviceData.serviceDescription || '',
-          price: serviceData.price ? serviceData.price.toString() : '',
+          serviceCategory: serviceData.categoryId?.categoryName || '',
+          serviceDescription: serviceData.serviceDetails || '',
+          price: serviceData.servicePrice ? serviceData.servicePrice.toString() : '',
           duration: serviceData.duration ? serviceData.duration.toString() : '',
           serviceLocation: serviceData.serviceLocation || '',
           serviceImages: []
         });
 
-        if (serviceData.serviceImages && serviceData.serviceImages.length > 0) {
-          setExistingImages(serviceData.serviceImages);
+        if (serviceData.serviceImage) {
+          setExistingImages([serviceData.serviceImage]);
         }
       } catch (err) {
         console.error('Error fetching service details:', err);
@@ -141,35 +148,100 @@ function EditService() {
       return;
     }
 
+    // Log what we're submitting for debugging
+    console.log('Submitting form data:', formData);
+
     setIsSubmitting(true);
     setError(null);
 
     try {
+      // Log what we're submitting
+      console.log('Form data being submitted:', formData);
+
       // Create form data for file upload
       const serviceData = new FormData();
       serviceData.append('serviceTitle', formData.serviceTitle);
-      serviceData.append('serviceCategory', formData.serviceCategory);
-      serviceData.append('serviceDescription', formData.serviceDescription);
-      serviceData.append('price', formData.price);
-      serviceData.append('duration', formData.duration);
-      serviceData.append('serviceLocation', formData.serviceLocation);
+      serviceData.append('serviceDetails', formData.serviceDescription);
 
-      // Append existing images to keep
-      existingImages.forEach(image => {
-        serviceData.append('existingImages', image);
-      });
-
-      // Append each new image
-      formData.serviceImages.forEach(image => {
-        serviceData.append('serviceImages', image);
-      });
-
-      await axios.put(`http://localhost:5000/api/listings/${serviceId}`, serviceData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
+      // Make sure price is a valid number
+      if (formData.price) {
+        const priceValue = parseFloat(formData.price);
+        if (!isNaN(priceValue)) {
+          console.log('Appending valid price:', priceValue);
+          serviceData.append('servicePrice', priceValue.toString());
+        } else {
+          console.log('Invalid price value:', formData.price);
         }
-      });
+      }
+
+      // Make sure duration is a valid number
+      if (formData.duration) {
+        const durationValue = parseInt(formData.duration);
+        if (!isNaN(durationValue)) {
+          serviceData.append('duration', durationValue.toString());
+        }
+      }
+
+      serviceData.append('serviceLocation', formData.serviceLocation || '');
+
+      // Add tags if needed
+      serviceData.append('tags', '');
+
+      // Handle image if needed
+      if (existingImages.length > 0) {
+        serviceData.append('serviceImage', existingImages[0]);
+      } else if (formData.serviceImages.length > 0) {
+        serviceData.append('serviceImage', formData.serviceImages[0]);
+      }
+
+      // Check if we have any file uploads
+      const hasFileUploads = formData.serviceImages && formData.serviceImages.length > 0;
+
+      let response;
+
+      if (hasFileUploads) {
+        // Use FormData for file uploads
+        console.log('Using FormData for file upload');
+
+        // Log the FormData (this won't show the actual data, just an empty object)
+        console.log('Service data FormData:', serviceData);
+
+        response = await axios.put(`http://localhost:5000/api/listings/${serviceId}`, serviceData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+      } else {
+        // Use JSON for regular data updates
+        console.log('Using JSON for data update');
+
+        // Create a regular JSON object
+        const jsonData = {
+          serviceTitle: formData.serviceTitle,
+          serviceDetails: formData.serviceDescription,
+          servicePrice: parseFloat(formData.price),
+          duration: formData.duration ? parseInt(formData.duration) : undefined,
+          serviceLocation: formData.serviceLocation || '',
+          tags: ''
+        };
+
+        // If we have existing images, include them
+        if (existingImages.length > 0) {
+          jsonData.serviceImage = existingImages[0];
+        }
+
+        console.log('JSON data being sent:', jsonData);
+
+        response = await axios.put(`http://localhost:5000/api/listings/${serviceId}`, jsonData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+
+      console.log('Update response:', response.data);
 
       navigate('/provider/services');
     } catch (err) {

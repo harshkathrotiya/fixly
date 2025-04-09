@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { uploadToCloudinary } from '../utils/cloudinary';
-import ProviderLayout from './provider/ProviderLayout';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { uploadToCloudinary } from '../../utils/cloudinary';
+import ProviderLayout from './ProviderLayout';
 import './ProviderProfile.css';
 
 function ProviderProfile() {
@@ -18,11 +18,8 @@ function ProviderProfile() {
     profilePicture: '',
     verificationStatus: 'pending'
   });
-  const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [servicesLoading, setServicesLoading] = useState(true);
   const [error, setError] = useState('');
-  const [servicesError, setServicesError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
   const { token, logout } = useAuth();
@@ -92,27 +89,10 @@ function ProviderProfile() {
       }
     };
 
-    // Fetch provider services
-    const fetchServices = async () => {
-      setServicesLoading(true);
-      try {
-        const response = await axios.get('http://localhost:5000/api/providers/me/listings', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
 
-        console.log('Provider services:', response.data);
-        setServices(response.data.data || []);
-      } catch (err) {
-        console.error('Error fetching services:', err);
-        setServicesError('Failed to load your services. Please try again.');
-      } finally {
-        setServicesLoading(false);
-      }
-    };
 
     if (token) {
       fetchProfile();
-      fetchServices();
     } else {
       navigate('/login');
     }
@@ -186,10 +166,12 @@ function ProviderProfile() {
         lastName: profile.lastName,
         phone: profile.phone,
         businessName: profile.businessName,
-        address: profile.businessAddress,
+        businessAddress: profile.businessAddress, // This will be mapped to address in the backend
         description: profile.description,
         profilePicture: profile.profilePicture // Make sure to include the profile picture
       };
+
+      console.log('Sending update data:', updateData);
 
       // Update the user profile using the same endpoint as the image upload
       const response = await axios.put(
@@ -242,11 +224,14 @@ function ProviderProfile() {
   return (
     <ProviderLayout>
       <div className="provider-profile">
+        <div className="profile-header">
+          <h1>My Profile</h1>
+        </div>
+
         {error && <div className="error-message">{error}</div>}
         {successMessage && <div className="success-message">{successMessage}</div>}
 
         <form onSubmit={handleSubmit}>
-
           <div className="profile-content">
             <div className="profile-sidebar">
               <div className="profile-image-container">
@@ -371,6 +356,9 @@ function ProviderProfile() {
               <div className="form-actions">
                 <button type="submit" className="save-button">
                   <i className="fas fa-save"></i> Save Changes
+                </button>
+                <button type="button" className="cancel-button" onClick={() => navigate('/provider/dashboard')}>
+                  <i className="fas fa-times"></i> Cancel
                 </button>
               </div>
             </div>

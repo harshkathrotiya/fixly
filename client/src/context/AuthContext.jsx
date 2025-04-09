@@ -69,10 +69,19 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    // Clear state
     setUser(null);
     setToken(null);
+
+    // Clear localStorage
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
+
+    // Dispatch auth change event for components listening to it
+    window.dispatchEvent(new Event('auth-change'));
+
+    // Redirect to login page
+    window.location.href = '/login';
   };
 
   const isAuthenticated = () => {

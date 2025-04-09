@@ -7,6 +7,7 @@ function ProviderLayout({ children }) {
   const location = useLocation();
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const isActive = (path) => {
     return location.pathname === path ? 'active' : '';
@@ -14,6 +15,12 @@ function ProviderLayout({ children }) {
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
+  };
+
+  const handleLogout = () => {
+    setIsLoggingOut(true);
+    // Call the logout function from AuthContext
+    logout();
   };
 
   return (
@@ -68,9 +75,9 @@ function ProviderLayout({ children }) {
         </nav>
 
         <div className="sidebar-footer">
-          <button className="logout-btn" onClick={logout}>
+          <button className="logout-btn" onClick={handleLogout} disabled={isLoggingOut}>
             <i className="fas fa-sign-out-alt"></i>
-            <span>Logout</span>
+            <span>{isLoggingOut ? 'Logging out...' : 'Logout'}</span>
           </button>
         </div>
       </div>

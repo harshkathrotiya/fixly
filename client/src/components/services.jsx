@@ -3,7 +3,7 @@ import axios from "axios";
 import "./services.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
-import { useAuth } from "../context/authcontext";
+import { useAuth } from "../context/AuthContext";
 import PlaceholderImg from "./images/plumbing.png";
 import { motion, AnimatePresence } from "framer-motion"; // Add framer-motion for animations
 
@@ -11,13 +11,12 @@ const Services = () => {
   // State for listings and categories
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [listings, setListings] = useState([]);
   const [filteredListings, setFilteredListings] = useState([]);
-  
+
   // State for loading and errors
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // State for filters
   const [viewMode, setViewMode] = useState("all"); // all, provider
   const [selectedProvider, setSelectedProvider] = useState(null);
@@ -26,21 +25,21 @@ const Services = () => {
   const [maxPrice, setMaxPrice] = useState("");
   const [tags, setTags] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  
+
   // State for pagination
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(12); // Increased from 10 for better grid layout
   const [totalPages, setTotalPages] = useState(1);
-  
+
   // State for sorting
   const [sortOption, setSortOption] = useState("newest");
-  
+
   // State for favorite services (if user is logged in)
   const [favorites, setFavorites] = useState([]);
-  
+
   // Refs
   const servicesRef = useRef(null);
-  
+
   // Hooks
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,7 +48,7 @@ const Services = () => {
   // Parse query parameters
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    
+
     // Extract all possible query parameters
     const categoryParam = params.get("category");
     const providerParam = params.get("provider");
@@ -60,7 +59,7 @@ const Services = () => {
     const pageParam = params.get("page");
     const limitParam = params.get("limit");
     const sortParam = params.get("sort");
-    
+
     // Set state based on URL parameters
     if (categoryParam) setSelectedCategory(categoryParam);
     if (providerParam) {
@@ -74,7 +73,7 @@ const Services = () => {
     if (pageParam) setPage(parseInt(pageParam));
     if (limitParam) setLimit(parseInt(limitParam));
     if (sortParam) setSortOption(sortParam);
-    
+
   }, [location.search]);
 
   // Fetch categories on component mount
@@ -84,7 +83,7 @@ const Services = () => {
         const response = await axios.get('http://localhost:5000/api/categories');
         const fetchedCategories = response.data.data || [];
         setCategories(fetchedCategories);
-        
+
         // Set the first category as selected by default if not already set
         if (!selectedCategory && fetchedCategories.length > 0) {
           setSelectedCategory(fetchedCategories[0]._id);
@@ -96,7 +95,7 @@ const Services = () => {
     };
 
     fetchCategories();
-    
+
     // If user is logged in, fetch favorites
     if (user) {
       fetchFavorites();
@@ -109,7 +108,7 @@ const Services = () => {
     try {
       // const response = await axios.get(`http://localhost:5000/api/users/${user.id}/favorites`);
       // setFavorites(response.data.data || []);
-      
+
       // For now, just using localStorage to simulate favorites functionality
       const savedFavorites = localStorage.getItem('serviceFavorites');
       if (savedFavorites) {
@@ -125,11 +124,11 @@ const Services = () => {
     const fetchListings = async () => {
       setLoading(true);
       setError(null);
-      
+
       try {
         let url;
         let params = new URLSearchParams();
-        
+
         // Determine base URL based on view mode
         if (viewMode === "provider" && selectedProvider) {
           // For provider-specific listings
@@ -137,7 +136,7 @@ const Services = () => {
         } else {
           // For all listings with filters
           url = 'http://localhost:5000/api/listings';
-          
+
           // Add query parameters
           if (selectedCategory) params.append('category', selectedCategory);
           if (searchTerm) params.append('search', searchTerm);
@@ -145,27 +144,26 @@ const Services = () => {
           if (maxPrice) params.append('maxPrice', maxPrice);
           if (tags) params.append('tags', tags);
           if (sortOption) params.append('sort', sortOption);
-          
+
           // Pagination parameters
           params.append('page', page);
           params.append('limit', limit);
         }
-        
+
         // Make the API request
         const response = await axios.get(
           params.toString() ? `${url}?${params.toString()}` : url
         );
-        
+
         // Handle the response
         const data = response.data;
-        setListings(data.data || []);
         setFilteredListings(data.data || []);
-        
+
         // Set pagination info if available
         if (data.pagination) {
-          setTotalPages(data.pagination.totalPages || 1);
+          setTotalPages(data.pagination.pages || 1);
         }
-        
+
         console.log('Fetched listings:', data.data);
       } catch (err) {
         console.error('Error fetching listings:', err);
@@ -177,9 +175,9 @@ const Services = () => {
 
     fetchListings();
   }, [
-    selectedCategory, 
-    viewMode, 
-    selectedProvider, 
+    selectedCategory,
+    viewMode,
+    selectedProvider,
     searchTerm,
     minPrice,
     maxPrice,
@@ -192,7 +190,7 @@ const Services = () => {
   // Update URL with current filters
   const updateUrlWithFilters = () => {
     const params = new URLSearchParams();
-    
+
     if (selectedCategory) params.append('category', selectedCategory);
     if (selectedProvider) params.append('provider', selectedProvider);
     if (searchTerm) params.append('search', searchTerm);
@@ -202,7 +200,7 @@ const Services = () => {
     if (page > 1) params.append('page', page);
     if (limit !== 12) params.append('limit', limit);
     if (sortOption !== 'newest') params.append('sort', sortOption);
-    
+
     navigate(`/services?${params.toString()}`, { replace: true });
   };
 
@@ -211,14 +209,14 @@ const Services = () => {
     setSelectedCategory(categoryId);
     setViewMode("all");
     setPage(1); // Reset to first page
-    
+
     // Update URL
     const params = new URLSearchParams(location.search);
     params.set('category', categoryId);
     params.delete('provider'); // Clear provider when changing category
     params.set('page', '1');
     navigate(`/services?${params.toString()}`, { replace: true });
-    
+
     // Scroll to services section
     if (servicesRef.current) {
       servicesRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -254,7 +252,7 @@ const Services = () => {
   const handleSortChange = (e) => {
     setSortOption(e.target.value);
     setPage(1); // Reset to first page
-    
+
     // Update URL
     const params = new URLSearchParams(location.search);
     params.set('sort', e.target.value);
@@ -265,12 +263,12 @@ const Services = () => {
   // Handle page change
   const handlePageChange = (newPage) => {
     setPage(newPage);
-    
+
     // Update URL
     const params = new URLSearchParams(location.search);
     params.set('page', newPage.toString());
     navigate(`/services?${params.toString()}`, { replace: true });
-    
+
     // Scroll to top of services section
     if (servicesRef.current) {
       servicesRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -287,11 +285,11 @@ const Services = () => {
     setPage(1);
     setViewMode("all");
     setSelectedProvider(null);
-    
+
     // Keep only the category in URL
     navigate(`/services?category=${selectedCategory}`, { replace: true });
   };
-  
+
   // Toggle favorite status
   const toggleFavorite = (listingId) => {
     if (!user) {
@@ -299,7 +297,7 @@ const Services = () => {
       navigate('/login', { state: { from: location } });
       return;
     }
-    
+
     // Update local favorites list
     let updatedFavorites;
     if (favorites.includes(listingId)) {
@@ -307,12 +305,12 @@ const Services = () => {
     } else {
       updatedFavorites = [...favorites, listingId];
     }
-    
+
     setFavorites(updatedFavorites);
-    
+
     // Save to localStorage (replace with API call in production)
     localStorage.setItem('serviceFavorites', JSON.stringify(updatedFavorites));
-    
+
     // For a real implementation, you'd save to the database
     // axios.post(`http://localhost:5000/api/users/${user.id}/favorites`, { listingId });
   };
@@ -324,12 +322,12 @@ const Services = () => {
 
   // Calculate average rating for stars display
   const renderStars = (rating) => {
-    if (!rating) return null;
-    
+    if (!rating || rating <= 0) return null;
+
     const fullStars = Math.floor(rating);
     const halfStar = rating % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-    
+
     return (
       <div className="stars-container">
         {[...Array(fullStars)].map((_, i) => (
@@ -347,38 +345,38 @@ const Services = () => {
   const renderPaginationButtons = () => {
     const buttons = [];
     const maxVisibleButtons = 5;
-    
+
     // Calculate range of pages to show
     let startPage = Math.max(1, page - Math.floor(maxVisibleButtons / 2));
     let endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
-    
+
     // Adjust if we're at the end
     if (endPage - startPage + 1 < maxVisibleButtons) {
       startPage = Math.max(1, endPage - maxVisibleButtons + 1);
     }
-    
+
     // First page button
     if (startPage > 1) {
       buttons.push(
-        <button 
-          key="first" 
+        <button
+          key="first"
           onClick={() => handlePageChange(1)}
           className="pagination-button page-number"
         >
           1
         </button>
       );
-      
+
       if (startPage > 2) {
         buttons.push(<span key="dots1" className="pagination-ellipsis">...</span>);
       }
     }
-    
+
     // Page number buttons
     for (let i = startPage; i <= endPage; i++) {
       buttons.push(
-        <button 
-          key={i} 
+        <button
+          key={i}
           onClick={() => handlePageChange(i)}
           className={`pagination-button page-number ${page === i ? 'active' : ''}`}
         >
@@ -386,16 +384,16 @@ const Services = () => {
         </button>
       );
     }
-    
+
     // Last page button
     if (endPage < totalPages) {
       if (endPage < totalPages - 1) {
         buttons.push(<span key="dots2" className="pagination-ellipsis">...</span>);
       }
-      
+
       buttons.push(
-        <button 
-          key="last" 
+        <button
+          key="last"
           onClick={() => handlePageChange(totalPages)}
           className="pagination-button page-number"
         >
@@ -403,14 +401,14 @@ const Services = () => {
         </button>
       );
     }
-    
+
     return buttons;
   };
 
   return (
     <div className="services-page">
       <Navbar />
-      
+
       <div className="hero-section">
         <div className="hero-content">
           <h1>Find Your Perfect Service Provider</h1>
@@ -431,7 +429,7 @@ const Services = () => {
           </form>
         </div>
       </div>
-      
+
       <div className="services-container" ref={servicesRef}>
         {error && (
           <div className="error-message">
@@ -440,12 +438,12 @@ const Services = () => {
             <button onClick={() => setError(null)}>Dismiss</button>
           </div>
         )}
-        
+
         <div className="category-selector">
           <h2>Browse Services by Category</h2>
           <div className="category-cards">
             {categories.map((category) => (
-              <div 
+              <div
                 key={category._id}
                 className={`category-card ${selectedCategory === category._id ? "active" : ""}`}
                 onClick={() => handleCategoryChange(category._id)}
@@ -458,20 +456,20 @@ const Services = () => {
             ))}
           </div>
         </div>
-        
+
         <div className="filter-section">
           <div className="filter-header">
             <h2>
               {viewMode === "provider" ? "Provider Services" : selectedCategoryName}
               {searchTerm && ` - "${searchTerm}"`}
             </h2>
-            
+
             <div className="filter-controls">
               <div className="sort-filter">
                 <label htmlFor="sort-select">Sort by:</label>
-                <select 
+                <select
                   id="sort-select"
-                  value={sortOption} 
+                  value={sortOption}
                   onChange={handleSortChange}
                   className="sort-select"
                 >
@@ -481,8 +479,8 @@ const Services = () => {
                   <option value="rating">Highest Rated</option>
                 </select>
               </div>
-              
-              <button 
+
+              <button
                 className="filter-toggle-button"
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
               >
@@ -491,10 +489,10 @@ const Services = () => {
               </button>
             </div>
           </div>
-          
+
           <AnimatePresence>
             {isFilterOpen && (
-              <motion.div 
+              <motion.div
                 className="advanced-filters"
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
@@ -522,7 +520,7 @@ const Services = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="filter-group">
                     <label>Tags (comma separated):</label>
                     <input
@@ -534,15 +532,15 @@ const Services = () => {
                     />
                   </div>
                 </div>
-                
+
                 <div className="filter-actions">
-                  <button 
+                  <button
                     onClick={resetFilters}
                     className="reset-filters-button"
                   >
                     <i className="fas fa-times"></i> Reset Filters
                   </button>
-                  <button 
+                  <button
                     onClick={handlePriceFilter}
                     className="apply-filter-button"
                   >
@@ -553,7 +551,7 @@ const Services = () => {
             )}
           </AnimatePresence>
         </div>
-        
+
         <div className="services-results">
           {loading ? (
             <div className="loading-container">
@@ -576,16 +574,16 @@ const Services = () => {
                       transition={{ duration: 0.3, delay: index * 0.05 }}
                     >
                       <div className="service-image-wrapper">
-                        <img 
-                          src={listing.serviceImage || PlaceholderImg} 
-                          alt={listing.title || listing.serviceTitle} 
-                          className="service-image" 
+                        <img
+                          src={listing.serviceImage || PlaceholderImg}
+                          alt={listing.serviceTitle || 'Service'}
+                          className="service-image"
                           onError={(e) => {
                             e.target.onerror = null;
                             e.target.src = PlaceholderImg;
                           }}
                         />
-                        <button 
+                        <button
                           className={`favorite-button ${favorites.includes(listing._id) ? 'active' : ''}`}
                           onClick={(e) => {
                             e.stopPropagation();
@@ -596,26 +594,32 @@ const Services = () => {
                           <i className={favorites.includes(listing._id) ? "fas fa-heart" : "far fa-heart"}></i>
                         </button>
                       </div>
-                      
+
                       <div className="service-content">
-                        <h3>{listing.title || listing.serviceTitle}</h3>
-                        
+                        <h3>{listing.serviceTitle}</h3>
+
                         <div className="service-meta-row">
-                          <div className="service-price">${listing.price || listing.servicePrice}</div>
-                          {listing.rating && (
+                          <div className="service-price">
+                            <span className="price-label">Price:</span>
+                            <span className="price-value">${listing.servicePrice ? listing.servicePrice.toFixed(2) : '0.00'}</span>
+                          </div>
+                          {listing.averageRating > 0 && (
                             <div className="service-rating">
-                              {renderStars(listing.rating)}
-                              <span className="rating-value">{listing.rating.toFixed(1)}</span>
+                              {renderStars(listing.averageRating)}
+                              <span className="rating-value">{listing.averageRating.toFixed(1)}</span>
+                              {listing.reviewCount > 0 && (
+                                <span className="review-count">({listing.reviewCount})</span>
+                              )}
                             </div>
                           )}
                         </div>
-                        
+
                         <p className="service-description">
-                          {(listing.description || listing.serviceDetails).length > 100 
-                            ? `${(listing.description || listing.serviceDetails).substring(0, 100)}...` 
-                            : (listing.description || listing.serviceDetails)}
+                          {listing.serviceDetails && listing.serviceDetails.length > 100
+                            ? `${listing.serviceDetails.substring(0, 100)}...`
+                            : listing.serviceDetails || 'No description available'}
                         </p>
-                        
+
                         {listing.tags && (
                           <div className="service-tags">
                             {(Array.isArray(listing.tags) ? listing.tags : listing.tags.split(','))
@@ -630,22 +634,24 @@ const Services = () => {
                             )}
                           </div>
                         )}
-                        
+
                         <div className="service-info-row">
                           <div className="service-provider">
                             <i className="fas fa-user-circle"></i>
-                            <span>{listing.providerName || 'Service Provider'}</span>
+                            <span>
+                              {listing.serviceProviderId?.userId ?
+                                `${listing.serviceProviderId.userId.firstName || ''} ${listing.serviceProviderId.userId.lastName || ''}`.trim() || 'Service Provider'
+                                : 'Service Provider'}
+                            </span>
                           </div>
-                          
-                          {listing.location && (
-                            <div className="service-location">
-                              <i className="fas fa-map-marker-alt"></i>
-                              <span>{listing.location}</span>
-                            </div>
-                          )}
+
+                          <div className="service-location">
+                            <i className="fas fa-map-marker-alt"></i>
+                            <span>{listing.serviceLocation || 'Available'}</span>
+                          </div>
                         </div>
-                        
-                        <button 
+
+                        <button
                           className="view-details-button"
                           onClick={() => handleViewDetails(listing)}
                         >
@@ -656,23 +662,23 @@ const Services = () => {
                   ))}
                 </AnimatePresence>
               </div>
-              
+
               {/* Pagination controls */}
               {totalPages > 1 && (
                 <div className="pagination">
-                  <button 
+                  <button
                     onClick={() => handlePageChange(page - 1)}
                     disabled={page === 1}
                     className="pagination-button"
                   >
                     <i className="fas fa-chevron-left"></i> Previous
                   </button>
-                  
+
                   <div className="pagination-numbers">
                     {renderPaginationButtons()}
                   </div>
-                  
-                  <button 
+
+                  <button
                     onClick={() => handlePageChange(page + 1)}
                     disabled={page === totalPages}
                     className="pagination-button"
@@ -704,7 +710,7 @@ const Services = () => {
 // Helper function to get appropriate icon for category
 function getCategoryIcon(categoryName) {
   const name = categoryName.toLowerCase();
-  
+
   if (name.includes('plumb')) return 'fas fa-faucet';
   if (name.includes('electric')) return 'fas fa-bolt';
   if (name.includes('clean')) return 'fas fa-broom';
@@ -717,7 +723,7 @@ function getCategoryIcon(categoryName) {
   if (name.includes('security')) return 'fas fa-shield-alt';
   if (name.includes('pest')) return 'fas fa-bug';
   if (name.includes('move')) return 'fas fa-truck';
-  
+
   // Default icon
   return 'fas fa-hammer';
 }

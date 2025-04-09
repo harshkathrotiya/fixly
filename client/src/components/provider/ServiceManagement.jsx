@@ -23,6 +23,7 @@ function ServiceManagement() {
         const response = await axios.get('http://localhost:5000/api/providers/me/listings', {
           headers: { Authorization: `Bearer ${token}` }
         });
+        console.log('Fetched services:', response.data.data);
         setServices(response.data.data || []);
       } catch (err) {
         console.error('Error fetching services:', err);
@@ -38,12 +39,15 @@ function ServiceManagement() {
   }, [token]);
 
   const handleToggleActive = async (serviceId, currentStatus) => {
+    console.log(`Toggling service ${serviceId} from ${currentStatus} to ${!currentStatus}`);
     try {
-      await axios.put(`http://localhost:5000/api/listings/${serviceId}/status`, {
+      const response = await axios.put(`http://localhost:5000/api/listings/${serviceId}/status`, {
         isActive: !currentStatus
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
+
+      console.log('Toggle response:', response.data);
 
       // Update local state
       setServices(services.map(service =>
@@ -84,15 +88,15 @@ function ServiceManagement() {
       // Filter by search term
       if (!searchTerm) return true;
       return service.serviceTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-             service.serviceDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
-             service.serviceCategory.toLowerCase().includes(searchTerm.toLowerCase());
+             (service.serviceDetails && service.serviceDetails.toLowerCase().includes(searchTerm.toLowerCase())) ||
+             (service.categoryId?.categoryName && service.categoryId.categoryName.toLowerCase().includes(searchTerm.toLowerCase()));
     })
     .sort((a, b) => {
       // Sort services
       if (sortBy === 'newest') return new Date(b.createdAt) - new Date(a.createdAt);
       if (sortBy === 'oldest') return new Date(a.createdAt) - new Date(b.createdAt);
-      if (sortBy === 'priceHigh') return b.price - a.price;
-      if (sortBy === 'priceLow') return a.price - b.price;
+      if (sortBy === 'priceHigh') return (b.servicePrice || 0) - (a.servicePrice || 0);
+      if (sortBy === 'priceLow') return (a.servicePrice || 0) - (b.servicePrice || 0);
       if (sortBy === 'nameAZ') return a.serviceTitle.localeCompare(b.serviceTitle);
       if (sortBy === 'nameZA') return b.serviceTitle.localeCompare(a.serviceTitle);
       if (sortBy === 'bookings') return (b.bookingCount || 0) - (a.bookingCount || 0);
@@ -223,19 +227,19 @@ function ServiceManagement() {
                   <h3>{service.serviceTitle || 'Untitled Service'}</h3>
                   <div className="service-meta">
                     <span className="service-category">
-                      <i className="fas fa-tag"></i> {service.serviceCategory || 'Uncategorized'}
+                      <i className="fas fa-tag"></i> {service.categoryId?.categoryName || 'Uncategorized'}
                     </span>
                     <span className="service-price">
-                      <i className="fas fa-rupee-sign"></i> {service.price ? service.price.toFixed(2) : '0.00'}
+                      <i className="fas fa-rupee-sign"></i> {service.servicePrice ? service.servicePrice.toFixed(2) : '0.00'}
                     </span>
                   </div>
 
                   <p className="service-description">
                     {viewMode === 'grid'
-                      ? service.serviceDescription
-                        ? `${service.serviceDescription.substring(0, 100)}${service.serviceDescription.length > 100 ? '...' : ''}`
+                      ? service.serviceDetails
+                        ? `${service.serviceDetails.substring(0, 100)}${service.serviceDetails.length > 100 ? '...' : ''}`
                         : 'No description available'
-                      : service.serviceDescription || 'No description available'
+                      : service.serviceDetails || 'No description available'
                     }
                   </p>
 
