@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Home.css";
 import { Link, useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/authcontext";
+import { useAuth } from "../context/AuthContext";
 import heroimg from "./images/Designer.png";
 import PainterImg from "./images/painter.png";
 import PlumberImg from "./images/plumbing.png";
@@ -11,13 +11,13 @@ import ElectricalImg from "./images/electrical.png";
 import CleanerImg from "./images/cleaning.png";
 import ReviewCard from "./review";
 import Navbar from "./Navbar";
-
+import { motion, AnimatePresence } from 'framer-motion';
 const Home = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   // Popular service categories with their images
   const serviceCategories = [
     { name: "Painting", image: PainterImg, description: "Professional painting for your home" },
@@ -26,52 +26,137 @@ const Home = () => {
     { name: "Carpentry", image: CarpenterImg, description: "Custom furniture and repairs" },
     { name: "Electrical", image: ElectricalImg, description: "Safe and reliable electrical work" }
   ];
-  
+
   const handleSearch = (e) => {
     e.preventDefault();
     navigate(`/services?search=${searchTerm}`);
   };
-  
+
   const navigateToService = (serviceName) => {
     navigate(`/services?category=${serviceName.toLowerCase()}`);
   };
-  
+
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Remove local image imports and replace with external URLs
+  const heroSlides = [
+    {
+      title: "Book Trusted Professionals for Home Services",
+      description: "Quality service providers at your doorstep. Book verified experts for all your home needs.",
+      image: "https://img.freepik.com/free-photo/repairman-doing-air-conditioner-service_23-2149241213.jpg",
+      color: "#f5f7fa"
+    },
+    {
+      title: "Professional Services at Your Fingertips",
+      description: "Experienced, background-checked professionals ready to help you.",
+      image: "https://img.freepik.com/free-photo/construction-worker-with-helmet-working-indoors_23-2148841026.jpg",
+      color: "#e8f4ff"
+    },
+    {
+      title: "100% Satisfaction Guaranteed",
+      description: "Get the best service or your money back. Your satisfaction is our priority.",
+      image: "https://img.freepik.com/free-photo/professional-cleaning-service-team-work_23-2149374123.jpg",
+      color: "#fff5f5"
+    }
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Replace the existing hero section with this:
   return (
     <>
       <Navbar />
-      
       <div className="main">
-        <div className="hero">
-          <div className="hero-text">
-            <h1>Book Trusted Professionals for Home Services</h1>
-            <p>Quality service providers at your doorstep. Book verified experts for all your home needs.</p>
-            
-            {/* Search bar for services */}
-            <form className="search-form" onSubmit={handleSearch}>
-              <div className="search-container">
-                <input 
-                  type="text" 
-                  placeholder="What service do you need?" 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
-                />
-                <button type="submit" className="search-button">
-                  <i className="fas fa-search"></i> Search
-                </button>
+        <div className="hero-slider">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentSlide}
+              className="hero"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              style={{ backgroundColor: heroSlides[currentSlide].color }}
+            >
+              <div className="hero-text">
+                <motion.h1
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  {heroSlides[currentSlide].title}
+                </motion.h1>
+                <motion.p
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  {heroSlides[currentSlide].description}
+                </motion.p>
+
+                <motion.form
+                  className="search-form"
+                  onSubmit={handleSearch}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <div className="search-container">
+                    <input
+                      type="text"
+                      placeholder="What service do you need?"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="search-input"
+                    />
+                    <button type="submit" className="search-button">
+                      <i className="fas fa-search"></i> Search
+                    </button>
+                  </div>
+                </motion.form>
+
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  {!user ? (
+                    <div className="cta-buttons">
+                      <Link to="/login" className="book-now">Book Now</Link>
+                      <Link to="/tasker" className="become-provider">Become a Provider</Link>
+                    </div>
+                  ) : (
+                    <Link to="/services" className="book-now">Explore Services</Link>
+                  )}
+                </motion.div>
               </div>
-            </form>
-            
-            {!user ? (
-              <div className="cta-buttons">
-                <Link to="/login" className="book-now">Book Now</Link>
-                <Link to="/tasker" className="become-provider">Become a Provider</Link>
+
+              <motion.img
+                src={heroSlides[currentSlide].image}
+                alt="Home services illustration"
+                className="hero-image"
+                initial={{ x: 100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              />
+
+              <div className="slider-dots">
+                {heroSlides.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`slider-dot ${currentSlide === index ? 'active' : ''}`}
+                    onClick={() => setCurrentSlide(index)}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
               </div>
-            ) : (
-              <Link to="/services" className="book-now">Explore Services</Link>
-            )}
-          </div>
-          <img src={heroimg} alt="Home services illustration" className="hero-image" />
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
 
@@ -83,9 +168,9 @@ const Home = () => {
 
         <div className="box">
           {serviceCategories.map((service, index) => (
-            <div 
-              key={index} 
-              className="box1" 
+            <div
+              key={index}
+              className="box1"
               onClick={() => navigateToService(service.name)}
             >
               <div className="service-icon">
@@ -97,17 +182,17 @@ const Home = () => {
             </div>
           ))}
         </div>
-        
+
         <div className="view-all-services">
           <Link to="/services" className="view-all-btn">View All Services</Link>
         </div>
-        
+
         <div className="how-it-works">
           <div className="section-header">
             <h2>How It Works</h2>
             <p>Easy steps to get your service done</p>
           </div>
-          
+
           <div className="steps-container">
             <div className="step">
               <div className="step-number">1</div>
@@ -135,7 +220,7 @@ const Home = () => {
 
           <ReviewCard />
         </div>
-        
+
        </div>
 
       <footer>

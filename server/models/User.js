@@ -41,6 +41,18 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: 'default-profile.jpg'
   },
+  businessName: {
+    type: String,
+    default: ''
+  },
+  description: {
+    type: String,
+    default: ''
+  },
+  address: {
+    type: String,
+    default: ''
+  },
   resetPasswordToken: String,
   resetPasswordExpire: Date,
   createdAt: {

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../../context/authcontext';
+import { useAuth } from '../../context/AuthContext';
 import './AddService.css'; // Reusing the same CSS as AddService
 
 function EditService() {
   const navigate = useNavigate();
   const { serviceId } = useParams();
   const { token } = useAuth();
-  
+
   const [formData, setFormData] = useState({
     serviceTitle: '',
     serviceCategory: '',
@@ -18,13 +18,13 @@ function EditService() {
     serviceLocation: '',
     serviceImages: []
   });
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [imagePreview, setImagePreview] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
-  
+
   const categories = [
     'Home Cleaning',
     'Plumbing',
@@ -48,23 +48,30 @@ function EditService() {
     const fetchServiceDetails = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`http://localhost:5000/api/services/${serviceId}`, {
+        const response = await axios.get(`http://localhost:5000/api/listings/${serviceId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        
+
         const serviceData = response.data.data;
+        console.log('Fetched service data:', serviceData);
+
+        // Make sure we have all the data we need
+        if (!serviceData) {
+          throw new Error('No service data returned from the server');
+        }
+
         setFormData({
           serviceTitle: serviceData.serviceTitle || '',
-          serviceCategory: serviceData.serviceCategory || '',
-          serviceDescription: serviceData.serviceDescription || '',
-          price: serviceData.price ? serviceData.price.toString() : '',
+          serviceCategory: serviceData.categoryId?.categoryName || '',
+          serviceDescription: serviceData.serviceDetails || '',
+          price: serviceData.servicePrice ? serviceData.servicePrice.toString() : '',
           duration: serviceData.duration ? serviceData.duration.toString() : '',
           serviceLocation: serviceData.serviceLocation || '',
           serviceImages: []
         });
-        
-        if (serviceData.serviceImages && serviceData.serviceImages.length > 0) {
-          setExistingImages(serviceData.serviceImages);
+
+        if (serviceData.serviceImage) {
+          setExistingImages([serviceData.serviceImage]);
         }
       } catch (err) {
         console.error('Error fetching service details:', err);
@@ -89,11 +96,11 @@ function EditService() {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    
+
     // Preview images
     const newImagePreviews = files.map(file => URL.createObjectURL(file));
     setImagePreview([...imagePreview, ...newImagePreviews]);
-    
+
     // Store files for upload
     setFormData({
       ...formData,
@@ -105,7 +112,7 @@ function EditService() {
     const updatedPreviews = [...imagePreview];
     updatedPreviews.splice(index, 1);
     setImagePreview(updatedPreviews);
-    
+
     const updatedImages = [...formData.serviceImages];
     updatedImages.splice(index, 1);
     setFormData({
@@ -122,7 +129,7 @@ function EditService() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validation
     if (!formData.serviceTitle.trim()) {
       setError('Service title is required');
@@ -140,37 +147,102 @@ function EditService() {
       setError('Please enter a valid price');
       return;
     }
-    
+
+    // Log what we're submitting for debugging
+    console.log('Submitting form data:', formData);
+
     setIsSubmitting(true);
     setError(null);
-    
+
     try {
+      // Log what we're submitting
+      console.log('Form data being submitted:', formData);
+
       // Create form data for file upload
       const serviceData = new FormData();
       serviceData.append('serviceTitle', formData.serviceTitle);
-      serviceData.append('serviceCategory', formData.serviceCategory);
-      serviceData.append('serviceDescription', formData.serviceDescription);
-      serviceData.append('price', formData.price);
-      serviceData.append('duration', formData.duration);
-      serviceData.append('serviceLocation', formData.serviceLocation);
-      
-      // Append existing images to keep
-      existingImages.forEach((image, index) => {
-        serviceData.append('existingImages', image);
-      });
-      
-      // Append each new image
-      formData.serviceImages.forEach(image => {
-        serviceData.append('serviceImages', image);
-      });
-      
-      await axios.put(`http://localhost:5000/api/services/${serviceId}`, serviceData, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
+      serviceData.append('serviceDetails', formData.serviceDescription);
+
+      // Make sure price is a valid number
+      if (formData.price) {
+        const priceValue = parseFloat(formData.price);
+        if (!isNaN(priceValue)) {
+          console.log('Appending valid price:', priceValue);
+          serviceData.append('servicePrice', priceValue.toString());
+        } else {
+          console.log('Invalid price value:', formData.price);
         }
-      });
-      
+      }
+
+      // Make sure duration is a valid number
+      if (formData.duration) {
+        const durationValue = parseInt(formData.duration);
+        if (!isNaN(durationValue)) {
+          serviceData.append('duration', durationValue.toString());
+        }
+      }
+
+      serviceData.append('serviceLocation', formData.serviceLocation || '');
+
+      // Add tags if needed
+      serviceData.append('tags', '');
+
+      // Handle image if needed
+      if (existingImages.length > 0) {
+        serviceData.append('serviceImage', existingImages[0]);
+      } else if (formData.serviceImages.length > 0) {
+        serviceData.append('serviceImage', formData.serviceImages[0]);
+      }
+
+      // Check if we have any file uploads
+      const hasFileUploads = formData.serviceImages && formData.serviceImages.length > 0;
+
+      let response;
+
+      if (hasFileUploads) {
+        // Use FormData for file uploads
+        console.log('Using FormData for file upload');
+
+        // Log the FormData (this won't show the actual data, just an empty object)
+        console.log('Service data FormData:', serviceData);
+
+        response = await axios.put(`http://localhost:5000/api/listings/${serviceId}`, serviceData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+      } else {
+        // Use JSON for regular data updates
+        console.log('Using JSON for data update');
+
+        // Create a regular JSON object
+        const jsonData = {
+          serviceTitle: formData.serviceTitle,
+          serviceDetails: formData.serviceDescription,
+          servicePrice: parseFloat(formData.price),
+          duration: formData.duration ? parseInt(formData.duration) : undefined,
+          serviceLocation: formData.serviceLocation || '',
+          tags: ''
+        };
+
+        // If we have existing images, include them
+        if (existingImages.length > 0) {
+          jsonData.serviceImage = existingImages[0];
+        }
+
+        console.log('JSON data being sent:', jsonData);
+
+        response = await axios.put(`http://localhost:5000/api/listings/${serviceId}`, jsonData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+
+      console.log('Update response:', response.data);
+
       navigate('/provider/services');
     } catch (err) {
       console.error('Error updating service:', err);
@@ -187,11 +259,11 @@ function EditService() {
   return (
     <div className="add-service-container">
       <h2>Edit Service</h2>
-      
+
       {error && (
         <div className="error-message">{error}</div>
       )}
-      
+
       <form onSubmit={handleSubmit} className="service-form">
         <div className="form-group">
           <label htmlFor="serviceTitle">Service Title *</label>
@@ -204,7 +276,7 @@ function EditService() {
             placeholder="e.g. Professional Home Cleaning"
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="serviceCategory">Category *</label>
           <select
@@ -219,7 +291,7 @@ function EditService() {
             ))}
           </select>
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="serviceDescription">Description *</label>
           <textarea
@@ -231,7 +303,7 @@ function EditService() {
             placeholder="Describe your service in detail..."
           ></textarea>
         </div>
-        
+
         <div className="form-row">
           <div className="form-group half">
             <label htmlFor="price">Price (₹) *</label>
@@ -246,7 +318,7 @@ function EditService() {
               step="0.01"
             />
           </div>
-          
+
           <div className="form-group half">
             <label htmlFor="duration">Duration (minutes)</label>
             <input
@@ -260,7 +332,7 @@ function EditService() {
             />
           </div>
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="serviceLocation">Service Location</label>
           <input
@@ -272,7 +344,7 @@ function EditService() {
             placeholder="e.g. Customer's home, My shop, etc."
           />
         </div>
-        
+
         <div className="form-group">
           <label>Current Images</label>
           {existingImages.length > 0 ? (
@@ -280,8 +352,8 @@ function EditService() {
               {existingImages.map((src, index) => (
                 <div key={`existing-${index}`} className="image-preview-item">
                   <img src={src} alt={`Service ${index + 1}`} />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="remove-image-btn"
                     onClick={() => removeExistingImage(index)}
                   >
@@ -294,7 +366,7 @@ function EditService() {
             <p className="no-images">No images available</p>
           )}
         </div>
-        
+
         <div className="form-group">
           <label>Add New Images</label>
           <div className="image-upload-container">
@@ -311,14 +383,14 @@ function EditService() {
               accept="image/*"
               className="image-upload-input"
             />
-            
+
             {imagePreview.length > 0 && (
               <div className="image-preview-container">
                 {imagePreview.map((src, index) => (
                   <div key={`new-${index}`} className="image-preview-item">
                     <img src={src} alt={`New preview ${index + 1}`} />
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="remove-image-btn"
                       onClick={() => removeNewImage(index)}
                     >
@@ -330,17 +402,17 @@ function EditService() {
             )}
           </div>
         </div>
-        
+
         <div className="form-actions">
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="cancel-btn"
             onClick={() => navigate('/provider/services')}
           >
             Cancel
           </button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="submit-btn"
             disabled={isSubmitting}
           >

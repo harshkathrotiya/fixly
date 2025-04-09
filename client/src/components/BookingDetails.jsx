@@ -1,3 +1,7 @@
+// Fixes applied:
+// - Refactored hardcoded API URLs into environment variables.
+// - Added error handling for navigation.
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -11,8 +15,8 @@ function BookingDetails() {
   useEffect(() => {
     const fetchBooking = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/bookings/${id}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/bookings/${id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
         });
         setBooking(response.data.data);
       } catch (err) {
@@ -25,9 +29,10 @@ function BookingDetails() {
 
   const handleStatusUpdate = async (status) => {
     try {
-      await axios.put(`http://localhost:5000/api/bookings/${id}/status`, 
+      await axios.put(
+        `${process.env.REACT_APP_API_URL}/bookings/${id}/status`,
         { status },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }}
+        { headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` } }
       );
       setBooking({ ...booking, status });
     } catch (err) {
@@ -43,7 +48,7 @@ function BookingDetails() {
     <div className="booking-details">
       <h2>Booking Details</h2>
       {error && <p className="error">{error}</p>}
-      
+
       <div className="booking-info">
         <h3>Booking #{booking._id}</h3>
         <p>Client: {booking.clientName}</p>
@@ -59,19 +64,19 @@ function BookingDetails() {
       </div>
 
       <div className="status-actions">
-        <button 
+        <button
           onClick={() => handleStatusUpdate('accepted')}
           disabled={booking.status === 'accepted'}
         >
           Accept
         </button>
-        <button 
+        <button
           onClick={() => handleStatusUpdate('completed')}
           disabled={booking.status === 'completed'}
         >
           Mark as Completed
         </button>
-        <button 
+        <button
           onClick={() => handleStatusUpdate('cancelled')}
           disabled={booking.status === 'cancelled'}
         >
@@ -79,7 +84,9 @@ function BookingDetails() {
         </button>
       </div>
 
-      <button onClick={() => navigate('/provider/dashboard')}>Back to Dashboard</button>
+      <button onClick={() => navigate('/provider/dashboard').catch(() => setError('Navigation failed'))}>
+        Back to Dashboard
+      </button>
     </div>
   );
 }

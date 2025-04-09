@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import Home from "./components/Home"; 
+import React from "react";
+import Home from "./components/Home";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/login";
 import SignUp from "./components/signup";
@@ -9,11 +9,12 @@ import JobListing from "./components/joblisting";
 import ReviewForm from "./components/reviewform";
 import Services from "./components/services";
 import ServiceDetails from "./components/ServiceDetails";
-import { AuthProvider } from "./context/authcontext";
-import ProviderDashboard from "./components/ProviderDashboard";
-import CreateListing from "./components/CreateListing";
-import EditListing from "./components/EditListing";
-import ProviderProfile from "./components/ProviderProfile";
+import { AuthProvider } from "./context/AuthContext";
+import ProviderDashboard from "./components/provider/ProviderDashboard";
+import CreateListingWrapper from "./components/provider/CreateListingWrapper";
+import EditListingWrapper from "./components/provider/EditListingWrapper";
+// Using the ProviderProfile from the provider folder
+import ProviderProfile from "./components/provider/ProviderProfile";
 import Appointments from "./components/appointments";
 import BookingDetails from "./components/BookingDetails";
 import AdminDashboard from './components/admin/Dashboard';
@@ -23,9 +24,8 @@ import AdminListings from './components/admin/Listings';
 import AdminBookings from './components/admin/Bookings';
 import AdminCategories from './components/admin/Categories';
 import CreateAdminUser from './components/admin/CreateAdminUser';
-
+import ProviderMyBookingsWrapper from './components/provider/ProviderMyBookingsWrapper';
 // Import the new components
-import Bookings from './components/Bookings';
 import PaymentForm from './components/PaymentForm';
 import ComplaintForm from './components/ComplaintForm';
 import Reviews from './components/Reviews';
@@ -57,18 +57,14 @@ function App() {
           <Route path="/services" element={<Services />} />
           <Route path="/listing/:id" element={<ServiceDetails />} />
           <Route path="/provider/dashboard" element={<ProviderDashboard />} />
-          <Route path="/provider/create-listing" element={<CreateListing />} />
-          <Route path="/provider/edit-listing/:id" element={<EditListing />} />
+          <Route path="/provider/create-listing" element={<CreateListingWrapper />} />
+          <Route path="/provider/edit-listing/:id" element={<EditListingWrapper />} />
           <Route path="/provider/profile" element={<ProviderProfile />} />
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/booking/:id" element={<BookingDetails />} />
-          
+
           {/* Admin routes */}
-          <Route path="/admin" element={
-            <ProtectedAdminRoute>
-              <AdminDashboard />
-            </ProtectedAdminRoute>
-          } />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/users" element={
             <ProtectedAdminRoute>
               <AdminUsers />
@@ -83,20 +79,19 @@ function App() {
           <Route path="/admin/listings" element={<AdminListings />} />
           <Route path="/admin/bookings" element={<AdminBookings />} />
           <Route path="/admin/categories" element={<AdminCategories />} />
-          
+
           {/* Customer routes */}
-          <Route path="/bookings" element={<Bookings />} />
+          <Route path="/bookings" element={<ProviderMyBookingsWrapper />} />
           <Route path="/review/:bookingId" element={<ReviewForm />} />
           <Route path="/payment/:bookingId" element={<PaymentForm />} />
           <Route path="/complaint/:bookingId" element={<ComplaintForm />} />
           <Route path="/provider/:providerId/reviews" element={<Reviews />} />
-          
           {/* Service provider routes */}
           <Route path="/provider/bookings" element={<ProviderBookings />} />
           <Route path="/provider/services" element={<ServiceManagement />} />
           <Route path="/provider/services/new" element={<AddService />} />
           <Route path="/provider/services/edit/:serviceId" element={<EditService />} />
-          
+
           {/* Admin routes */}
           <Route path="/admin/commissions" element={<Commissions />} />
           <Route path="/admin/complaints" element={<Complaints />} />

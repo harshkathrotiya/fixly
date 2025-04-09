@@ -8,15 +8,15 @@ const { error } = require('console');
 // @route   POST /api/auth/register
 // @access  Public
 exports.register = asyncHandler(async (req, res) => {
-  const { 
-    userType, 
-    username, 
-    password, 
-    firstName, 
-    lastName, 
-    email, 
-    phone, 
-    address 
+  const {
+    userType,
+    username,
+    password,
+    firstName,
+    lastName,
+    email,
+    phone,
+    address
   } = req.body;
 
   // Create user
@@ -133,23 +133,49 @@ exports.updateDetails = asyncHandler(async (req, res) => {
 // @route   PUT /api/auth/updateprofile
 // @access  Private
 exports.updateProfile = asyncHandler(async (req, res) => {
-  const fieldsToUpdate = {
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
-    phone: req.body.phone,
-    address: req.body.address
-  };
+  // Create an object with only the fields that are provided in the request
+  const fieldsToUpdate = {};
 
-  const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
-    new: true,
-    runValidators: true
-  });
+  // Only add fields that are present in the request body
+  if (req.body.firstName) fieldsToUpdate.firstName = req.body.firstName;
+  if (req.body.lastName) fieldsToUpdate.lastName = req.body.lastName;
+  if (req.body.email) fieldsToUpdate.email = req.body.email;
+  if (req.body.phone) fieldsToUpdate.phone = req.body.phone;
 
-  res.status(200).json({
-    success: true,
-    data: user
-  });
+  // Handle address field - can be either direct or from businessAddress
+  if (req.body.address) fieldsToUpdate.address = req.body.address;
+  else if (req.body.businessAddress) fieldsToUpdate.address = req.body.businessAddress;
+
+  if (req.body.businessName) fieldsToUpdate.businessName = req.body.businessName;
+  if (req.body.description) fieldsToUpdate.description = req.body.description;
+
+  // Add profile picture if it's in the request
+  if (req.body.profilePicture) {
+    fieldsToUpdate.profilePicture = req.body.profilePicture;
+  }
+
+  console.log('Fields to update:', fieldsToUpdate);
+
+  try {
+    const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
+      new: true,
+      runValidators: true
+    });
+
+    console.log('Updated user:', user);
+
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating profile',
+      error: error.message
+    });
+  }
 });
 
 // @desc    Update password
@@ -302,7 +328,7 @@ exports.getUsers = asyncHandler(async (req, res) => {
 // @access  Private (Admin only)
 exports.getUserById = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id).select('-password');
-  
+
   if (!user) {
     return res.status(404).json({
       success: false,

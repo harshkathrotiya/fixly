@@ -6,8 +6,9 @@ import { useAuth } from '../../context/authcontext';
 const Services = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [sortConfig, setSortConfig] = useState({ key: 'serviceTitle', direction: 'asc' });
+  const [pagination, setPagination] = useState({ page: 1, total: 0, limit: 10 });
   const { token } = useAuth();
-
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -16,10 +17,11 @@ const Services = () => {
 
   const fetchServices = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/services', {
+      const response = await axios.get(`http://localhost:5000/api/admin/services?page=${pagination.page}&limit=${pagination.limit}&sort=${sortConfig.key}&order=${sortConfig.direction}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setServices(response.data.data);
+      setPagination(prev => ({ ...prev, total: response.data.total }));
       setLoading(false);
     } catch (error) {
       console.error('Error fetching services:', error);
@@ -66,8 +68,19 @@ const Services = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Service Name
+                    <th 
+                      scope="col" 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('serviceTitle')}
+                    >
+                      <div className="flex items-center">
+                        Service Name
+                        {sortConfig.key === 'serviceTitle' && (
+                          <span className="ml-1">
+                            {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                          </span>
+                        )}
+                      </div>
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Category
