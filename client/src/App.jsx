@@ -35,6 +35,8 @@ import AddService from './components/provider/AddService';
 import EditService from './components/provider/EditService';
 import Commissions from './components/admin/Commissions';
 import Complaints from './components/admin/Complaints';
+import ResetPassword from './components/ResetPassword';
+import ForgotPassword from './components/ForgotPassword';
 
 // Add this import
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
@@ -95,6 +97,8 @@ function App() {
           {/* Admin routes */}
           <Route path="/admin/commissions" element={<Commissions />} />
           <Route path="/admin/complaints" element={<Complaints />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
       </Router>
     </AuthProvider>

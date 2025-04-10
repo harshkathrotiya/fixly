@@ -1,0 +1,682 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6",
+    "name": "Fixly API Collection",
+    "description": "A comprehensive collection of API endpoints for testing the Fixly service marketplace application",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "Endpoints for user authentication and profile management",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userType\": \"customer\",\n  \"username\": \"johndoe\",\n  \"password\": \"password123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john@example.com\",\n  \"phone\": \"1234567890\",\n  \"address\": {\n    \"street\": \"123 Main St\",\n    \"city\": \"Anytown\",\n    \"state\": \"State\",\n    \"zipCode\": \"12345\",\n    \"country\": \"Country\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Register a new user account"
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login with user credentials"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Get the profile of the currently authenticated user"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john@example.com\",\n  \"phone\": \"1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/updateprofile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "updateprofile"]
+            },
+            "description": "Update user profile information"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"password123\",\n  \"newPassword\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/updatepassword",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "updatepassword"]
+            },
+            "description": "Update user password"
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/forgotpassword",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "forgotpassword"]
+            },
+            "description": "Request a password reset email"
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/resetpassword/{{resetToken}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "resetpassword", "{{resetToken}}"]
+            },
+            "description": "Reset password using token received via email"
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Logout the current user"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Service Providers",
+      "description": "Endpoints for service provider management",
+      "item": [
+        {
+          "name": "Register as Service Provider",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Smith\",\n  \"email\": \"johnsmith@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"1234567890\",\n  \"serviceDescription\": \"Professional plumbing services with 10 years of experience\",\n  \"serviceCategory\": [\"64a7b2e5c3e4f12d4c567890\"],\n  \"availability\": \"Weekdays\",\n  \"bankDetails\": {\n    \"accountName\": \"John Smith\",\n    \"accountNumber\": \"1234567890\",\n    \"bankName\": \"Example Bank\",\n    \"ifscCode\": \"EXBK0001234\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/providers/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "providers", "register"]
+            },
+            "description": "Register a new service provider account"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Service Providers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/providers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "providers"]
+            },
+            "description": "Get a list of all service providers"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Service Provider by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/providers/{{providerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "providers", "{{providerId}}"]
+            },
+            "description": "Get details of a specific service provider"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Provider Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/providers/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "providers", "me"]
+            },
+            "description": "Get the profile of the currently authenticated service provider"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Provider Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceDescription\": \"Updated professional plumbing services with 12 years of experience\",\n  \"serviceCategory\": [\"64a7b2e5c3e4f12d4c567890\"],\n  \"availability\": \"Weekdays and Weekends\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/providers/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "providers", "profile"]
+            },
+            "description": "Update service provider profile information"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Provider Location",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"location\": {\n    \"address\": \"456 Oak Street\",\n    \"city\": \"Toronto\",\n    \"state\": \"Ontario\",\n    \"zipCode\": \"M5V 2T6\",\n    \"country\": \"Canada\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/providers/location",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "providers", "location"]
+            },
+            "description": "Update service provider location information"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Provider Listings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/providers/me/listings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "providers", "me", "listings"]
+            },
+            "description": "Get all listings created by the authenticated service provider"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Service Listings",
+      "description": "Endpoints for service listing management",
+      "item": [
+        {
+          "name": "Create Listing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": \"64a7b2e5c3e4f12d4c567890\",\n  \"serviceTitle\": \"Professional Plumbing Service\",\n  \"servicePrice\": 75,\n  \"serviceDetails\": \"Expert plumbing services for residential and commercial properties. Available for emergency repairs.\",\n  \"tags\": \"plumbing,repairs,emergency\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/listings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "listings"]
+            },
+            "description": "Create a new service listing"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Listings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/listings?category=64a7b2e5c3e4f12d4c567890&minPrice=50&maxPrice=100&tags=plumbing&search=repair&page=1&limit=10&sort=newest",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "listings"],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "64a7b2e5c3e4f12d4c567890"
+                },
+                {
+                  "key": "minPrice",
+                  "value": "50"
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "100"
+                },
+                {
+                  "key": "tags",
+                  "value": "plumbing"
+                },
+                {
+                  "key": "search",
+                  "value": "repair"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "newest"
+                }
+              ]
+            },
+            "description": "Get a list of all service listings with optional filters"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Listing by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/listings/{{listingId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "listings", "{{listingId}}"]
+            },
+            "description": "Get details of a specific service listing"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Listing",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceTitle\": \"Updated Professional Plumbing Service\",\n  \"servicePrice\": 85,\n  \"serviceDetails\": \"Updated expert plumbing services for residential and commercial properties. Available 24/7 for emergency repairs.\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/listings/{{listingId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "listings", "{{listingId}}"]
+            },
+            "description": "Update an existing service listing"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Listing Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/listings/{{listingId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "listings", "{{listingId}}", "status"]
+            },
+            "description": "Update the status of a service listing"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Listing",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/listings/{{listingId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "listings", "{{listingId}}"]
+            },
+            "description": "Delete a service listing"
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Listing Image",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/listings/{{listingId}}/image",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "listings", "{{listingId}}", "image"]
+            },
+            "description": "Upload an image for a service listing"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "description": "Endpoints for booking management",
+      "item": [
+        {
+          "name": "Create Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"listingId\": \"65f1a2b3c4d5e6f7g8h9i0j1\",\n  \"serviceDate\": \"2024-04-01T10:00:00Z\",\n  \"location\": {\n    \"address\": \"123 Main St\",\n    \"city\": \"Toronto\",\n    \"postalCode\": \"M5V 2T6\"\n  },\n  \"specialInstructions\": \"Please bring eco-friendly cleaning supplies\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings"]
+            },
+            "description": "Create a new service booking"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Customer Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/customer",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "customer"]
+            },
+            "description": "Get all bookings for the authenticated customer"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Provider Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/provider",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "provider"]
+            },
+            "description": "Get all bookings for the authenticated service provider"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Booking by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/{{bookingId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "{{bookingId}}"]
+            },
+            "description": "Get details of a specific booking"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Booking Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "{{bookingId}}", "status"]
+            },
+            "description": "Update the status of a booking (pending, confirmed, completed, cancelled)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Bookings (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings"]
+            },
+            "description": "Get all bookings (admin only)"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

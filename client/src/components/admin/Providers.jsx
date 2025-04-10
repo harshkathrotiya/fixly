@@ -32,22 +32,22 @@ function Providers() {
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
-      
+
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header title="Service Provider Management" />
-        
+
         <main className="flex-1 overflow-y-auto p-6">
           {error && (
             <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
               <p>{error}</p>
             </div>
           )}
-          
+
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="p-6 bg-gray-50 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-700">All Service Providers</h2>
             </div>
-            
+
             {isLoading ? (
               <div className="flex justify-center items-center p-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500"></div>
@@ -81,10 +81,10 @@ function Providers() {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <div className="flex-shrink-0 h-10 w-10">
-                                <img 
-                                  className="h-10 w-10 rounded-full object-cover" 
-                                  src={provider.userId?.profileImage || 'https://via.placeholder.com/40'} 
-                                  alt="" 
+                                <img
+                                  className="h-10 w-10 rounded-full object-cover"
+                                  src={provider.userId?.profileImage || 'https://via.placeholder.com/40'}
+                                  alt=""
                                 />
                               </div>
                               <div className="ml-4">
@@ -107,8 +107,8 @@ function Providers() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              provider.isVerified 
-                                ? 'bg-green-100 text-green-800' 
+                              provider.isVerified
+                                ? 'bg-green-100 text-green-800'
                                 : 'bg-yellow-100 text-yellow-800'
                             }`}>
                               {provider.isVerified ? 'Verified' : 'Pending'}

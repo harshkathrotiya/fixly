@@ -34,177 +34,102 @@ const Home = () => {
   // Hero slider reference
   const flickityRef = useRef(null);
 
-  // Hero slides data
+  // Updated hero slides with better images and content
   const heroSlides = [
     {
-      title: "Expert Home Services at Your Doorstep",
-      description: "Connect with skilled professionals for all your home repair and maintenance needs. Fast, reliable, and affordable.",
-      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80",
-      ctaText: "Book Now",
+      title: "Your Home Services Solution",
+      description: "Find trusted professionals for all your home maintenance and improvement needs. Quality service guaranteed.",
+      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1920&q=80",
+      ctaText: "Get Started",
       ctaLink: "/services",
       color: "#4a90e2"
     },
     {
-      title: "Quality Electrical & Plumbing Services",
-      description: "From minor repairs to major installations, our verified experts deliver top-notch service with guaranteed workmanship.",
-      image: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80",
-      ctaText: "Find Experts",
+      title: "Professional Services On Demand",
+      description: "Expert electricians, plumbers, and more at your fingertips. Book services with verified professionals.",
+      image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1920&q=80",
+      ctaText: "Book Now",
       ctaLink: "/services",
       color: "#2d9cdb"
     },
     {
-      title: "Transform Your Living Space",
-      description: "Professional painting, renovation, and interior design services to make your home beautiful and comfortable.",
-      image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1769&q=80",
+      title: "Transform Your Space",
+      description: "From painting to renovation, bring your vision to life with our skilled professionals.",
+      image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1920&q=80",
       ctaText: "Explore Services",
       ctaLink: "/services",
       color: "#27ae60"
     }
   ];
 
-  // Initialize Flickity slider
+  // Initialize Flickity with enhanced options
   useEffect(() => {
-    // Initialize Flickity on hero slider
     if (!flickityRef.current) {
-      // Initialize with a slight delay to ensure DOM is ready
       setTimeout(() => {
         flickityRef.current = new Flickity('.hero-carousel', {
           cellAlign: 'left',
-          contain: false,
+          contain: true,
           wrapAround: true,
-          autoPlay: 6000,
+          autoPlay: 5000,
           pauseAutoPlayOnHover: true,
+          selectedAttraction: 0.015,
+          friction: 0.25,
           prevNextButtons: true,
           pageDots: true,
-          draggable: true,
-          fade: true,
-          adaptiveHeight: false,
-          fullscreen: false,
-          selectedAttraction: 0.1,
-          friction: 0.6,
-          imagesLoaded: true,
-          arrowShape: {
-            x0: 10,
-            x1: 60, y1: 50,
-            x2: 65, y2: 45,
-            x3: 20
-          }
+          adaptiveHeight: true,
+          fade: true
         });
-
-        // Initialize Flickity events after it's created
-        flickityRef.current.on('change', (index) => {
-          // Animate progress bar
-          const progressBar = document.querySelector('.progress-bar');
-          if (progressBar) {
-            progressBar.style.width = '0%';
-            progressBar.style.transition = 'none';
-            setTimeout(() => {
-              progressBar.style.width = '100%';
-              progressBar.style.transition = 'width 6000ms linear';
-            }, 50);
-          }
-        });
-
-        // Start progress bar animation
-        const progressBar = document.querySelector('.progress-bar');
-        if (progressBar) {
-          progressBar.style.width = '100%';
-          progressBar.style.transition = 'width 6000ms linear';
-        }
       }, 100);
     }
-
-    // Cleanup function
     return () => {
       if (flickityRef.current) {
         flickityRef.current.destroy();
-        flickityRef.current = null;
       }
     };
   }, []);
 
-  // Replace the existing hero section with this:
   return (
-    <>
+    <div className="main">
       <Navbar />
-      <div className="main">
-        {/* Hero Section with Flickity Carousel */}
-        <div className="hero-section">
-          <div className="hero-carousel">
-            <div className="progress-bar-container">
-              <div className="progress-bar"></div>
-            </div>
-            {heroSlides.map((slide, index) => (
-              <div className="carousel-cell" key={index}>
-                <div className="slide-background" style={{
-                  backgroundImage: `url(${slide.image})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center'
-                }}></div>
-                <div className="overlay" style={{
-                  background: `linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 100%)`
-                }}></div>
-                <div className="carousel-content">
-                  <div className="slide-accent" style={{ backgroundColor: slide.color }}></div>
-                  <div className="hero-text">
-                    <motion.h1
-                      initial={{ y: 30, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ duration: 0.6 }}
-                    >
-                      {slide.title}
-                    </motion.h1>
-                    <motion.p
-                      initial={{ y: 30, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ duration: 0.6, delay: 0.2 }}
-                    >
-                      {slide.description}
-                    </motion.p>
 
-                    <motion.form
-                      className="search-form"
-                      onSubmit={handleSearch}
-                      initial={{ y: 30, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ duration: 0.6, delay: 0.3 }}
+      {/* Enhanced Hero Section */}
+      <section className="hero-section">
+        <div className="hero-carousel">
+          {heroSlides.map((slide, index) => (
+            <div key={index} className="carousel-cell">
+              <div
+                className="parallax-bg"
+                style={{ backgroundImage: `url(${slide.image})` }}
+              />
+              <div className="carousel-content">
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                >
+                  <h1>{slide.title}</h1>
+                  <p>{slide.description}</p>
+                  <div className="hero-buttons">
+                    <Link
+                      to={slide.ctaLink}
+                      className="primary-button"
+                      style={{ backgroundColor: slide.color }}
                     >
-                      <div className="search-container">
-                        <input
-                          type="text"
-                          placeholder="What service do you need?"
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          className="search-input"
-                        />
-                        <button type="submit" className="search-button">
-                          <i className="fas fa-search"></i> Search
-                        </button>
-                      </div>
-                    </motion.form>
-
-                    <motion.div
-                      className="cta-container"
-                      initial={{ y: 30, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ duration: 0.6, delay: 0.4 }}
+                      {slide.ctaText}
+                    </Link>
+                    <Link
+                      to="/services"
+                      className="secondary-button"
                     >
-                      {!user ? (
-                        <div className="cta-buttons">
-                          <Link to="/login" className="book-now" style={{ backgroundColor: slide.color }}>Book Now</Link>
-                          <Link to="/tasker" className="become-provider">Become a Provider</Link>
-                        </div>
-                      ) : (
-                        <Link to={slide.ctaLink} className="book-now" style={{ backgroundColor: slide.color }}>{slide.ctaText}</Link>
-                      )}
-                    </motion.div>
+                      Browse Services
+                    </Link>
                   </div>
-                </div>
+                </motion.div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
-      </div>
+      </section>
 
       <div className="services">
         <div className="section-header">
@@ -368,7 +293,7 @@ const Home = () => {
           <p>Made with <span role="img" aria-label="love">❤️</span> For India | © {new Date().getFullYear()} Fixly. All rights reserved.</p>
         </div>
       </footer>
-    </>
+    </div>
   );
 };
 

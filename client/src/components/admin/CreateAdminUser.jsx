@@ -49,14 +49,15 @@ function CreateAdminUser() {
           lastName: formData.lastName,
           email: formData.email,
           password: formData.password,
-          userType: 'admin'
+          userType: 'admin',
+          sendEmail: true // Flag to send welcome email with credentials
         },
         {
           headers: { Authorization: `Bearer ${token}` }
         }
       );
 
-      setSuccess('Admin user created successfully!');
+      setSuccess('Admin user created successfully! An email with login credentials has been sent.');
       setFormData({
         firstName: '',
         lastName: '',
