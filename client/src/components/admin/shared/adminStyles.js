@@ -68,6 +68,9 @@ export const tableStyles = {
   editButton: "text-indigo-600 hover:text-indigo-900",
   deleteButton: "text-red-600 hover:text-red-900",
   viewButton: "text-blue-600 hover:text-blue-900",
+  successButton: "text-green-600 hover:text-green-900",
+  warningButton: "text-yellow-600 hover:text-yellow-900",
+  infoButton: "text-blue-600 hover:text-blue-900",
 };
 
 // Form styles
@@ -136,11 +139,15 @@ export const paginationStyles = {
 export const filterStyles = {
   container: "mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200",
   form: "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
-  group: "flex flex-col",
+  group: "flex flex-col relative",
   label: "block text-sm font-medium text-gray-700 mb-1",
-  input: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
-  select: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
-  actions: "flex items-center justify-end mt-4 space-x-3",
+  input: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm pl-9",
+  select: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm pl-9 appearance-none",
+  selectIcon: "absolute right-3 bottom-2.5 text-gray-400 pointer-events-none",
+  inputIcon: "absolute left-3 bottom-2.5 text-gray-400",
+  actions: "flex items-center justify-end mt-4 space-x-2 md:self-end",
+  searchButton: "inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 min-w-[80px] max-w-[100px] w-auto",
+  resetButton: "inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 min-w-[80px] max-w-[100px] w-auto",
 };
 
 // Breadcrumb styles

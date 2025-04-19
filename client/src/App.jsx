@@ -41,6 +41,10 @@ import ForgotPassword from './components/ForgotPassword';
 // Add this import
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 
+// Toast notifications
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 // At the top of your file, add this import
 import './styles/global.css';
 import './styles/tailwind.css'; // Add this if you have a separate tailwind file
@@ -49,6 +53,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

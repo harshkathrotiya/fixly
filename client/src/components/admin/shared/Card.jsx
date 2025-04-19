@@ -125,7 +125,7 @@ function Card({
 
   return (
     <div
-      className={`stat-card ${onClick ? 'cursor-pointer' : ''}`}
+      className="stat-card hover:shadow-md transition-all duration-200 cursor-pointer"
       onClick={onClick}
     >
       <div className={`stat-icon ${color}-icon`}>
@@ -134,7 +134,7 @@ function Card({
       <div className="stat-details">
         <h3>{title}</h3>
         {loading ? (
-          <div className="admin-spinner admin-spinner-sm"></div>
+          <div className="w-6 h-6 border-t-2 border-b-2 border-indigo-500 rounded-full animate-spin"></div>
         ) : (
           <p className="stat-value">{value}</p>
         )}

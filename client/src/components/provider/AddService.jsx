@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
@@ -10,9 +10,9 @@ function AddService() {
 
   const [formData, setFormData] = useState({
     serviceTitle: '',
-    serviceCategory: '',
-    serviceDescription: '',
-    price: '',
+    categoryId: '',
+    serviceDetails: '',
+    servicePrice: '',
     duration: '',
     serviceLocation: '',
     serviceImages: []
@@ -21,25 +21,27 @@ function AddService() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [imagePreview, setImagePreview] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const categories = [
-    'Home Cleaning',
-    'Plumbing',
-    'Electrical',
-    'Carpentry',
-    'Painting',
-    'Appliance Repair',
-    'Pest Control',
-    'Gardening',
-    'Interior Design',
-    'Moving & Packing',
-    'Beauty & Spa',
-    'Computer Repair',
-    'Tutoring',
-    'Event Planning',
-    'Photography',
-    'Other'
-  ];
+  // Fetch categories from the backend
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/categories');
+        if (response.data.success) {
+          setCategories(response.data.data);
+        }
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+        setError('Failed to load categories. Please refresh the page.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -84,15 +86,15 @@ function AddService() {
       setError('Service title is required');
       return;
     }
-    if (!formData.serviceCategory) {
+    if (!formData.categoryId) {
       setError('Please select a category');
       return;
     }
-    if (!formData.serviceDescription.trim()) {
+    if (!formData.serviceDetails.trim()) {
       setError('Service description is required');
       return;
     }
-    if (!formData.price || isNaN(formData.price) || Number(formData.price) <= 0) {
+    if (!formData.servicePrice || isNaN(formData.servicePrice) || Number(formData.servicePrice) <= 0) {
       setError('Please enter a valid price');
       return;
     }
@@ -104,16 +106,16 @@ function AddService() {
       // Create form data for file upload
       const serviceData = new FormData();
       serviceData.append('serviceTitle', formData.serviceTitle);
-      serviceData.append('serviceCategory', formData.serviceCategory);
-      serviceData.append('serviceDescription', formData.serviceDescription);
-      serviceData.append('price', formData.price);
+      serviceData.append('categoryId', formData.categoryId);
+      serviceData.append('serviceDetails', formData.serviceDetails);
+      serviceData.append('servicePrice', formData.servicePrice);
       serviceData.append('duration', formData.duration);
       serviceData.append('serviceLocation', formData.serviceLocation);
 
-      // Append each image
-      formData.serviceImages.forEach(image => {
-        serviceData.append('serviceImages', image);
-      });
+      // Append each image - only use the first image for now
+      if (formData.serviceImages.length > 0) {
+        serviceData.append('serviceImage', formData.serviceImages[0]);
+      }
 
       await axios.post('http://localhost:5000/api/listings', serviceData, {
         headers: {
@@ -153,26 +155,27 @@ function AddService() {
         </div>
 
         <div className="form-group">
-          <label htmlFor="serviceCategory">Category *</label>
+          <label htmlFor="categoryId">Category *</label>
           <select
-            id="serviceCategory"
-            name="serviceCategory"
-            value={formData.serviceCategory}
+            id="categoryId"
+            name="categoryId"
+            value={formData.categoryId}
             onChange={handleChange}
+            disabled={isLoading}
           >
             <option value="">Select a category</option>
             {categories.map((category) => (
-              <option key={category} value={category}>{category}</option>
+              <option key={category._id} value={category._id}>{category.categoryName}</option>
             ))}
           </select>
         </div>
 
         <div className="form-group">
-          <label htmlFor="serviceDescription">Description *</label>
+          <label htmlFor="serviceDetails">Description *</label>
           <textarea
-            id="serviceDescription"
-            name="serviceDescription"
-            value={formData.serviceDescription}
+            id="serviceDetails"
+            name="serviceDetails"
+            value={formData.serviceDetails}
             onChange={handleChange}
             rows="5"
             placeholder="Describe your service in detail..."
@@ -181,12 +184,12 @@ function AddService() {
 
         <div className="form-row">
           <div className="form-group half">
-            <label htmlFor="price">Price (₹) *</label>
+            <label htmlFor="servicePrice">Price (₹) *</label>
             <input
               type="number"
-              id="price"
-              name="price"
-              value={formData.price}
+              id="servicePrice"
+              name="servicePrice"
+              value={formData.servicePrice}
               onChange={handleChange}
               placeholder="e.g. 500"
               min="0"

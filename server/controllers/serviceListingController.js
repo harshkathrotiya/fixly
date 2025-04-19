@@ -13,10 +13,14 @@ exports.createListing = asyncHandler(async (req, res) => {
     servicePrice,
     serviceDetails,
     tags,
-    serviceImage  // Extract from request body
+    duration,
+    serviceLocation
   } = req.body;
 
   console.log('Received data:', req.body);
+
+  // Get image URL from file upload if available
+  const serviceImage = req.file ? req.file.path : null;
   console.log('Image URL received:', serviceImage);
 
   // Find the service provider profile for the current user
@@ -42,9 +46,11 @@ exports.createListing = asyncHandler(async (req, res) => {
     serviceProviderId: serviceProvider._id,
     categoryId,
     serviceTitle,
-    servicePrice,
+    servicePrice: parseFloat(servicePrice),
     serviceDetails,
     serviceImage: serviceImage || '', // Ensure we have a default value
+    duration: duration ? parseInt(duration) : 0,
+    serviceLocation: serviceLocation || '',
     tags: tags ? tags.split(',').map(tag => tag.trim()) : []
   });
 

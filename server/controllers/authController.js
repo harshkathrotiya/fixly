@@ -76,6 +76,14 @@ exports.login = asyncHandler(async (req, res) => {
     });
   }
 
+  // Check if user is active
+  if (!user.isActive) {
+    return res.status(401).json({
+      success: false,
+      message: 'Your account has been deactivated. Please contact support.'
+    });
+  }
+
   sendTokenResponse(user, 200, res);
 });
 

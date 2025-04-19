@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from '../../context/authcontext';
+import { useAuth } from '../../context/AuthContext';
 import AdminLayout from './AdminLayout';
 import Table from './shared/Table';
 import Modal from './shared/Modal';
 import Button from './shared/Button';
 import Badge from './shared/Badge';
 import { cardStyles, formStyles, alertStyles, tableStyles } from './shared/adminStyles';
+import { toast } from 'react-toastify';
+import './shared/categoryStyles.css';
 
 function Categories() {
   const [categories, setCategories] = useState([]);
@@ -33,17 +35,69 @@ function Categories() {
   const fetchCategories = async () => {
     setIsLoading(true);
     try {
+      // Build query parameters
+      let queryParams = `page=${pagination.page}&limit=${pagination.limit}`;
+
+      // Add sorting parameters
+      if (sortConfig.key && sortConfig.direction) {
+        queryParams += `&sort=${sortConfig.key}&order=${sortConfig.direction}`;
+      }
+
+      console.log('Fetching categories with params:', queryParams);
+
       const response = await axios.get(
-        `http://localhost:5000/api/categories?page=${pagination.page}&limit=${pagination.limit}&sort=${sortConfig.key}&order=${sortConfig.direction}`,
+        `http://localhost:5000/api/categories?${queryParams}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
       );
-      setCategories(response.data.data || []);
-      setPagination(prev => ({ ...prev, total: response.data.total || 0 }));
+
+      console.log('Categories response:', response.data);
+
+      // Process categories to fix image URLs and get service counts
+      const categoriesWithCounts = await Promise.all(
+        response.data.data.map(async (category) => {
+          try {
+            // Get count of services in this category
+            const servicesResponse = await axios.get(
+              `http://localhost:5000/api/listings?category=${category._id}&limit=1`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            // Fix image URL if needed
+            let processedCategory = { ...category };
+
+            // Check if the image URL is relative and needs to be fixed
+            if (category.categoryImage && !category.categoryImage.startsWith('http')) {
+              // Make sure it's a valid path
+              if (category.categoryImage.startsWith('/')) {
+                processedCategory.categoryImage = `http://localhost:5000${category.categoryImage}`;
+              } else {
+                processedCategory.categoryImage = `http://localhost:5000/${category.categoryImage}`;
+              }
+            }
+
+            return {
+              ...processedCategory,
+              serviceCount: servicesResponse.data.pagination?.total || 0
+            };
+          } catch (err) {
+            console.error(`Error processing category ${category._id}:`, err);
+            return { ...category, serviceCount: 0 };
+          }
+        })
+      );
+
+      setCategories(categoriesWithCounts || []);
+      setPagination(prev => ({
+        ...prev,
+        total: response.data.total || 0,
+        pages: response.data.pages || 1
+      }));
     } catch (err) {
       console.error('Error fetching categories:', err);
       setError('Failed to load categories. Please try again.');
+      toast.error('Failed to load categories');
     } finally {
       setIsLoading(false);
     }
@@ -67,19 +121,40 @@ function Categories() {
 
     if (type === 'file') {
       const file = files[0];
-      if (file) {
-        setNewCategory({
-          ...newCategory,
-          [name]: file
-        });
+      if (!file) return;
 
-        // Create image preview
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImagePreview(reader.result);
-        };
-        reader.readAsDataURL(file);
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+      if (!validTypes.includes(file.type)) {
+        setError('Please upload a valid image file (JPEG, PNG, or GIF)');
+        toast.error('Invalid file type');
+        e.target.value = null; // Reset the input
+        return;
       }
+
+      // Validate file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        setError('Image size should be less than 2MB');
+        toast.error('Image too large');
+        e.target.value = null; // Reset the input
+        return;
+      }
+
+      // Set the image in the form data
+      setNewCategory({
+        ...newCategory,
+        [name]: file
+      });
+
+      // Create image preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+
+      // Clear any previous errors
+      setError(null);
     } else {
       setNewCategory({
         ...newCategory,
@@ -110,7 +185,15 @@ function Categories() {
       parentCategory: category.parentCategory?._id || '',
       categoryImage: null
     });
-    setImagePreview(category.categoryImage || '');
+
+    // Set image preview with the full URL
+    if (category.categoryImage) {
+      // Use the already processed URL from our fetchCategories function
+      setImagePreview(category.categoryImage);
+    } else {
+      setImagePreview('');
+    }
+
     setModalMode('edit');
     setIsModalOpen(true);
   };
@@ -133,34 +216,119 @@ function Categories() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate form
+    if (!newCategory.categoryName || !newCategory.categoryDescription) {
+      setError('Category name and description are required');
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    // Show loading toast
+    const toastId = toast.loading(`${modalMode === 'add' ? 'Creating' : 'Updating'} category...`);
+
     try {
-      const formData = new FormData();
-      formData.append('categoryName', newCategory.categoryName);
-      formData.append('categoryDescription', newCategory.categoryDescription);
-
-      if (newCategory.parentCategory) {
-        formData.append('parentCategory', newCategory.parentCategory);
-      }
-
-      if (newCategory.categoryImage) {
-        formData.append('image', newCategory.categoryImage);
-      }
+      let response;
 
       if (modalMode === 'add') {
-        // Create new category
-        await axios.post('http://localhost:5000/api/categories', formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
+        // Create new category first
+        response = await axios.post(
+          'http://localhost:5000/api/categories',
+          {
+            categoryName: newCategory.categoryName,
+            categoryDescription: newCategory.categoryDescription,
+            parentCategory: newCategory.parentCategory || null
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        console.log('Category created:', response.data);
+
+        // If we have an image, upload it in a separate request
+        if (newCategory.categoryImage) {
+          try {
+            const categoryId = response.data.data._id;
+            const imageFormData = new FormData();
+            imageFormData.append('image', newCategory.categoryImage);
+
+            console.log('Uploading image for new category:', categoryId);
+            console.log('Image file:', newCategory.categoryImage);
+
+            const imageResponse = await axios.put(
+              `http://localhost:5000/api/categories/${categoryId}/image`,
+              imageFormData,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'multipart/form-data'
+                }
+              }
+            );
+
+            console.log('Category image uploaded successfully:', imageResponse.data);
+          } catch (imageError) {
+            console.error('Error uploading category image:', imageError);
+
+            // Show warning toast but don't fail the whole operation
+            toast.warning('Category was created but image upload failed. You can try again later.');
           }
+        }
+
+        // Show success message
+        toast.update(toastId, {
+          render: 'Category created successfully',
+          type: 'success',
+          isLoading: false,
+          autoClose: 3000
         });
       } else if (modalMode === 'edit' && selectedCategory) {
         // Update existing category
-        await axios.put(`http://localhost:5000/api/categories/${selectedCategory._id}`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
+        response = await axios.put(
+          `http://localhost:5000/api/categories/${selectedCategory._id}`,
+          {
+            categoryName: newCategory.categoryName,
+            categoryDescription: newCategory.categoryDescription,
+            parentCategory: newCategory.parentCategory || null
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        console.log('Category updated:', response.data);
+
+        // If we have a new image, upload it in a separate request
+        if (newCategory.categoryImage) {
+          try {
+            const imageFormData = new FormData();
+            imageFormData.append('image', newCategory.categoryImage);
+
+            console.log('Uploading image for category:', selectedCategory._id);
+            console.log('Image file:', newCategory.categoryImage);
+
+            const imageResponse = await axios.put(
+              `http://localhost:5000/api/categories/${selectedCategory._id}/image`,
+              imageFormData,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'multipart/form-data'
+                }
+              }
+            );
+
+            console.log('Category image updated successfully:', imageResponse.data);
+          } catch (imageError) {
+            console.error('Error updating category image:', imageError);
+
+            // Show warning toast but don't fail the whole operation
+            toast.warning('Category was updated but image upload failed. You can try again later.');
           }
+        }
+
+        // Show success message
+        toast.update(toastId, {
+          render: 'Category updated successfully',
+          type: 'success',
+          isLoading: false,
+          autoClose: 3000
         });
       }
 
@@ -172,10 +340,22 @@ function Categories() {
         categoryImage: null
       });
       setIsModalOpen(false);
-      fetchCategories();
+      setError(null);
+
+      // Refresh the categories list
+      setTimeout(() => fetchCategories(), 100);
     } catch (err) {
       console.error(`Error ${modalMode === 'add' ? 'creating' : 'updating'} category:`, err);
-      setError(`Failed to ${modalMode === 'add' ? 'create' : 'update'} category. Please try again.`);
+      const errorMessage = err.response?.data?.message || err.message || `Failed to ${modalMode === 'add' ? 'create' : 'update'} category`;
+      setError(errorMessage);
+
+      // Update toast to show error
+      toast.update(toastId, {
+        render: errorMessage,
+        type: 'error',
+        isLoading: false,
+        autoClose: 3000
+      });
     }
   };
 
@@ -183,15 +363,46 @@ function Categories() {
   const handleDelete = async () => {
     if (!selectedCategory) return;
 
+    // Check if category has services
+    if (selectedCategory.serviceCount > 0) {
+      setError(`Cannot delete category with ${selectedCategory.serviceCount} services. Remove or reassign services first.`);
+      toast.error('Cannot delete category with active services');
+      return;
+    }
+
+    // Show loading toast
+    const toastId = toast.loading('Deleting category...');
+
     try {
       await axios.delete(`http://localhost:5000/api/categories/${selectedCategory._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+
+      // Show success message
+      toast.update(toastId, {
+        render: 'Category deleted successfully',
+        type: 'success',
+        isLoading: false,
+        autoClose: 3000
+      });
+
       setIsModalOpen(false);
-      fetchCategories();
+      setError(null);
+
+      // Refresh the categories list
+      setTimeout(() => fetchCategories(), 100);
     } catch (err) {
       console.error('Error deleting category:', err);
-      setError('Failed to delete category. Please try again.');
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to delete category';
+      setError(errorMessage);
+
+      // Update toast to show error
+      toast.update(toastId, {
+        render: errorMessage,
+        type: 'error',
+        isLoading: false,
+        autoClose: 3000
+      });
     }
   };
 
@@ -202,12 +413,26 @@ function Categories() {
       accessor: 'categoryName',
       Cell: (category) => (
         <div className="flex items-center">
-          <div className="flex-shrink-0 h-10 w-10">
-            <img
-              className="h-10 w-10 rounded-full object-cover"
-              src={category.categoryImage || 'https://via.placeholder.com/40'}
-              alt={category.categoryName}
-            />
+          <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+            {category.categoryImage && !category.categoryImage.includes('undefined') ? (
+              <img
+                className="h-10 w-10 object-cover"
+                src={category.categoryImage}
+                alt={category.categoryName}
+                onError={(e) => {
+                  // Remove the error handler to prevent loops
+                  e.target.onerror = null;
+                  // Hide the image
+                  e.target.style.display = 'none';
+                  // Show parent with initial
+                  e.target.parentNode.classList.add('initial-fallback');
+                }}
+              />
+            ) : (
+              <div className="text-gray-500 font-semibold text-lg">
+                {category.categoryName.charAt(0).toUpperCase()}
+              </div>
+            )}
           </div>
           <div className="ml-4">
             <div className="text-sm font-medium text-gray-900">
@@ -339,11 +564,20 @@ function Categories() {
               />
               {imagePreview && (
                 <div className="mt-2">
-                  <img
-                    src={imagePreview}
-                    alt="Category preview"
-                    className="h-24 w-24 object-cover rounded"
-                  />
+                  <div className="category-preview">
+                    <img
+                      src={imagePreview}
+                      alt="Category preview"
+                      onError={(e) => {
+                        // Remove the error handler to prevent loops
+                        e.target.onerror = null;
+                        // Replace with a message
+                        e.target.style.display = 'none';
+                        e.target.parentNode.innerHTML = '<div class="category-initial">Preview not available</div>';
+                      }}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Preview of category image</p>
                 </div>
               )}
             </div>

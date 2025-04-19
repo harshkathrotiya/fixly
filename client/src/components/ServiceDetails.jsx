@@ -17,11 +17,11 @@ function ServiceDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [relatedServices, setRelatedServices] = useState([]);
-  
+
   // State for image gallery
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [images, setImages] = useState([]);
-  
+
   // State for booking
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [bookingDetails, setBookingDetails] = useState({
@@ -95,36 +95,36 @@ function ServiceDetails() {
   const handleBookingSubmit = async (e) => {
       e.preventDefault();
       setBookingError(null);
-      
+
       try {
         // Format the date and time properly for the backend
         const bookingDateTime = new Date(`${bookingDetails.date}T${bookingDetails.time}`);
-        
+
         // Updated booking data to match the API requirements
         const bookingData = {
           serviceListingId: id,
           serviceDateTime: bookingDateTime.toISOString(),
           specialInstructions: bookingDetails.notes || ''
         };
-  
+
         console.log('Submitting booking with data:', bookingData);
-        
+
         const token = localStorage.getItem('authToken');
-        
+
         if (!token) {
           setBookingError('You must be logged in to book a service');
           return;
         }
-  
+
         const response = await axios.post('http://localhost:5000/api/bookings', bookingData, {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
-        
+
         console.log('Booking response:', response.data);
-  
+
         // Close the form first, then show success message
         setShowBookingForm(false);
         setTimeout(() => {
@@ -147,32 +147,32 @@ function ServiceDetails() {
     const now = new Date();
     const date = new Date(dateString);
     const seconds = Math.floor((now - date) / 1000);
-    
+
     let interval = Math.floor(seconds / 31536000);
     if (interval >= 1) {
       return interval === 1 ? '1 year ago' : `${interval} years ago`;
     }
-    
+
     interval = Math.floor(seconds / 2592000);
     if (interval >= 1) {
       return interval === 1 ? '1 month ago' : `${interval} months ago`;
     }
-    
+
     interval = Math.floor(seconds / 86400);
     if (interval >= 1) {
       return interval === 1 ? '1 day ago' : `${interval} days ago`;
     }
-    
+
     interval = Math.floor(seconds / 3600);
     if (interval >= 1) {
       return interval === 1 ? '1 hour ago' : `${interval} hours ago`;
     }
-    
+
     interval = Math.floor(seconds / 60);
     if (interval >= 1) {
       return interval === 1 ? '1 minute ago' : `${interval} minutes ago`;
     }
-    
+
     return 'Just now';
   };
 
@@ -240,7 +240,7 @@ function ServiceDetails() {
           </button>
         </div>
       )}
-      
+
       <div className="service-details-container">
         <div className="service-details-breadcrumb">
           <button onClick={handleBackToServices} className="back-button">
@@ -256,14 +256,14 @@ function ServiceDetails() {
             <span className="current-page">{listing.serviceTitle}</span>
           </div>
         </div>
-        
+
         <div className="service-details-content">
           <div className="service-details-main">
             <div className="service-details-gallery" ref={imageGalleryRef}>
               <div className="main-image-container">
-                <img 
-                  src={images[selectedImageIndex] || PlaceholderImg} 
-                  alt={listing.serviceTitle} 
+                <img
+                  src={images[selectedImageIndex] || PlaceholderImg}
+                  alt={listing.serviceTitle}
                   className="main-image"
                   onError={(e) => {
                     e.target.src = PlaceholderImg;
@@ -272,14 +272,14 @@ function ServiceDetails() {
                 <div className="image-navigation">
                   {images.length > 1 && (
                     <>
-                      <button 
+                      <button
                         className="prev-image-btn"
                         onClick={() => handleImageChange((selectedImageIndex - 1 + images.length) % images.length)}
                         aria-label="Previous image"
                       >
                         <i className="fas fa-chevron-left"></i>
                       </button>
-                      <button 
+                      <button
                         className="next-image-btn"
                         onClick={() => handleImageChange((selectedImageIndex + 1) % images.length)}
                         aria-label="Next image"
@@ -290,18 +290,18 @@ function ServiceDetails() {
                   )}
                 </div>
               </div>
-              
+
               {images.length > 1 && (
                 <div className="thumbnail-images">
                   {images.map((image, index) => (
-                    <div 
-                      key={index} 
+                    <div
+                      key={index}
                       className={`thumbnail-container ${selectedImageIndex === index ? 'active' : ''}`}
                       onClick={() => handleImageChange(index)}
                     >
-                      <img 
-                        src={image} 
-                        alt={`${listing.serviceTitle} ${index + 1}`} 
+                      <img
+                        src={image}
+                        alt={`${listing.serviceTitle} ${index + 1}`}
                         className="thumbnail-image"
                         onError={(e) => {
                           e.target.src = PlaceholderImg;
@@ -312,7 +312,7 @@ function ServiceDetails() {
                 </div>
               )}
             </div>
-            
+
             <div className="service-details-info">
               <div className="service-header">
                 <h1 className="service-title">{listing.serviceTitle}</h1>
@@ -320,24 +320,24 @@ function ServiceDetails() {
                   <i className="fas fa-share-alt"></i>
                 </button>
               </div>
-              
+
               <div className="service-meta-info">
                 <div className="service-category">
                   <i className="fas fa-tag"></i>
                   <span>{listing.categoryId?.categoryName || 'General Service'}</span>
                 </div>
-                
+
                 <div className="service-date">
                   <i className="fas fa-clock"></i>
                   <span title={formatDate(listing.createdAt)}>Listed {getTimeSince(listing.createdAt)}</span>
                 </div>
-                
+
                 {listing.averageRating > 0 && (
                   <div className="service-rating">
                     <div className="stars-container">
                       {[...Array(5)].map((_, i) => (
-                        <i 
-                          key={i} 
+                        <i
+                          key={i}
                           className={`fas fa-star ${i < Math.round(listing.averageRating) ? 'filled' : ''}`}
                         ></i>
                       ))}
@@ -346,7 +346,7 @@ function ServiceDetails() {
                     <span className="review-count">({listing.reviewCount} reviews)</span>
                   </div>
                 )}
-                
+
                 {listing.isActive && (
                   <div className="service-availability">
                     <i className="fas fa-check-circle"></i>
@@ -354,28 +354,28 @@ function ServiceDetails() {
                   </div>
                 )}
               </div>
-              
+
               <div className="service-price-section">
-                <div className="service-price">${listing.servicePrice}</div>
+                <div className="service-price">₹{listing.servicePrice}</div>
                 {user?.role === 'provider' && (
                   <div className="price-breakdown">
                     <div className="provider-earning">
                       <span>Provider Earning:</span>
-                      <span>${listing.providerEarning}</span>
+                      <span>₹{listing.providerEarning}</span>
                     </div>
                     <div className="commission">
                       <span>Platform Fee:</span>
-                      <span>${listing.commissionAmount}</span>
+                      <span>₹{listing.commissionAmount}</span>
                     </div>
                   </div>
                 )}
               </div>
-              
+
               <div className="service-description">
                 <h3>Service Description</h3>
                 <p>{listing.serviceDetails}</p>
               </div>
-              
+
               {listing.tags?.length > 0 && (
                 <div className="service-tags-section">
                   <h3>Tags</h3>
@@ -386,7 +386,7 @@ function ServiceDetails() {
                   </div>
                 </div>
               )}
-              
+
               <div className="service-actions">
                 <button className="book-now-button" onClick={handleBookNow}>
                   <i className="fas fa-calendar-check"></i> Book Now
@@ -397,21 +397,21 @@ function ServiceDetails() {
               </div>
             </div>
           </div>
-          
+
           <div className="service-details-sidebar">
             <div className="provider-card">
               <h3>Service Provider</h3>
               <div className="provider-info">
                 <div className="provider-avatar">
-                  <img 
-                    src={listing.serviceProviderId?.userId?.profilePicture || PlaceholderImg} 
-                    alt={`${listing.serviceProviderId?.userId?.firstName || ''} ${listing.serviceProviderId?.userId?.lastName || ''}`} 
+                  <img
+                    src={listing.serviceProviderId?.userId?.profilePicture || PlaceholderImg}
+                    alt={`${listing.serviceProviderId?.userId?.firstName || ''} ${listing.serviceProviderId?.userId?.lastName || ''}`}
                   />
                 </div>
                 <div className="provider-details">
                   <h4>
-                    {listing.serviceProviderId.userId 
-                      ? `${listing.serviceProviderId.userId.firstName || ''} ${listing.serviceProviderId.userId.lastName || ''}` 
+                    {listing.serviceProviderId.userId
+                      ? `${listing.serviceProviderId.userId.firstName || ''} ${listing.serviceProviderId.userId.lastName || ''}`
                       : 'Professional Provider'}
                   </h4>
                   {listing.serviceProviderId?.verificationStatus === 'verified' && (
@@ -423,8 +423,8 @@ function ServiceDetails() {
                     <div className="provider-rating">
                       <div className="stars-container">
                         {[...Array(5)].map((_, i) => (
-                          <i 
-                            key={i} 
+                          <i
+                            key={i}
                             className={`fas fa-star ${i < Math.round(listing.serviceProviderId.rating) ? 'filled' : ''}`}
                           ></i>
                         ))}
@@ -434,11 +434,11 @@ function ServiceDetails() {
                   )}
                 </div>
               </div>
-              
+
               {listing.serviceProviderId?.description && (
                 <p className="provider-bio">{listing.serviceProviderId.description}</p>
               )}
-              
+
               <div className="provider-contact-info">
                 {listing.serviceProviderId?.contactEmail && (
                   <div className="contact-item">
@@ -453,15 +453,15 @@ function ServiceDetails() {
                   </div>
                 )}
               </div>
-              
-              <button 
+
+              <button
                 className="view-profile-button"
                 onClick={() => navigate(`/provider/profile/${listing.serviceProviderId._id}`)}
               >
                 View Full Profile
               </button>
             </div>
-            
+
             <div className="service-info-card">
               <h3>Service Information</h3>
               <div className="info-item">
@@ -471,7 +471,7 @@ function ServiceDetails() {
                   <p>{listing.location || 'Service area not specified'}</p>
                 </div>
               </div>
-              
+
               <div className="info-item">
                 <i className="fas fa-calendar-alt"></i>
                 <div>
@@ -479,7 +479,7 @@ function ServiceDetails() {
                   <p>{listing.isActive ? 'Currently Available' : 'Currently Unavailable'}</p>
                 </div>
               </div>
-              
+
               <div className="info-item">
                 <i className="fas fa-check-circle"></i>
                 <div>
@@ -487,7 +487,7 @@ function ServiceDetails() {
                   <p>Satisfaction guaranteed or your money back</p>
                 </div>
               </div>
-              
+
               <div className="service-cta">
                 <button className="book-now-sidebar-button" onClick={handleBookNow}>
                   Book This Service
@@ -496,13 +496,13 @@ function ServiceDetails() {
             </div>
           </div>
         </div>
-        
+
         {showBookingForm && (
           <div className="booking-form-overlay">
             <div className="booking-form-container">
               <div className="booking-form-header">
                 <h3>Book "{listing.serviceTitle}"</h3>
-                <button 
+                <button
                   className="close-form-button"
                   onClick={() => setShowBookingForm(false)}
                   aria-label="Close booking form"
@@ -510,14 +510,14 @@ function ServiceDetails() {
                   <i className="fas fa-times"></i>
                 </button>
               </div>
-              
+
               {bookingError && (
                 <div className="booking-error-message">
                   <i className="fas fa-exclamation-circle"></i>
                   <p>{bookingError}</p>
                 </div>
               )}
-              
+
               <form onSubmit={handleBookingSubmit} className="booking-form">
                 <div className="form-group">
                   <label htmlFor="bookingDate">Preferred Date</label>
@@ -530,7 +530,7 @@ function ServiceDetails() {
                     min={new Date().toISOString().split('T')[0]}
                   />
                 </div>
-                
+
                 <div className="form-group">
                   <label htmlFor="bookingTime">Preferred Time</label>
                   <input
@@ -541,7 +541,7 @@ function ServiceDetails() {
                     required
                   />
                 </div>
-                
+
                 <div className="form-group">
                   <label htmlFor="bookingNotes">Additional Notes</label>
                   <textarea
@@ -552,7 +552,7 @@ function ServiceDetails() {
                     rows="4"
                   ></textarea>
                 </div>
-                
+
                 <div className="booking-summary">
                   <h4>Booking Summary</h4>
                   <div className="summary-item">
@@ -562,8 +562,8 @@ function ServiceDetails() {
                   <div className="summary-item">
                     <span>Provider:</span>
                     <span>
-                      {listing.serviceProviderId.userId 
-                        ? `${listing.serviceProviderId.userId.firstName || ''} ${listing.serviceProviderId.userId.lastName || ''}` 
+                      {listing.serviceProviderId.userId
+                        ? `${listing.serviceProviderId.userId.firstName || ''} ${listing.serviceProviderId.userId.lastName || ''}`
                         : 'Professional Provider'}
                     </span>
                   </div>
@@ -583,7 +583,7 @@ function ServiceDetails() {
                     <p><i className="fas fa-info-circle"></i> You won't be charged until the service is completed</p>
                   </div>
                 </div>
-                
+
                 <button type="submit" className="submit-booking-button">
                   <i className="fas fa-calendar-check"></i> Confirm Booking
                 </button>
@@ -591,7 +591,7 @@ function ServiceDetails() {
             </div>
           </div>
         )}
-        
+
         {relatedServices.length > 0 && (
           <div className="related-services-section">
             <h2>You Might Also Like</h2>
@@ -599,9 +599,9 @@ function ServiceDetails() {
               {relatedServices.map(service => (
                 <div key={service._id} className="related-service-card">
                   <div className="related-service-image">
-                    <img 
-                      src={service.serviceImage || service.images?.[0] || PlaceholderImg} 
-                      alt={service.serviceTitle} 
+                    <img
+                      src={service.serviceImage || service.images?.[0] || PlaceholderImg}
+                      alt={service.serviceTitle}
                       onError={(e) => {
                         e.target.src = PlaceholderImg;
                       }}
@@ -619,11 +619,11 @@ function ServiceDetails() {
                       )}
                     </div>
                     <p className="related-service-description">
-                      {service.serviceDetails.length > 60 
-                        ? `${service.serviceDetails.substring(0, 60)}...` 
+                      {service.serviceDetails.length > 60
+                        ? `${service.serviceDetails.substring(0, 60)}...`
                         : service.serviceDetails}
                     </p>
-                    <button 
+                    <button
                       className="view-related-button"
                       onClick={() => navigate(`/listing/${service._id}`)}
                     >

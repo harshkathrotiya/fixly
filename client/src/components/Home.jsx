@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./Home.css";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-// Using Font Awesome icons instead of images
+import { Link, useNavigate } from "react-router-dom";
 import ReviewCard from "./review";
 import Navbar from "./Navbar";
 import { motion } from 'framer-motion';
-import Flickity from 'flickity';
+import { useAuth } from "../context/AuthContext";
+
 const Home = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -31,105 +29,48 @@ const Home = () => {
     navigate(`/services?category=${serviceName.toLowerCase()}`);
   };
 
-  // Hero slider reference
-  const flickityRef = useRef(null);
+  // Hero slider image data with modern home service images
+const sliderImages = [
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80", // Plumbing
+  "https://images.unsplash.com/photo-1590959651373-a3db0f38a961?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80", // Electrical
+  "https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80", // Cleaning
+  "https://media.istockphoto.com/id/1313432202/photo/a-worker-installs-windows.webp?s=1024x1024&w=is&k=20&c=h3vOx1uzePhiiI3xpg9LaPDyZ9t_40SrUevhM4LDqbs=", // Carpentry
+  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80", // Painting
+  "https://media.istockphoto.com/id/1186963521/photo/man-is-repairing-radiator-battery-in-the-room-maintenance-repair-works-renovation-in-the-flat.webp?a=1&b=1&s=612x612&w=0&k=20&c=5VDFAJdePfR037xt5b6NtZFb9iv_t55hgB1j1m44igA=", // HVAC
+  "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80", // Landscaping
+  "https://images.unsplash.com/photo-1662845851419-9b727124f29c?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGFwcGxpYW5jZSUyMHJlcGFpcnxlbnwwfHwwfHx8MA%3D%3D", // Appliance Repair
+  "https://images.unsplash.com/photo-1600566752355-35792bedcfea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80", // Roofing
+  "https://plus.unsplash.com/premium_photo-1743759708778-69f746d2bacc?q=80&w=3174&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"  // General Handyman
+];
 
-  // Updated hero slides with better images and content
-  const heroSlides = [
-    {
-      title: "Your Home Services Solution",
-      description: "Find trusted professionals for all your home maintenance and improvement needs. Quality service guaranteed.",
-      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1920&q=80",
-      ctaText: "Get Started",
-      ctaLink: "/services",
-      color: "#4a90e2"
-    },
-    {
-      title: "Professional Services On Demand",
-      description: "Expert electricians, plumbers, and more at your fingertips. Book services with verified professionals.",
-      image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1920&q=80",
-      ctaText: "Book Now",
-      ctaLink: "/services",
-      color: "#2d9cdb"
-    },
-    {
-      title: "Transform Your Space",
-      description: "From painting to renovation, bring your vision to life with our skilled professionals.",
-      image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1920&q=80",
-      ctaText: "Explore Services",
-      ctaLink: "/services",
-      color: "#27ae60"
-    }
-  ];
-
-  // Initialize Flickity with enhanced options
-  useEffect(() => {
-    if (!flickityRef.current) {
-      setTimeout(() => {
-        flickityRef.current = new Flickity('.hero-carousel', {
-          cellAlign: 'left',
-          contain: true,
-          wrapAround: true,
-          autoPlay: 5000,
-          pauseAutoPlayOnHover: true,
-          selectedAttraction: 0.015,
-          friction: 0.25,
-          prevNextButtons: true,
-          pageDots: true,
-          adaptiveHeight: true,
-          fade: true
-        });
-      }, 100);
-    }
-    return () => {
-      if (flickityRef.current) {
-        flickityRef.current.destroy();
-      }
-    };
-  }, []);
 
   return (
     <div className="main">
       <Navbar />
 
-      {/* Enhanced Hero Section */}
-      <section className="hero-section">
-        <div className="hero-carousel">
-          {heroSlides.map((slide, index) => (
-            <div key={index} className="carousel-cell">
-              <div
-                className="parallax-bg"
-                style={{ backgroundImage: `url(${slide.image})` }}
-              />
-              <div className="carousel-content">
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                >
-                  <h1>{slide.title}</h1>
-                  <p>{slide.description}</p>
-                  <div className="hero-buttons">
-                    <Link
-                      to={slide.ctaLink}
-                      className="primary-button"
-                      style={{ backgroundColor: slide.color }}
-                    >
-                      {slide.ctaText}
-                    </Link>
-                    <Link
-                      to="/services"
-                      className="secondary-button"
-                    >
-                      Browse Services
-                    </Link>
-                  </div>
-                </motion.div>
-              </div>
+      {/* New 3D Carousel Hero Section */}
+      <div className="banner">
+        <div className="slider" style={{ "--quantity": sliderImages.length }}>
+          {sliderImages.map((img, index) => (
+            <div key={index} className="item" style={{ "--position": index + 1 }}>
+              <img src={img} alt={`Home service ${index + 1}`} />
             </div>
           ))}
         </div>
-      </section>
+        <div className="content">
+          <h1 data-content="FIXLY">
+            FIXLY
+          </h1>
+          <div className="author">
+            <h2>HOME SERVICES</h2>
+            <p><b>Professional & Reliable</b></p>
+            <p>
+              Find trusted professionals for all your home maintenance needs
+            </p>
+          </div>
+          <div className="model"></div>
+        </div>
+      </div>
 
       <div className="services">
         <div className="section-header">
@@ -245,8 +186,7 @@ const Home = () => {
             <ReviewCard />
           </motion.div>
         </div>
-
-       </div>
+      </div>
 
       <footer>
         <div className="footer-content">

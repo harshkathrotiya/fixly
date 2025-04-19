@@ -14,8 +14,8 @@ const { validateProviderRegistration } = require('../../middleware/validateProvi
 
 const router = express.Router();
 
-// Public routes
-router.get('/', getServiceProviders);
+// Public routes with optional auth for admin filtering
+router.get('/', protect, getServiceProviders);
 router.get('/:id', getServiceProviderById);
 
 // Register as service provider (public) - Add validation middleware

@@ -7,6 +7,10 @@ import Modal from './shared/Modal';
 import Button from './shared/Button';
 import Badge from './shared/Badge';
 import { cardStyles, formStyles, alertStyles, tableStyles, filterStyles } from './shared/adminStyles';
+import './AdminBookings.css';
+
+// Base64 encoded small placeholder image
+const PLACEHOLDER_IMAGE_DATA = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABmJLR0QA/wD/AP+gvaeTAAAAB3RJTUUH5gQTEDkQFLMFhwAAA7hJREFUaN7tmU1oXFUUx3/nvjeZSdOJTROtNqRJ1VqsVkGlKCguxMVUV7oQXbgQBDfiwoW4FVwIrkTEhYgoiC5c6KJuXFS0rR+1tR+xX2maNt/NvHfPcTHzJpPJvJl5M5k3Jgn3wGPmvfPxP+fcc8+5574RVWUzm9nsBvQtQFVFRLpAJ3JbgBHgQeABYDdwB7ATuA3YCmwBCkAJKAIWiIEVYBmYB+aAWWAa+AX4GfgJ+F5Vl0XEbQgAEXFAFXgCeBx4BLgXGM7w6jowCUwAnwFfAF+qaiNTABEZBp4HXgD2ZgEtpT0LfAK8p6pnuuLTKwARKQKvAK8Ct3ZrSJ82C7wNvKOqK6kBRGQf8D5wX0bG9WtngOOqOtEVQOSP3wTeAEpZWzZAWwPeUtU3O0F0BBCRMvAh8NRmMb6DnQJeUtWlRAARGQU+Bx7aIOP/s++AZ1R1JhGAiOwCvgZ2bLDxsU0Dj6rqVNuYEJFtwFc3ifEAu4Cv/H63A9gPPLrRPZ/CjgIHEgH4MPn0JgaI7ZP2sNoGHAYe3gTZJq0dBg63ARCRMvAasG+jLemD7QNe9/3/F8BR4IlNElLT2hO+/1sAqnoJeHGjremTvaSql2IAqloHXt5oS/pkL/s+bwHw8fMscGCjLemDHQCe9X1OvAYOAcc22pI+2DG/76QAqnoBeG6jLemDPef7nJiNquo3wLGNtqRPdszvc6tJiIjsAb4Ftm+0NSnsBnCfqp5vC6OqOgUcAZY22po+2xJwJDY+KYyq6iRwGFjcaIv6aIvAYd/X9gBxYVNVzwJPAysbZFQ/bAV42vc1GUBcXKvqBHAIWNgAw9LaAnDI9zMdgIeIi+2vgIPAXMaGZWFzwEHfx3QAPkzEBdckcD9wOkPjBm2nfR8n0/Z/XOLGhfcM8BjwIbCWgYGDsDXgA9+3mW76Py5142L/GvAy8CTwKbA6QEMHYau+L0/6Pl3rFUBLDyQUvleBN4B9wLvA9QEY3E+77vvwru9LT/0fl9zxRiQU31eBE8Ae4DhwsQ+G98ou+ja9D+zxfeh5AhOX3vGGJCyAloBPgHuAF4Ef+vSRXuyib8Mxv+0lv+2BzMTi8jveoBQrwgXgY+AuP9t9C1zpA8QV/87X/Lvu8m0o+G0ObiYWl+DxhqVcE68Ck8AE8AGwH3gKeBa4G7gTGKP5o0fRf2wJaADLNH/0mKf5o8cMzR89fvR/9DgDfKeqy2nL5n8A2X9bE4ZA+LsAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjItMDQtMTlUMTY6NTc6MTYrMDA6MDCjlq7LAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIyLTA0LTE5VDE2OjU3OjE2KzAwOjAw0ssWdwAAAABJRU5ErkJggg==';
 
 function Bookings() {
   const [bookings, setBookings] = useState([]);
@@ -25,30 +29,61 @@ function Bookings() {
     fetchBookings();
   }, [token, pagination.page, sortConfig, filterStatus, dateRange]);
 
+  // Preload images when bookings change
+  useEffect(() => {
+    if (bookings.length > 0) {
+      // Preload service images
+      bookings.forEach(booking => {
+        if (booking.serviceListingId?.serviceImage) {
+          const img = new Image();
+          img.src = debugImageUrl(booking.serviceListingId.serviceImage);
+          img.onerror = () => console.warn(`Preload failed for: ${booking.serviceListingId.serviceImage}`);
+        }
+      });
+    }
+  }, [bookings]);
+
   const fetchBookings = async () => {
     setIsLoading(true);
     try {
       // Build query parameters
-      let queryParams = `page=${pagination.page}&limit=${pagination.limit}&sort=${sortConfig.key}&order=${sortConfig.direction}`;
+      let queryParams = `page=${pagination.page}&limit=${pagination.limit}`;
 
+      // Add sorting
+      if (sortConfig.key && sortConfig.direction) {
+        queryParams += `&sort=${sortConfig.key}&order=${sortConfig.direction}`;
+      }
+
+      // Add status filter
       if (filterStatus !== 'all') {
         queryParams += `&status=${filterStatus}`;
       }
 
+      // Add date range filters
       if (dateRange.start) {
-        queryParams += `&startDate=${dateRange.start}`;
+        queryParams += `&from=${dateRange.start}`;
       }
 
       if (dateRange.end) {
-        queryParams += `&endDate=${dateRange.end}`;
+        queryParams += `&to=${dateRange.end}`;
       }
 
+      // Call the admin bookings endpoint
       const response = await axios.get(`http://localhost:5000/api/bookings?${queryParams}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      console.log('Bookings response:', response.data);
+
+      // Update state with the response data
       setBookings(response.data.data || []);
-      setPagination(prev => ({ ...prev, total: response.data.total || 0 }));
+
+      // Update pagination with total count from response
+      setPagination(prev => ({
+        ...prev,
+        total: response.data.pagination?.total || 0,
+        pages: response.data.pagination?.pages || 1
+      }));
     } catch (err) {
       console.error('Error fetching bookings:', err);
       setError('Failed to load bookings. Please try again.');
@@ -81,6 +116,25 @@ function Bookings() {
     setFilterStatus(e.target.value);
   };
 
+  // Handle image loading errors
+  const handleImageError = (e, size = 48) => {
+    const originalSrc = e.target.src;
+    console.warn(`Image failed to load: ${originalSrc}`);
+    e.target.onerror = null;
+    // Use the data URL placeholder image
+    e.target.src = PLACEHOLDER_IMAGE_DATA;
+  };
+
+  // Debug function to check image URLs
+  const debugImageUrl = (url) => {
+    if (!url) return PLACEHOLDER_IMAGE_DATA;
+    if (!url.startsWith('http')) {
+      // If URL is relative, prepend the API base URL
+      return `http://localhost:5000${url.startsWith('/') ? '' : '/'}${url}`;
+    }
+    return url;
+  };
+
   // Handle view booking details
   const handleViewBooking = (booking) => {
     setSelectedBooking(booking);
@@ -95,6 +149,33 @@ function Bookings() {
     setIsModalOpen(true);
   };
 
+  // Handle complete booking
+  const handleCompleteBooking = async (booking) => {
+    try {
+      // Call the API to update booking status to Completed
+      await axios.put(`http://localhost:5000/api/bookings/${booking._id}/status`,
+        { status: 'Completed' },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Update local state
+      setBookings(bookings.map(item =>
+        item._id === booking._id
+          ? { ...item, bookingStatus: 'Completed' }
+          : item
+      ));
+
+      // Show success message
+      setError(null);
+
+      // Refresh bookings to ensure we have the latest data
+      fetchBookings();
+    } catch (err) {
+      console.error('Error completing booking:', err);
+      setError('Failed to mark booking as completed. Please try again.');
+    }
+  };
+
   // Close modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -106,20 +187,25 @@ function Bookings() {
     if (!selectedBooking) return;
 
     try {
+      // Call the API to update booking status to Cancelled
       await axios.put(`http://localhost:5000/api/bookings/${selectedBooking._id}/status`,
-        { status: 'cancelled' },
+        { status: 'Cancelled' }, // Note: Backend expects 'Cancelled' with capital C
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       // Update local state
       setBookings(bookings.map(booking =>
         booking._id === selectedBooking._id
-          ? { ...booking, status: 'cancelled' }
+          ? { ...booking, bookingStatus: 'Cancelled' }
           : booking
       ));
 
+      // Close modal and clear selection
       setIsModalOpen(false);
       setSelectedBooking(null);
+
+      // Refresh bookings to ensure we have the latest data
+      fetchBookings();
     } catch (err) {
       console.error('Error cancelling booking:', err);
       setError('Failed to cancel booking. Please try again.');
@@ -127,17 +213,42 @@ function Bookings() {
   };
 
   const getStatusClass = (status) => {
-    switch (status) {
+    // Convert to lowercase for case-insensitive comparison
+    const statusLower = status?.toLowerCase() || '';
+
+    switch (statusLower) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'status-pending';
       case 'confirmed':
-        return 'bg-blue-100 text-blue-800';
+        return 'status-confirmed';
       case 'completed':
-        return 'bg-green-100 text-green-800';
+        return 'status-completed';
       case 'cancelled':
-        return 'bg-red-100 text-red-800';
+        return 'status-cancelled';
+      case 'rejected':
+        return 'status-rejected';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'status-pending';
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    // Convert to lowercase for case-insensitive comparison
+    const statusLower = status?.toLowerCase() || '';
+
+    switch (statusLower) {
+      case 'pending':
+        return 'clock';
+      case 'confirmed':
+        return 'calendar-check';
+      case 'completed':
+        return 'check-circle';
+      case 'cancelled':
+        return 'times-circle';
+      case 'rejected':
+        return 'ban';
+      default:
+        return 'clock';
     }
   };
 
@@ -152,78 +263,161 @@ function Bookings() {
       header: 'Booking ID',
       accessor: '_id',
       Cell: (booking) => (
-        <div className="text-sm text-gray-900">
-          {booking._id.substring(0, 8)}...
+        <div className="booking-id">
+          {booking._id.substring(0, 8)}
         </div>
       )
     },
     {
       header: 'Service',
-      accessor: 'serviceId',
+      accessor: 'serviceListingId',
       Cell: (booking) => (
-        <div className="text-sm font-medium text-gray-900">
-          {booking.serviceId?.serviceTitle || 'N/A'}
+        <div className="service-cell">
+          <div className="service-image-container">
+            <img
+              className="service-image"
+              src={debugImageUrl(booking.serviceListingId?.serviceImage)}
+              alt={booking.serviceListingId?.serviceTitle || 'Service'}
+              onError={(e) => handleImageError(e, 48)}
+            />
+          </div>
+          <div className="service-details">
+            <div className="service-title">
+              {booking.serviceListingId?.serviceTitle || 'N/A'}
+            </div>
+            {booking.serviceListingId?.categoryId && (
+              <div className="service-category">
+                <i className="fas fa-tag mr-1"></i>
+                {booking.serviceListingId.categoryId.categoryName}
+              </div>
+            )}
+          </div>
         </div>
       )
     },
     {
       header: 'Customer',
-      accessor: 'userId',
-      Cell: (booking) => (
-        <div>
-          <div className="text-sm text-gray-900">
-            {booking.userId?.firstName} {booking.userId?.lastName}
+      accessor: 'customerId',
+      Cell: (booking) => {
+        const customer = booking.customerId || {};
+        return (
+          <div className="user-cell-with-image">
+            <div className="user-image-container">
+              <img
+                className="user-image"
+                src={debugImageUrl(customer.profilePicture)}
+                alt={`${customer.firstName || 'Customer'}`}
+                onError={(e) => handleImageError(e, 40)}
+              />
+            </div>
+            <div className="user-details">
+              <div className="user-name">
+                {customer.firstName} {customer.lastName || ''}
+              </div>
+              <div className="user-email">
+                <i className="fas fa-envelope mr-1"></i>
+                {customer.email || 'N/A'}
+              </div>
+            </div>
           </div>
-          <div className="text-sm text-gray-500">
-            {booking.userId?.email || 'N/A'}
-          </div>
-        </div>
-      )
+        );
+      }
     },
     {
       header: 'Provider',
-      accessor: 'providerId',
-      Cell: (booking) => (
-        <div className="text-sm text-gray-900">
-          {booking.providerId?.userId?.firstName} {booking.providerId?.userId?.lastName || 'N/A'}
-        </div>
-      )
+      accessor: 'serviceProviderId',
+      Cell: (booking) => {
+        const provider = booking.serviceProviderId?.userId || {};
+        return (
+          <div className="user-cell-with-image">
+            <div className="user-image-container">
+              <img
+                className="user-image"
+                src={debugImageUrl(provider.profilePicture)}
+                alt={`${provider.firstName || 'Provider'}`}
+                onError={(e) => handleImageError(e, 40)}
+              />
+            </div>
+            <div className="user-details">
+              <div className="user-name">
+                {provider.firstName} {provider.lastName || ''}
+              </div>
+              {provider.email && (
+                <div className="user-email">
+                  <i className="fas fa-envelope mr-1"></i>
+                  {provider.email}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
     },
     {
       header: 'Date & Time',
-      accessor: 'bookingDate',
+      accessor: 'serviceDateTime',
+      Cell: (booking) => {
+        const date = new Date(booking.serviceDateTime);
+        return (
+          <div className="date-cell">
+            <div className="date-value">
+              {date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+            </div>
+            <div className="time-value">
+              <i className="fas fa-clock mr-1"></i>
+              {date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          </div>
+        );
+      }
+    },
+    {
+      header: 'Amount',
+      accessor: 'totalAmount',
       Cell: (booking) => (
-        <div className="text-sm text-gray-900">
-          {formatDate(booking.bookingDate)}
+        <div className="font-medium text-indigo-600">
+          ₹{booking.totalAmount?.toLocaleString() || '0'}
         </div>
       )
     },
     {
       header: 'Status',
-      accessor: 'status',
+      accessor: 'bookingStatus',
       Cell: (booking) => (
-        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(booking.status)}`}>
-          {(booking.status || 'pending').charAt(0).toUpperCase() + (booking.status || 'pending').slice(1)}
-        </span>
+        <div className={`status-badge ${getStatusClass(booking.bookingStatus)}`}>
+          <i className={`fas fa-${getStatusIcon(booking.bookingStatus)}`}></i>
+          {booking.bookingStatus || 'Pending'}
+        </div>
       )
     },
     {
       header: 'Actions',
       accessor: 'actions',
       Cell: (booking) => (
-        <div className="flex space-x-2">
+        <div className="action-buttons">
           <button
             onClick={() => handleViewBooking(booking)}
-            className="text-indigo-600 hover:text-indigo-900"
+            className="action-button view-button"
+            title="View Details"
           >
             <i className="fas fa-eye"></i>
           </button>
-          {booking.status !== 'cancelled' && booking.status !== 'completed' && (
+          {booking.bookingStatus !== 'Cancelled' && booking.bookingStatus !== 'Completed' && (
             <button
               onClick={() => handleCancelBooking(booking)}
-              className="text-red-600 hover:text-red-900"
+              className="action-button cancel-button"
+              title="Cancel Booking"
             >
               <i className="fas fa-times-circle"></i>
+            </button>
+          )}
+          {booking.bookingStatus === 'Confirmed' && (
+            <button
+              onClick={() => handleCompleteBooking(booking)}
+              className="action-button complete-button"
+              title="Mark as Completed"
+            >
+              <i className="fas fa-check-circle"></i>
             </button>
           )}
         </div>
@@ -235,51 +429,177 @@ function Bookings() {
   const renderBookingDetails = () => {
     if (!selectedBooking) return null;
 
+    // Get provider info
+    const provider = selectedBooking.serviceProviderId?.userId || {};
+    // Get service info
+    const service = selectedBooking.serviceListingId || {};
+    // Get customer info
+    const customer = selectedBooking.customerId || {};
+    // Format dates
+    const bookingDate = new Date(selectedBooking.bookingDateTime || Date.now());
+    const serviceDate = new Date(selectedBooking.serviceDateTime || Date.now());
+
     return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-sm font-medium text-gray-500">Booking ID</p>
-            <p className="text-sm">{selectedBooking._id}</p>
+      <div className="space-y-6">
+        {/* Booking Header with ID and Status */}
+        <div className="booking-detail-header">
+          <div className="booking-id-display">
+            <div className="booking-id-label">Booking ID</div>
+            <div className="booking-id-value">{selectedBooking._id}</div>
           </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500">Status</p>
-            <p>
-              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(selectedBooking.status)}`}>
-                {(selectedBooking.status || 'pending').charAt(0).toUpperCase() + (selectedBooking.status || 'pending').slice(1)}
-              </span>
-            </p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500">Service</p>
-            <p className="text-sm">{selectedBooking.serviceId?.serviceTitle || 'N/A'}</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500">Price</p>
-            <p className="text-sm">${selectedBooking.price || 'N/A'}</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500">Customer</p>
-            <p className="text-sm">{selectedBooking.userId?.firstName} {selectedBooking.userId?.lastName}</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500">Customer Email</p>
-            <p className="text-sm">{selectedBooking.userId?.email || 'N/A'}</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500">Provider</p>
-            <p className="text-sm">{selectedBooking.providerId?.userId?.firstName} {selectedBooking.providerId?.userId?.lastName || 'N/A'}</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500">Booking Date</p>
-            <p className="text-sm">{formatDate(selectedBooking.bookingDate)}</p>
+          <div className="booking-status-display">
+            <div className="booking-status-label">Status</div>
+            <div className={`status-badge ${getStatusClass(selectedBooking.bookingStatus)}`}>
+              <i className={`fas fa-${getStatusIcon(selectedBooking.bookingStatus)}`}></i>
+              {selectedBooking.bookingStatus || 'Pending'}
+            </div>
           </div>
         </div>
 
-        {selectedBooking.notes && (
-          <div>
-            <p className="text-sm font-medium text-gray-500">Notes</p>
-            <p className="text-sm">{selectedBooking.notes}</p>
+        {/* Service Details */}
+        <div className="booking-detail-section">
+          <h3 className="booking-detail-section-title">
+            <i className="fas fa-concierge-bell"></i> Service Details
+          </h3>
+          <div className="flex items-center mb-4">
+            <div className="service-image-detail-container">
+              <img
+                src={debugImageUrl(service.serviceImage)}
+                alt={service.serviceTitle || 'Service'}
+                className="service-image-detail"
+                onError={(e) => handleImageError(e, 80)}
+              />
+            </div>
+            <div className="ml-4">
+              <h4 className="text-lg font-semibold text-gray-900">{service.serviceTitle || 'N/A'}</h4>
+              {service.categoryId && (
+                <div className="text-sm text-gray-600">
+                  <i className="fas fa-tag mr-1"></i>
+                  {service.categoryId.categoryName}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="booking-detail-grid">
+            <div className="booking-detail-item">
+              <div className="booking-detail-label">Price</div>
+              <div className="booking-detail-value text-indigo-600 font-semibold">
+                ₹{selectedBooking.totalAmount?.toLocaleString() || '0'}
+              </div>
+            </div>
+            <div className="booking-detail-item">
+              <div className="booking-detail-label">Commission</div>
+              <div className="booking-detail-value">
+                ₹{selectedBooking.commissionAmount?.toLocaleString() || '0'}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Customer and Provider Info */}
+        <div className="booking-detail-grid">
+          {/* Customer Info */}
+          <div className="booking-detail-section">
+            <h3 className="booking-detail-section-title">
+              <i className="fas fa-user"></i> Customer Information
+            </h3>
+            <div className="user-detail-header">
+              <div className="user-detail-image-container">
+                <img
+                  className="user-detail-image"
+                  src={debugImageUrl(customer.profilePicture)}
+                  alt={`${customer.firstName || 'Customer'}`}
+                  onError={(e) => handleImageError(e, 48)}
+                />
+              </div>
+              <div className="user-detail-name">
+                {customer.firstName} {customer.lastName || ''}
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="booking-detail-item">
+                <div className="booking-detail-label">Email</div>
+                <div className="booking-detail-value">{customer.email || 'N/A'}</div>
+              </div>
+              {customer.phone && (
+                <div className="booking-detail-item">
+                  <div className="booking-detail-label">Phone</div>
+                  <div className="booking-detail-value">{customer.phone}</div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Provider Info */}
+          <div className="booking-detail-section">
+            <h3 className="booking-detail-section-title">
+              <i className="fas fa-user-tie"></i> Provider Information
+            </h3>
+            <div className="user-detail-header">
+              <div className="user-detail-image-container">
+                <img
+                  className="user-detail-image"
+                  src={debugImageUrl(provider.profilePicture)}
+                  alt={`${provider.firstName || 'Provider'}`}
+                  onError={(e) => handleImageError(e, 48)}
+                />
+              </div>
+              <div className="user-detail-name">
+                {provider.firstName} {provider.lastName || ''}
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="booking-detail-item">
+                <div className="booking-detail-label">Email</div>
+                <div className="booking-detail-value">{provider.email || 'N/A'}</div>
+              </div>
+              {provider.phone && (
+                <div className="booking-detail-item">
+                  <div className="booking-detail-label">Phone</div>
+                  <div className="booking-detail-value">{provider.phone}</div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Dates and Times */}
+        <div className="booking-detail-section">
+          <h3 className="booking-detail-section-title">
+            <i className="fas fa-calendar-alt"></i> Booking Schedule
+          </h3>
+          <div className="booking-detail-grid">
+            <div className="booking-detail-item">
+              <div className="booking-detail-label">Booking Created</div>
+              <div className="booking-detail-value">
+                {bookingDate.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                <div className="text-xs text-gray-500 mt-1">
+                  {bookingDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              </div>
+            </div>
+            <div className="booking-detail-item">
+              <div className="booking-detail-label">Service Date & Time</div>
+              <div className="booking-detail-value">
+                {serviceDate.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                <div className="text-xs text-gray-500 mt-1">
+                  {serviceDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Special Instructions */}
+        {selectedBooking.specialInstructions && (
+          <div className="booking-detail-section">
+            <h3 className="booking-detail-section-title">
+              <i className="fas fa-info-circle"></i> Special Instructions
+            </h3>
+            <div className="booking-notes">
+              {selectedBooking.specialInstructions}
+            </div>
           </div>
         )}
       </div>
@@ -293,13 +613,13 @@ function Bookings() {
         return renderBookingDetails();
       case 'cancel':
         return (
-          <div className="text-center">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-              <i className="fas fa-exclamation-triangle text-red-600"></i>
+          <div className="cancel-confirmation">
+            <div className="cancel-icon">
+              <i className="fas fa-exclamation-triangle"></i>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Cancel Booking</h3>
-            <p className="text-gray-500 mb-6">
-              Are you sure you want to cancel this booking? This action cannot be undone.
+            <h3 className="cancel-title">Cancel Booking</h3>
+            <p className="cancel-description">
+              Are you sure you want to cancel this booking? This action cannot be undone and will notify the customer and service provider.
             </p>
           </div>
         );
@@ -313,32 +633,29 @@ function Bookings() {
     switch (modalMode) {
       case 'view':
         return (
-          <button
-            type="button"
-            className="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none"
+          <Button
+            variant="secondary"
             onClick={handleCloseModal}
           >
             Close
-          </button>
+          </Button>
         );
       case 'cancel':
         return (
-          <>
-            <button
-              type="button"
-              className="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none"
+          <div className="flex space-x-3">
+            <Button
+              variant="secondary"
               onClick={handleCloseModal}
             >
               No, Keep It
-            </button>
-            <button
-              type="button"
-              className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none"
+            </Button>
+            <Button
+              variant="danger"
               onClick={handleConfirmCancel}
             >
               Yes, Cancel Booking
-            </button>
-          </>
+            </Button>
+          </div>
         );
       default:
         return null;
@@ -347,79 +664,122 @@ function Bookings() {
 
   return (
     <AdminLayout title="Booking Management">
-      {error && (
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
-          <p>{error}</p>
-        </div>
-      )}
+      <div className="admin-bookings">
+        {error && (
+          <div className={`${alertStyles.base} ${alertStyles.error}`} role="alert">
+            <p className={alertStyles.messageError}>{error}</p>
+          </div>
+        )}
 
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-            <h2 className="text-xl font-semibold text-gray-800">All Bookings</h2>
+        <div className="bookings-card">
+          <div className="bookings-header">
+            <h2 className="bookings-title">
+              <i className="fas fa-calendar-check"></i>
+              All Bookings
+            </h2>
 
-            <div className="flex flex-wrap items-center gap-4">
-              {/* Status Filter */}
-              <div className="relative">
+            <Button
+              variant="primary"
+              icon="sync"
+              onClick={fetchBookings}
+            >
+              Refresh
+            </Button>
+          </div>
+
+          <div className="filter-controls-container">
+            {/* Status Filter */}
+            <div className="filter-group">
+              <div className="filter-group-label">Status</div>
+              <div className="filter-select">
                 <select
-                  className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                   value={filterStatus}
                   onChange={handleStatusFilterChange}
                 >
                   <option value="all">All Statuses</option>
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Confirmed">Confirmed</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                  <option value="Rejected">Rejected</option>
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                  <i className="fas fa-chevron-down text-xs"></i>
+                <div className="select-icon">
+                  <i className="fas fa-chevron-down"></i>
                 </div>
               </div>
+            </div>
 
-              {/* Date Range Filter */}
-              <div className="flex items-center space-x-2">
+            {/* Date Range Filter */}
+            <div className="filter-group">
+              <div className="filter-group-label">Date Range</div>
+              <div className="date-range-filter">
                 <input
                   type="date"
                   name="start"
+                  className="date-input"
                   value={dateRange.start}
                   onChange={handleDateRangeChange}
-                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Start Date"
                 />
-                <span className="text-gray-500">to</span>
+                <span className="date-separator">to</span>
                 <input
                   type="date"
                   name="end"
+                  className="date-input"
                   value={dateRange.end}
                   onChange={handleDateRangeChange}
-                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="End Date"
                 />
               </div>
             </div>
+
+            <div className="filter-actions">
+              <button
+                onClick={fetchBookings}
+                className="filter-button primary"
+              >
+                <i className="fas fa-filter"></i> Apply Filters
+              </button>
+              <button
+                onClick={() => {
+                  setDateRange({ start: '', end: '' });
+                  setFilterStatus('all');
+                  setSortConfig({ key: 'serviceDateTime', direction: 'desc' });
+                  setPagination(prev => ({ ...prev, page: 1 }));
+                  fetchBookings();
+                }}
+                className="filter-button secondary"
+              >
+                <i className="fas fa-redo-alt"></i> Reset
+              </button>
+            </div>
           </div>
+
+          <Table
+            columns={columns}
+            data={bookings}
+            onSort={handleSort}
+            sortConfig={sortConfig}
+            pagination={pagination}
+            onPageChange={handlePageChange}
+            isLoading={isLoading}
+            emptyMessage="No bookings found"
+            className="admin-table"
+          />
         </div>
 
-        <Table
-          columns={columns}
-          data={bookings}
-          onSort={handleSort}
-          sortConfig={sortConfig}
-          pagination={pagination}
-          onPageChange={handlePageChange}
-          isLoading={isLoading}
-          emptyMessage="No bookings found"
-        />
+        {/* Booking Modal */}
+        <Modal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          title={modalMode === 'view' ? 'Booking Details' : 'Cancel Booking'}
+          footer={renderModalFooter()}
+          size="lg"
+          className="booking-details-modal"
+        >
+          {renderModalContent()}
+        </Modal>
       </div>
-
-      {/* Booking Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        title={modalMode === 'view' ? 'Booking Details' : 'Cancel Booking'}
-        footer={renderModalFooter()}
-      >
-        {renderModalContent()}
-      </Modal>
     </AdminLayout>
   );
 }

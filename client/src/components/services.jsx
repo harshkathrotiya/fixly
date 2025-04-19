@@ -484,7 +484,7 @@ const Services = () => {
                     <div className="price-filter">
                       <input
                         type="number"
-                        placeholder="Min $"
+                        placeholder="Min ₹"
                         value={minPrice}
                         onChange={(e) => setMinPrice(e.target.value)}
                         className="price-input"
@@ -492,7 +492,7 @@ const Services = () => {
                       <span className="price-separator">to</span>
                       <input
                         type="number"
-                        placeholder="Max $"
+                        placeholder="Max ₹"
                         value={maxPrice}
                         onChange={(e) => setMaxPrice(e.target.value)}
                         className="price-input"
@@ -587,7 +587,7 @@ const Services = () => {
                         <div className="service-meta-row">
                           <div className="service-price">
                             <span className="price-label">Price:</span>
-                            <span className="price-value">${listing.servicePrice ? listing.servicePrice.toFixed(2) : '0.00'}</span>
+                            <span className="price-value">₹{listing.servicePrice ? listing.servicePrice.toFixed(2) : '0.00'}</span>
                           </div>
                           {listing.averageRating > 0 && (
                             <div className="service-rating">

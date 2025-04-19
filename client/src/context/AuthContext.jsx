@@ -34,11 +34,22 @@ export const AuthProvider = ({ children }) => {
           });
 
           const freshUserData = response.data.data || response.data;
-          setUser(freshUserData);
-          setToken(storedToken);
 
-          // Update localStorage with fresh data
-          localStorage.setItem('userData', JSON.stringify(freshUserData));
+          // Check if user is active
+          if (!freshUserData.isActive) {
+            console.log('User account is deactivated');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
+            setUser(null);
+            setToken(null);
+            // Don't throw an error, just silently log out
+          } else {
+            setUser(freshUserData);
+            setToken(storedToken);
+
+            // Update localStorage with fresh data
+            localStorage.setItem('userData', JSON.stringify(freshUserData));
+          }
         } catch (error) {
           console.error('Auth initialization error:', error);
           localStorage.removeItem('authToken');
@@ -57,6 +68,16 @@ export const AuthProvider = ({ children }) => {
     console.log('Setting user in context:', userData);
     // Ensure we're setting the correct user data structure
     const userToSet = userData.data || userData;
+
+    // Check if user is active
+    if (!userToSet.isActive) {
+      console.log('Cannot login: User account is deactivated');
+      // Clear any stored data
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
+      return false;
+    }
+
     setUser(userToSet);
     setToken(authToken);
 
@@ -66,6 +87,8 @@ export const AuthProvider = ({ children }) => {
 
     // Dispatch auth change event here too for redundancy
     window.dispatchEvent(new Event('auth-change'));
+
+    return true;
   };
 
   const logout = () => {

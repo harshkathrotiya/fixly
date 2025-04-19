@@ -192,7 +192,7 @@ function MyBookings({ hideNavbar = false }) {
                       </div>
                       <div className="booking-price">
                         <i className="fas fa-tag"></i>
-                        <span>${booking.totalAmount}</span>
+                        <span>₹{booking.totalAmount}</span>
                       </div>
                     </div>
                   </div>
