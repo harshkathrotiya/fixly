@@ -4,6 +4,9 @@ import { useAuth } from '../../context/authcontext';
 import AdminLayout from './AdminLayout';
 import Table from './shared/Table';
 import Modal from './shared/Modal';
+import Button from './shared/Button';
+import Badge from './shared/Badge';
+import { cardStyles, formStyles, alertStyles, tableStyles, filterStyles } from './shared/adminStyles';
 
 function Listings() {
   const [listings, setListings] = useState([]);
@@ -187,37 +190,35 @@ function Listings() {
       header: 'Status',
       accessor: 'isActive',
       Cell: (listing) => (
-        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-          listing.isActive
-            ? 'bg-green-100 text-green-800'
-            : 'bg-red-100 text-red-800'
-        }`}>
-          {listing.isActive ? 'Active' : 'Inactive'}
-        </span>
+        <Badge
+          type={listing.isActive ? 'active' : 'inactive'}
+          text={listing.isActive ? 'Active' : 'Inactive'}
+          icon={listing.isActive ? 'check-circle' : 'times-circle'}
+        />
       )
     },
     {
       header: 'Actions',
       accessor: 'actions',
       Cell: (listing) => (
-        <div className="flex space-x-2">
+        <div className={tableStyles.actions}>
           <button
             onClick={() => handleViewListing(listing)}
-            className="text-blue-600 hover:text-blue-900"
+            className={tableStyles.viewButton}
             title="View Details"
           >
             <i className="fas fa-eye"></i>
           </button>
           <button
             onClick={() => handleEditListing(listing)}
-            className="text-indigo-600 hover:text-indigo-900"
+            className={tableStyles.editButton}
             title="Edit Listing"
           >
             <i className="fas fa-edit"></i>
           </button>
           <button
             onClick={() => handleToggleStatus(listing)}
-            className="text-red-600 hover:text-red-900"
+            className={tableStyles.deleteButton}
             title={listing.isActive ? 'Deactivate' : 'Activate'}
           >
             <i className={`fas fa-${listing.isActive ? 'ban' : 'check-circle'}`}></i>
@@ -303,13 +304,12 @@ function Listings() {
     switch (modalMode) {
       case 'view':
         return (
-          <button
-            type="button"
-            className="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none"
+          <Button
+            variant="secondary"
             onClick={handleCloseModal}
           >
             Close
-          </button>
+          </Button>
         );
       default:
         return null;
@@ -319,50 +319,48 @@ function Listings() {
   return (
     <AdminLayout title="Service Listings Management">
       {error && (
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
-          <p>{error}</p>
+        <div className={`${alertStyles.base} ${alertStyles.error}`} role="alert">
+          <p className={alertStyles.messageError}>{error}</p>
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-            <h2 className="text-xl font-semibold text-gray-800">All Service Listings</h2>
+      <div className={cardStyles.container}>
+        <div className={cardStyles.header}>
+          <h2 className={cardStyles.title}>All Service Listings</h2>
 
-            <div className="flex flex-wrap items-center gap-4">
-              {/* Category Filter */}
-              <div className="relative">
-                <select
-                  className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  value={filterCategory}
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                >
-                  <option value="all">All Categories</option>
-                  {categories.map(category => (
-                    <option key={category._id} value={category._id}>
-                      {category.categoryName}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                  <i className="fas fa-chevron-down text-xs"></i>
-                </div>
+          <div className="flex flex-wrap items-center gap-4">
+            {/* Category Filter */}
+            <div className="relative">
+              <select
+                className={formStyles.select}
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+              >
+                <option value="all">All Categories</option>
+                {categories.map(category => (
+                  <option key={category._id} value={category._id}>
+                    {category.categoryName}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <i className="fas fa-chevron-down text-xs"></i>
               </div>
+            </div>
 
-              {/* Status Filter */}
-              <div className="relative">
-                <select
-                  className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                  <i className="fas fa-chevron-down text-xs"></i>
-                </div>
+            {/* Status Filter */}
+            <div className="relative">
+              <select
+                className={formStyles.select}
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+              >
+                <option value="all">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <i className="fas fa-chevron-down text-xs"></i>
               </div>
             </div>
           </div>

@@ -4,6 +4,9 @@ import { useAuth } from '../../context/authcontext';
 import AdminLayout from './AdminLayout';
 import Table from './shared/Table';
 import Modal from './shared/Modal';
+import Button from './shared/Button';
+import Badge from './shared/Badge';
+import { cardStyles, formStyles, alertStyles, tableStyles } from './shared/adminStyles';
 
 function Categories() {
   const [categories, setCategories] = useState([]);

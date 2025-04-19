@@ -536,9 +536,10 @@ function AdminDashboard() {
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10">
                       <img
-                        className="h-10 w-10 rounded-full"
-                        src={user.profileImage || "https://via.placeholder.com/40"}
-                        alt=""
+                        className="h-10 w-10 rounded-full object-cover"
+                        src={user.profileImage || "/placeholder-user.jpg"}
+                        alt={`${user.firstName || ''} ${user.lastName || ''}`}
+                        onError={(e) => { e.target.src = '/placeholder-user.jpg'; }}
                       />
                     </div>
                     <div className="ml-4">

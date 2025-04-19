@@ -5,8 +5,9 @@ import { useAuth } from '../../context/authcontext';
 import AdminLayout from './AdminLayout';
 import Table from './shared/Table';
 import Modal from './shared/Modal';
-import '../../styles/admin/admin.css';
-import '../../styles/admin/users.css';
+import Button from './shared/Button';
+import Badge from './shared/Badge';
+import { cardStyles, formStyles, alertStyles, tableStyles } from './shared/adminStyles';
 
 function Users() {
   const [users, setUsers] = useState([]);
@@ -95,40 +96,43 @@ function Users() {
       header: 'Role',
       accessor: 'userType',
       Cell: (user) => (
-        <span className="user-role-badge">
-          {user.userType || 'user'}
-        </span>
+        <Badge
+          type={user.userType || 'user'}
+          text={user.userType || 'user'}
+        />
       )
     },
     {
       header: 'Status',
       accessor: 'status',
       Cell: (user) => (
-        <span className={user.status === 'active' ? 'user-status-active' : 'user-status-inactive'}>
-          {user.status || 'active'}
-        </span>
+        <Badge
+          type={user.status === 'active' ? 'active' : 'inactive'}
+          text={user.status || 'active'}
+          icon={user.status === 'active' ? 'check-circle' : 'times-circle'}
+        />
       )
     },
     {
       header: 'Actions',
       accessor: 'actions',
       Cell: (user) => (
-        <div className="user-actions">
+        <div className={tableStyles.actions}>
           <button
             onClick={() => handleViewUser(user)}
-            className="text-blue-600 hover:text-blue-900 mr-2"
+            className={tableStyles.viewButton}
           >
             <i className="fas fa-eye"></i>
           </button>
           <button
             onClick={() => handleEditUser(user)}
-            className="text-indigo-600 hover:text-indigo-900 mr-2"
+            className={tableStyles.editButton}
           >
             <i className="fas fa-edit"></i>
           </button>
           <button
             onClick={() => handleDeleteUser(user)}
-            className="text-red-600 hover:text-red-900"
+            className={tableStyles.deleteButton}
           >
             <i className="fas fa-trash"></i>
           </button>
@@ -147,26 +151,27 @@ function Users() {
           <div className="space-y-4">
             <div className="flex justify-center mb-4">
               <img
-                src={selectedUser.profileImage || "https://via.placeholder.com/100"}
+                src={selectedUser.profileImage || "/placeholder-user.jpg"}
                 alt="User profile"
-                className="h-24 w-24 rounded-full"
+                className="h-24 w-24 rounded-full object-cover"
+                onError={(e) => { e.target.src = '/placeholder-user.jpg'; }}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm font-medium text-gray-500">First Name</p>
+                <p className={formStyles.label}>First Name</p>
                 <p>{selectedUser.firstName}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Last Name</p>
+                <p className={formStyles.label}>Last Name</p>
                 <p>{selectedUser.lastName}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Email</p>
+                <p className={formStyles.label}>Email</p>
                 <p>{selectedUser.email}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Role</p>
+                <p className={formStyles.label}>Role</p>
                 <p>{selectedUser.userType || 'user'}</p>
               </div>
               <div>
@@ -200,34 +205,31 @@ function Users() {
     switch (modalMode) {
       case 'view':
         return (
-          <button
-            type="button"
-            className="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none"
+          <Button
+            variant="secondary"
             onClick={handleCloseModal}
           >
             Close
-          </button>
+          </Button>
         );
       case 'delete':
         return (
           <>
-            <button
-              type="button"
-              className="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none"
+            <Button
+              variant="secondary"
               onClick={handleCloseModal}
             >
               Cancel
-            </button>
-            <button
-              type="button"
-              className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none"
+            </Button>
+            <Button
+              variant="danger"
               onClick={() => {
                 // Handle delete logic here
                 handleCloseModal();
               }}
             >
               Delete
-            </button>
+            </Button>
           </>
         );
       default:
@@ -238,19 +240,19 @@ function Users() {
   return (
     <AdminLayout title="User Management">
       {error && (
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
-          <p>{error}</p>
+        <div className={`${alertStyles.base} ${alertStyles.error}`} role="alert">
+          <p className={alertStyles.messageError}>{error}</p>
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-        <div className="px-6 py-4 border-b border-gray-200 flex flex-wrap justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-800">All Users</h2>
+      <div className={cardStyles.container}>
+        <div className={cardStyles.header}>
+          <h2 className={cardStyles.title}>All Users</h2>
 
           <div className="flex items-center space-x-4">
             <div className="relative">
               <select
-                className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className={formStyles.select}
                 value={filterRole}
                 onChange={(e) => setFilterRole(e.target.value)}
               >
@@ -264,12 +266,13 @@ function Users() {
               </div>
             </div>
 
-            <Link
+            <Button
+              variant="primary"
+              icon="plus"
               to="/admin/users/create"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none"
             >
-              <i className="fas fa-plus mr-2"></i> Create User
-            </Link>
+              Create User
+            </Button>
           </div>
         </div>
 
