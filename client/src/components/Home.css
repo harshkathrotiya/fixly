@@ -202,6 +202,101 @@
   overflow-x: hidden;
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
+  background-image:
+    repeating-linear-gradient(
+      to right, transparent 0 100px,
+      #25283b22 100px 101px
+    ),
+    repeating-linear-gradient(
+      to bottom, transparent 0 100px,
+      #25283b22 100px 101px
+    );
+}
+
+/* Modern Navbar Styles */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem 5%;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.navbar.scrolled {
+  padding: 0.8rem 5%;
+  box-shadow: 0 2px 30px rgba(0, 0, 0, 0.1);
+}
+
+.nav-logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #25283B;
+  text-decoration: none;
+}
+
+.nav-menu {
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-link {
+  color: #25283B;
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+  padding: 0.5rem 0;
+  transition: all 0.3s ease;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #4a90e2;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-button {
+  padding: 0.6rem 1.2rem;
+  border-radius: 50px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.primary-nav-button {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.secondary-nav-button {
+  border: 1px solid #4a90e2;
+  color: #4a90e2;
+}
+
+@media (max-width: 768px) {
+  .nav-menu {
+    display: none;
+  }
 }
 
 /* Hero Section */
@@ -725,7 +820,16 @@ p {
 /* Services Section */
 .services {
   padding: 5rem 8%;
-  background-color: #f8f9fa;
+  background-color: #D2D2D2;
+  background-image:
+    repeating-linear-gradient(
+      to right, transparent 0 100px,
+      #25283b22 100px 101px
+    ),
+    repeating-linear-gradient(
+      to bottom, transparent 0 100px,
+      #25283b22 100px 101px
+    );
 }
 
 .section-header {
@@ -735,9 +839,10 @@ p {
 
 .section-header h2 {
   font-size: 2.5rem;
-  color: #2d3748;
+  color: #25283B;
   margin-bottom: 0.8rem;
-  font-weight: 700;
+  font-weight: 900;
+  font-family: 'Inter', sans-serif;
 }
 
 .section-header p {

@@ -37,6 +37,8 @@ import Commissions from './components/admin/Commissions';
 import Complaints from './components/admin/Complaints';
 import ResetPassword from './components/ResetPassword';
 import ForgotPassword from './components/ForgotPassword';
+import About from './components/About';
+import Contact from './components/Contact';
 
 // Add this import
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
@@ -69,7 +71,8 @@ function App() {
           <Route path="/provider/profile" element={<ProviderProfile />} />
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/booking/:id" element={<BookingDetails />} />
-
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
           {/* Admin routes */}
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/users" element={
@@ -85,25 +88,6 @@ function App() {
           <Route path="/admin/providers" element={<AdminProviders />} />
           <Route path="/admin/listings" element={<AdminListings />} />
           <Route path="/admin/bookings" element={<AdminBookings />} />
-          <Route path="/admin/categories" element={<AdminCategories />} />
-
-          {/* Customer routes */}
-          <Route path="/bookings" element={<ProviderMyBookingsWrapper />} />
-          <Route path="/review/:bookingId" element={<ReviewForm />} />
-          <Route path="/payment/:bookingId" element={<PaymentForm />} />
-          <Route path="/complaint/:bookingId" element={<ComplaintForm />} />
-          <Route path="/provider/:providerId/reviews" element={<Reviews />} />
-          {/* Service provider routes */}
-          <Route path="/provider/bookings" element={<ProviderBookings />} />
-          <Route path="/provider/services" element={<ServiceManagement />} />
-          <Route path="/provider/services/new" element={<AddService />} />
-          <Route path="/provider/services/edit/:serviceId" element={<EditService />} />
-
-          {/* Admin routes */}
-          <Route path="/admin/commissions" element={<Commissions />} />
-          <Route path="/admin/complaints" element={<Complaints />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
       </Router>
     </AuthProvider>
