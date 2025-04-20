@@ -60,7 +60,7 @@
 .banner .slider .item {
   position: absolute;
   inset: 0 0 0 0;
-  transform: 
+  transform:
     rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg))
     translateZ(550px);
 }
@@ -138,7 +138,7 @@
     left: calc(50% - 80px);
   }
   .banner .slider .item {
-    transform: 
+    transform:
       rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg))
       translateZ(300px);
   }
@@ -167,7 +167,7 @@
     left: calc(50% - 50px);
   }
   .banner .slider .item {
-    transform: 
+    transform:
       rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg))
       translateZ(180px);
   }
@@ -179,7 +179,7 @@
 :root {
   --surface-1: black;
   --surface-2: oklch(0.19 0 0);
-  --surface-3: #f1dadf;
+  --surface-3: #D2D2D2;
   --text-1: white;
   --brand-1: oklch(0.65 0.24 16.93);
   --brand-2: oklch(0.77 0.1 90);
@@ -343,15 +343,15 @@ picture {
     flex-direction: row;
     align-items: center;
   }
-  
+
   .FirstPic {
     transform: translateX(-20%) rotateY(15deg);
   }
-  
+
   .SecondPic {
     transform: translateX(0) rotateY(0deg);
   }
-  
+
   .ThirdPic {
     transform: translateX(20%) rotateY(-15deg);
   }
@@ -419,11 +419,11 @@ p {
   h3 {
     font-size: 2rem;
   }
-  
+
   .subhead {
     font-size: 1.2rem;
   }
-  
+
   p {
     font-size: 1rem;
   }

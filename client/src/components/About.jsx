@@ -2,6 +2,7 @@ import React from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import './services.css';
+import './StyledHeading.css';
 
 const About = () => {
   return (
@@ -9,8 +10,8 @@ const About = () => {
       <Navbar />
       <main className="services-page" style={{ padding: '4rem 1rem' }}>
         <div className="services-container">
-          <h1 style={{ fontSize: '2.5rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--gray-800)' }}>
-            About Us
+          <h1 className="styled-heading" data-content="ABOUT US">
+            ABOUT US
           </h1>
           <p style={{ fontSize: '1.2rem', lineHeight: '1.6', color: 'var(--gray-700)', maxWidth: '800px' }}>
             Welcome to our platform! We are dedicated to connecting you with the best services available. Our mission is to provide a seamless and enjoyable experience for both service providers and customers.

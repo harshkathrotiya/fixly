@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import './services.css';
+import './StyledHeading.css';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -25,8 +26,8 @@ const Contact = () => {
       <Navbar />
       <main className="services-page" style={{ padding: '4rem 1rem' }}>
         <div className="services-container" style={{ maxWidth: '600px' }}>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--gray-800)' }}>
-            Contact Us
+          <h1 className="styled-heading" data-content="CONTACT US">
+            CONTACT US
           </h1>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <label style={{ fontWeight: '600', color: 'var(--gray-700)' }}>
