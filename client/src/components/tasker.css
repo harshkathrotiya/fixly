@@ -1,7 +1,16 @@
 /* Tasker page styles */
 .tasker-page {
   min-height: 100vh;
-  background-color: #f9f9f9;
+  background-color: #D2D2D2;
+  background-image:
+    repeating-linear-gradient(
+      to right, transparent 0 100px,
+      #25283b22 100px 101px
+    ),
+    repeating-linear-gradient(
+      to bottom, transparent 0 100px,
+      #25283b22 100px 101px
+    );
 }
 
 .tasker-container {
@@ -139,12 +148,12 @@
     margin: 1rem;
     padding: 1.5rem;
   }
-  
+
   .form-row {
     flex-direction: column;
     gap: 0;
   }
-  
+
   .form-section {
     padding: 1rem;
   }

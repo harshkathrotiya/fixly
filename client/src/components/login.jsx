@@ -37,7 +37,13 @@ function Login() {
         const userData = userResponse.data.data || {};
         console.log('User Data:', userData); // Debug log
 
-        login(userData, token);
+        // Login will return false if user is inactive
+        const loginSuccess = login(userData, token);
+
+        if (!loginSuccess) {
+          setError("Your account has been deactivated. Please contact support.");
+          return;
+        }
 
         // Updated userType check
         if (userData.userType && userData.userType.toLowerCase() === 'admin') {
@@ -52,7 +58,16 @@ function Login() {
       }
     } catch (err) {
       console.error('Login Error:', err.response?.data); // Debug log
-      setError(err.response?.data?.message || "An error occurred during login");
+
+      // Handle inactive account error specifically
+      if (err.response?.status === 401 && err.response?.data?.message?.includes('deactivated')) {
+        setError("Your account has been deactivated. Please contact support.");
+      } else {
+        setError(err.response?.data?.message || "An error occurred during login");
+      }
+
+      // Clear any stored token if login fails
+      localStorage.removeItem('authToken');
     }
   };
 

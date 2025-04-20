@@ -1,0 +1,70 @@
+/* Category Styles */
+
+/* Fallback for when images fail to load */
+.initial-fallback {
+  position: relative;
+}
+
+.initial-fallback::after {
+  content: attr(data-initial, '');
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #6b7280;
+  background-color: #f3f4f6;
+}
+
+/* Category image container */
+.category-image-container {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Category image */
+.category-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Category initial fallback */
+.category-initial {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+/* Category preview in modal */
+.category-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

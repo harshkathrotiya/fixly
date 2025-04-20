@@ -31,11 +31,11 @@ function ListingDetails() {
     <div className="listing-details">
       <h2>Listing Details</h2>
       {error && <p className="error">{error}</p>}
-      
+
       <div className="listing-info">
         <img src={listing.serviceImage} alt={listing.serviceTitle} />
         <h3>{listing.serviceTitle}</h3>
-        <p className="price">Price: ${listing.servicePrice}</p>
+        <p className="price">Price: ₹{listing.servicePrice}</p>
         <p className="details">{listing.serviceDetails}</p>
         <div className="tags">
           {listing.tags.map((tag, index) => (

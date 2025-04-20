@@ -25,6 +25,7 @@ router.post(
   '/',
   protect,
   authorize('service_provider'),
+  serviceImageUpload.single('serviceImage'),
   createListing
 );
 

@@ -1,47 +1,87 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../../context/authcontext';
+import { useAuth } from '../../context/AuthContext';
 import AdminLayout from './AdminLayout';
 import Table from './shared/Table';
-import Modal from './shared/Modal';
-import '../../styles/admin/admin.css';
-import '../../styles/admin/users.css';
+import Button from './shared/Button';
+import Badge from './shared/Badge';
+import { cardStyles, formStyles, alertStyles, tableStyles } from './shared/adminStyles';
+import './shared/userStyles.css';
+import './shared/AdminFilterStyles.css';
+import { toast } from 'react-toastify';
 
 function Users() {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+  const [success, setSuccess] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
   const [pagination, setPagination] = useState({ page: 1, total: 0, limit: 10 });
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState('view'); // 'view', 'edit', 'delete'
   const [filterRole, setFilterRole] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
   const { token } = useAuth();
 
+  // Clear success message after 3 seconds
   useEffect(() => {
-    const fetchUsers = async () => {
-      setIsLoading(true);
-      try {
-        const response = await axios.get(
-          `http://localhost:5000/api/users?page=${pagination.page}&limit=${pagination.limit}&sort=${sortConfig.key}&order=${sortConfig.direction}${filterRole !== 'all' ? `&role=${filterRole}` : ''}`,
-          {
-            headers: { Authorization: `Bearer ${token}` }
-          }
-        );
-        setUsers(response.data.data || []);
-        setPagination(prev => ({ ...prev, total: response.data.total || 0 }));
-      } catch (err) {
-        console.error('Error fetching users:', err);
-        setError('Failed to load users. Please try again.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (success) {
+      const timer = setTimeout(() => {
+        setSuccess(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
 
+  // Function to fetch users with filters, search, sorting, and pagination
+  const fetchUsers = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Build query parameters
+      let queryParams = `page=${pagination.page}&limit=${pagination.limit}&sort=${sortConfig.key}&order=${sortConfig.direction}`;
+
+      if (filterRole !== 'all') {
+        queryParams += `&role=${filterRole}`;
+      }
+
+      if (filterStatus !== 'all') {
+        queryParams += `&status=${filterStatus}`;
+      }
+
+      if (searchTerm) {
+        queryParams += `&search=${encodeURIComponent(searchTerm)}`;
+      }
+
+      console.log('Fetching users with params:', queryParams);
+      const response = await axios.get(
+        `http://localhost:5000/api/users?${queryParams}`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      console.log('Fetched users:', response.data);
+      setUsers(response.data.data || []);
+      setPagination(prev => ({
+        ...prev,
+        total: response.data.total || 0,
+        pages: response.data.pages || 1
+      }));
+    } catch (err) {
+      console.error('Error fetching users:', err);
+      setError('Failed to load users. Please try again.');
+      toast.error('Failed to load users');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Call fetchUsers when dependencies change
+  useEffect(() => {
     fetchUsers();
-  }, [token, pagination.page, sortConfig, filterRole]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, pagination.page, pagination.limit, sortConfig.key, sortConfig.direction, filterRole, filterStatus, searchTerm]);
 
   // Handle sorting
   const handleSort = (key) => {
@@ -56,28 +96,87 @@ function Users() {
     setPagination(prev => ({ ...prev, page: newPage }));
   };
 
-  // Handle user actions
-  const handleViewUser = (user) => {
-    setSelectedUser(user);
-    setModalMode('view');
-    setIsModalOpen(true);
+  // Handle search input
+  const handleSearch = () => {
+    // Reset to first page when searching
+    setPagination(prev => ({ ...prev, page: 1 }));
+    // Trigger the search
+    fetchUsers();
   };
 
-  const handleEditUser = (user) => {
-    setSelectedUser(user);
-    setModalMode('edit');
-    setIsModalOpen(true);
+  // Direct delete without confirmation modal
+  const handleDeleteUser = async (user) => {
+    try {
+      // Show loading toast
+      const toastId = toast.loading('Deleting user...');
+
+      console.log('Directly deleting user:', user._id);
+
+      // Make the API call
+      await axios.delete(
+        `http://localhost:5000/api/users/${user._id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Update local state
+      setUsers(users.filter(u => u._id !== user._id));
+
+      // Show success message
+      toast.update(toastId, {
+        render: 'User deleted successfully',
+        type: "success",
+        isLoading: false,
+        autoClose: 3000
+      });
+
+      // Refresh the user list
+      setTimeout(() => fetchUsers(), 100);
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to delete user';
+      toast.error(errorMessage);
+    }
   };
 
-  const handleDeleteUser = (user) => {
-    setSelectedUser(user);
-    setModalMode('delete');
-    setIsModalOpen(true);
-  };
+  // Direct toggle status without confirmation modal
+  const handleToggleStatus = async (user) => {
+    try {
+      console.log('Directly toggling status for user:', user._id);
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedUser(null);
+      // Show loading toast
+      const toastId = toast.loading(`${user.isActive ? 'Deactivating' : 'Activating'} user...`);
+
+      // Make the API call
+      const response = await axios.put(
+        `http://localhost:5000/api/users/${user._id}/status`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      console.log('Toggle status response:', response.data);
+
+      // Update the user in the local state
+      setUsers(users.map(u =>
+        u._id === user._id ? response.data.data : u
+      ));
+
+      // Show success message
+      const statusMessage = response.data.data.isActive ? 'activated' : 'deactivated';
+      toast.update(toastId, {
+        render: `User ${statusMessage} successfully`,
+        type: "success",
+        isLoading: false,
+        autoClose: 3000
+      });
+
+      // Refresh the user list to ensure we have the latest data
+      setTimeout(() => fetchUsers(), 100);
+    } catch (err) {
+      console.error('Error toggling user status:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to update user status';
+      setError(errorMessage);
+      toast.error(errorMessage);
+    }
   };
 
   // Define table columns
@@ -85,192 +184,202 @@ function Users() {
     {
       header: 'Name',
       accessor: 'name',
-      Cell: (user) => <span className="font-medium text-gray-900">{user.firstName} {user.lastName}</span>
-    },
-    {
-      header: 'Email',
-      accessor: 'email'
+      Cell: (user) => (
+        <div className="user-cell-with-image">
+          <div className="user-image-container">
+            <img
+              className="user-image"
+              src={user.profilePicture || "/placeholder-user.jpg"}
+              alt={`${user.firstName || ''}`}
+              onError={(e) => { e.target.src = '/placeholder-user.jpg'; }}
+            />
+          </div>
+          <div className="user-details">
+            <div className="user-name">
+              {user.firstName} {user.lastName}
+            </div>
+            <div className="user-email">
+              <i className="fas fa-envelope mr-1"></i>
+              {user.email}
+            </div>
+          </div>
+        </div>
+      )
     },
     {
       header: 'Role',
       accessor: 'userType',
       Cell: (user) => (
-        <span className="user-role-badge">
-          {user.userType || 'user'}
-        </span>
+        <Badge
+          type={user.userType || 'user'}
+          text={user.userType === 'service_provider' ? 'Provider' : user.userType || 'User'}
+        />
       )
     },
     {
       header: 'Status',
-      accessor: 'status',
+      accessor: 'isActive',
       Cell: (user) => (
-        <span className={user.status === 'active' ? 'user-status-active' : 'user-status-inactive'}>
-          {user.status || 'active'}
-        </span>
+        <Badge
+          type={user.isActive ? 'active' : 'inactive'}
+          text={user.isActive ? 'Active' : 'Inactive'}
+          icon={user.isActive ? 'check-circle' : 'times-circle'}
+        />
       )
     },
     {
       header: 'Actions',
       accessor: 'actions',
-      Cell: (user) => (
-        <div className="user-actions">
-          <button
-            onClick={() => handleViewUser(user)}
-            className="text-blue-600 hover:text-blue-900 mr-2"
-          >
-            <i className="fas fa-eye"></i>
-          </button>
-          <button
-            onClick={() => handleEditUser(user)}
-            className="text-indigo-600 hover:text-indigo-900 mr-2"
-          >
-            <i className="fas fa-edit"></i>
-          </button>
-          <button
-            onClick={() => handleDeleteUser(user)}
-            className="text-red-600 hover:text-red-900"
-          >
-            <i className="fas fa-trash"></i>
-          </button>
-        </div>
-      )
+      Cell: (user) => {
+        // Add console log to debug the user object
+        console.log('Rendering action buttons for user:', user);
+
+        return (
+          <div className="flex space-x-4">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                console.log('Toggle status button clicked for user:', user);
+                handleToggleStatus(user);
+              }}
+              className={user.isActive ? "text-yellow-600 hover:text-yellow-900 text-lg" : "text-green-600 hover:text-green-900 text-lg"}
+              title={user.isActive ? "Deactivate user" : "Activate user"}
+            >
+              <i className={`fas fa-${user.isActive ? 'ban' : 'check'}`}></i>
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                console.log('Delete button clicked for user:', user);
+                handleDeleteUser(user);
+              }}
+              className="text-red-600 hover:text-red-900 text-lg"
+              title="Delete user"
+            >
+              <i className="fas fa-trash"></i>
+            </button>
+          </div>
+        );
+      }
     }
   ];
 
-  // Render user modal content based on mode
-  const renderModalContent = () => {
-    if (!selectedUser) return null;
-
-    switch (modalMode) {
-      case 'view':
-        return (
-          <div className="space-y-4">
-            <div className="flex justify-center mb-4">
-              <img
-                src={selectedUser.profileImage || "https://via.placeholder.com/100"}
-                alt="User profile"
-                className="h-24 w-24 rounded-full"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm font-medium text-gray-500">First Name</p>
-                <p>{selectedUser.firstName}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">Last Name</p>
-                <p>{selectedUser.lastName}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">Email</p>
-                <p>{selectedUser.email}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">Role</p>
-                <p>{selectedUser.userType || 'user'}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">Status</p>
-                <p>{selectedUser.status || 'active'}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">Joined</p>
-                <p>{new Date(selectedUser.createdAt).toLocaleDateString()}</p>
-              </div>
-            </div>
-          </div>
-        );
-      case 'delete':
-        return (
-          <div className="text-center">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-              <i className="fas fa-exclamation-triangle text-red-600"></i>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Delete User</h3>
-            <p className="text-gray-500 mb-6">Are you sure you want to delete this user? This action cannot be undone.</p>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
-  // Render modal footer based on mode
-  const renderModalFooter = () => {
-    switch (modalMode) {
-      case 'view':
-        return (
-          <button
-            type="button"
-            className="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none"
-            onClick={handleCloseModal}
-          >
-            Close
-          </button>
-        );
-      case 'delete':
-        return (
-          <>
-            <button
-              type="button"
-              className="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none"
-              onClick={handleCloseModal}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none"
-              onClick={() => {
-                // Handle delete logic here
-                handleCloseModal();
-              }}
-            >
-              Delete
-            </button>
-          </>
-        );
-      default:
-        return null;
-    }
-  };
+  // Modal-related functions removed
 
   return (
     <AdminLayout title="User Management">
-      {error && (
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
-          <p>{error}</p>
+      {success && (
+        <div className={`${alertStyles.base} ${alertStyles.success}`} role="alert">
+          <p className={alertStyles.messageSuccess}>{success}</p>
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-        <div className="px-6 py-4 border-b border-gray-200 flex flex-wrap justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-800">All Users</h2>
+      {error && (
+        <div className={`${alertStyles.base} ${alertStyles.error}`} role="alert">
+          <p className={alertStyles.messageError}>{error}</p>
+        </div>
+      )}
 
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <select
-                className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                value={filterRole}
-                onChange={(e) => setFilterRole(e.target.value)}
-              >
-                <option value="all">All Roles</option>
-                <option value="admin">Admin</option>
-                <option value="service_provider">Service Provider</option>
-                <option value="user">User</option>
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <i className="fas fa-chevron-down text-xs"></i>
-              </div>
-            </div>
-
-            <Link
-              to="/admin/users/create"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none"
-            >
-              <i className="fas fa-plus mr-2"></i> Create User
-            </Link>
+      {/* Filters */}
+      <div className="filter-controls-container">
+        {/* Search Filter */}
+        <div className="filter-group">
+          <div className="filter-group-label">Search</div>
+          <div className="filter-search">
+            <i className="fas fa-search search-icon"></i>
+            <input
+              type="text"
+              placeholder="Search by name or email"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
+        </div>
+
+        {/* Role Filter */}
+        <div className="filter-group">
+          <div className="filter-group-label">User Role</div>
+          <div className="filter-select">
+            <select
+              value={filterRole}
+              onChange={(e) => setFilterRole(e.target.value)}
+            >
+              <option value="all">All Roles</option>
+              <option value="admin">Admin</option>
+              <option value="service_provider">Service Provider</option>
+              <option value="user">User</option>
+            </select>
+            <div className="select-icon">
+              <i className="fas fa-chevron-down"></i>
+            </div>
+          </div>
+        </div>
+
+        {/* Status Filter */}
+        <div className="filter-group">
+          <div className="filter-group-label">Account Status</div>
+          <div className="filter-select">
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+            <div className="select-icon">
+              <i className="fas fa-chevron-down"></i>
+            </div>
+          </div>
+        </div>
+
+        <div className="filter-actions">
+          <button
+            type="button"
+            className="filter-button secondary"
+            onClick={() => {
+              setSearchTerm('');
+              setFilterRole('all');
+              setFilterStatus('all');
+              setPagination(prev => ({ ...prev, page: 1 }));
+              // Fetch users with reset filters
+              setTimeout(() => fetchUsers(), 0);
+            }}
+          >
+            <i className="fas fa-undo"></i> Reset
+          </button>
+          <button
+            type="button"
+            className="filter-button primary"
+            onClick={handleSearch}
+          >
+            <i className="fas fa-filter"></i> Apply Filters
+          </button>
+        </div>
+      </div>
+
+      <div className={cardStyles.container}>
+        <div className={cardStyles.header}>
+          <h2 className={cardStyles.title}>
+            All Users
+            {users.length > 0 && (
+              <span className="ml-2 text-sm text-gray-500">
+                ({pagination.total} total)
+              </span>
+            )}
+          </h2>
+
+          <Button
+            variant="primary"
+            icon="plus"
+            to="/admin/users/create"
+          >
+            Create User
+          </Button>
         </div>
 
         <Table
@@ -285,15 +394,7 @@ function Users() {
         />
       </div>
 
-      {/* User Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        title={modalMode === 'view' ? 'User Details' : modalMode === 'edit' ? 'Edit User' : 'Delete User'}
-        footer={renderModalFooter()}
-      >
-        {renderModalContent()}
-      </Modal>
+      {/* Modal removed as it's not working properly */}
     </AdminLayout>
   );
 }

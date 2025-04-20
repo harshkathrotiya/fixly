@@ -50,11 +50,33 @@ const UserSchema = new mongoose.Schema({
     default: ''
   },
   address: {
-    type: String,
-    default: ''
+    street: {
+      type: String,
+      default: ''
+    },
+    city: {
+      type: String,
+      default: ''
+    },
+    state: {
+      type: String,
+      default: ''
+    },
+    zipCode: {
+      type: String,
+      default: ''
+    },
+    country: {
+      type: String,
+      default: ''
+    }
   },
   resetPasswordToken: String,
   resetPasswordExpire: Date,
+  isActive: {
+    type: Boolean,
+    default: true
+  },
   createdAt: {
     type: Date,
     default: Date.now

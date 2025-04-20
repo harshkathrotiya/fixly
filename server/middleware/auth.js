@@ -17,6 +17,11 @@ exports.protect = asyncHandler(async (req, res, next) => {
     token = req.cookies.token;
   }
 
+  // Special case for providers route - allow public access but with limited data
+  if (!token && req.originalUrl.startsWith('/api/providers')) {
+    return next();
+  }
+
   // Make sure token exists
   if (!token) {
     return res.status(401).json({
@@ -31,7 +36,23 @@ exports.protect = asyncHandler(async (req, res, next) => {
 
     // Add user to request object
     req.user = await User.findById(decoded.id);
-    
+
+    // Check if user exists and is active
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Check if user is active
+    if (!req.user.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: 'Your account has been deactivated. Please contact support.'
+      });
+    }
+
     next();
   } catch (err) {
     return res.status(401).json({
