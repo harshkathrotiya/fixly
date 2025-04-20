@@ -75,8 +75,5 @@ The API server should be running on http://localhost:5000. If your server is run
 
 The API uses Cloudinary for image storage. The server is already configured with the following Cloudinary credentials:
 
-- Cloud Name: dnihs5qly
-- API Key: 278952549751718
-- API Secret: zHdWvCBDZ0IE_HohdGctIl0p3Jw
 
 These credentials are pre-configured on the server side, so you don't need to provide them in your requests.
