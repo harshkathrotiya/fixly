@@ -2,61 +2,69 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 25px;
+    gap: 30px;
     margin: 0 auto;
     max-width: 1200px;
+    padding: 0 20px;
 }
 
 .review-card {
     background: white;
-    border-radius: 12px;
-    padding: 30px;
+    border-radius: 16px;
+    padding: 35px;
     width: 350px;
-    min-height: 200px;
+    min-height: 220px;
     text-align: left;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s ease;
     position: relative;
     overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.03);
 }
 
 .review-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    border-color: rgba(74, 144, 226, 0.2);
 }
 
 .review-card::before {
     content: '"';
     position: absolute;
-    top: 10px;
-    left: 15px;
-    font-size: 60px;
-    color: rgba(173, 178, 212, 0.1);
+    top: 15px;
+    left: 20px;
+    font-size: 70px;
+    color: rgba(74, 144, 226, 0.1);
     font-family: Georgia, serif;
+    z-index: 0;
 }
 
 .name {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 600;
-    margin-bottom: 12px;
-    color: #333;
+    margin-bottom: 15px;
+    color: #2d3748;
     position: relative;
+    z-index: 1;
 }
 
 .name::after {
     content: '';
     position: absolute;
-    width: 40px;
-    height: 2px;
-    background-color: #C7D9DD;
-    bottom: -5px;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(90deg, #4a90e2, #63b3ed);
+    bottom: -8px;
     left: 0;
+    border-radius: 2px;
 }
 
 .review-card p {
-    font-size: 15px;
-    color: #555;
-    line-height: 1.6;
+    font-size: 16px;
+    color: #4a5568;
+    line-height: 1.7;
+    position: relative;
+    z-index: 1;
 }
 
 /* Responsive Design */
@@ -64,7 +72,7 @@
     .reviewbox {
         gap: 20px;
     }
-    
+
     .review-card {
         width: 300px;
     }
@@ -81,11 +89,11 @@
     .review-card {
         padding: 20px;
     }
-    
+
     .name {
         font-size: 16px;
     }
-    
+
     .review-card p {
         font-size: 14px;
     }

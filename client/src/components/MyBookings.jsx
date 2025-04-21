@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './MyBookings.css';
 import Navbar from './Navbar';
-import { useAuth } from '../context/authcontext';
+import { useAuth } from '../context/AuthContext';
 import PlaceholderImg from './images/plumbing.png';
 
-function MyBookings() {
+function MyBookings({ hideNavbar = false }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [bookings, setBookings] = useState([]);
@@ -19,7 +19,7 @@ function MyBookings() {
       navigate('/login', { state: { from: '/bookings' } });
       return;
     }
-    
+
     fetchBookings();
   }, [user, navigate]);
 
@@ -27,20 +27,20 @@ function MyBookings() {
     setLoading(true);
     try {
       const token = localStorage.getItem('authToken');
-      
+
       if (!token) {
         throw new Error('Authentication token not found');
       }
-      
+
       // Determine which endpoint to use based on user role
-      const endpoint = user.role === 'service_provider' 
-        ? 'http://localhost:5000/api/bookings/provider' 
+      const endpoint = user.role === 'service_provider'
+        ? 'http://localhost:5000/api/bookings/provider'
         : 'http://localhost:5000/api/bookings/customer';
-      
+
       const response = await axios.get(endpoint, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       setBookings(response.data.data);
       setError(null);
     } catch (err) {
@@ -54,16 +54,16 @@ function MyBookings() {
   const handleUpdateStatus = async (bookingId, newStatus) => {
     try {
       const token = localStorage.getItem('authToken');
-      
+
       if (!token) {
         throw new Error('Authentication token not found');
       }
-      
-      await axios.put(`http://localhost:5000/api/bookings/${bookingId}/status`, 
+
+      await axios.put(`http://localhost:5000/api/bookings/${bookingId}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      
+
       // Refresh bookings after status update
       fetchBookings();
     } catch (err) {
@@ -81,7 +81,7 @@ function MyBookings() {
   const filteredBookings = bookings.filter(booking => {
     const now = new Date();
     const serviceDate = new Date(booking.serviceDateTime);
-    
+
     if (activeTab === 'upcoming') {
       return serviceDate >= now && ['Pending', 'Confirmed'].includes(booking.bookingStatus);
     } else if (activeTab === 'completed') {
@@ -95,7 +95,7 @@ function MyBookings() {
   if (loading) {
     return (
       <div className="my-bookings-page">
-        <Navbar />
+        {!hideNavbar && <Navbar />}
         <div className="my-bookings-container">
           <div className="loading-container">
             <div className="loading-spinner-container">
@@ -110,47 +110,47 @@ function MyBookings() {
 
   return (
     <div className="my-bookings-page">
-      <Navbar />
+      {!hideNavbar && <Navbar />}
       <div className="my-bookings-container">
         <div className="my-bookings-header">
           <h1>{user?.role === 'service_provider' ? 'Service Requests' : 'My Bookings'}</h1>
           <p>Manage your {user?.role === 'service_provider' ? 'service requests' : 'service bookings'}</p>
         </div>
-        
+
         {error && (
           <div className="error-message">
             <i className="fas fa-exclamation-circle"></i>
             <p>{error}</p>
           </div>
         )}
-        
+
         <div className="bookings-tabs">
-          <button 
+          <button
             className={`tab-button ${activeTab === 'upcoming' ? 'active' : ''}`}
             onClick={() => setActiveTab('upcoming')}
           >
             Upcoming
           </button>
-          <button 
+          <button
             className={`tab-button ${activeTab === 'completed' ? 'active' : ''}`}
             onClick={() => setActiveTab('completed')}
           >
             Completed
           </button>
-          <button 
+          <button
             className={`tab-button ${activeTab === 'cancelled' ? 'active' : ''}`}
             onClick={() => setActiveTab('cancelled')}
           >
             Cancelled
           </button>
         </div>
-        
+
         {filteredBookings.length === 0 ? (
           <div className="no-bookings-message">
             <i className="fas fa-calendar-times"></i>
             <p>No {activeTab} bookings found.</p>
             {activeTab === 'upcoming' && user?.role !== 'service_provider' && (
-              <button 
+              <button
                 className="browse-services-button"
                 onClick={() => navigate('/services')}
               >
@@ -170,12 +170,12 @@ function MyBookings() {
                     {booking.bookingStatus}
                   </div>
                 </div>
-                
+
                 <div className="booking-details">
                   <div className="service-info">
-                    <img 
-                      src={booking.serviceListingId?.serviceImage || PlaceholderImg} 
-                      alt={booking.serviceListingId?.serviceTitle} 
+                    <img
+                      src={booking.serviceListingId?.serviceImage || PlaceholderImg}
+                      alt={booking.serviceListingId?.serviceTitle}
                       className="service-image"
                       onError={(e) => {
                         e.target.src = PlaceholderImg;
@@ -192,11 +192,11 @@ function MyBookings() {
                       </div>
                       <div className="booking-price">
                         <i className="fas fa-tag"></i>
-                        <span>${booking.totalAmount}</span>
+                        <span>₹{booking.totalAmount}</span>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="provider-info">
                     <h4>{user?.role === 'service_provider' ? 'Customer' : 'Provider'}</h4>
                     <div className="provider-details">
@@ -210,24 +210,24 @@ function MyBookings() {
                     </div>
                   </div>
                 </div>
-                
+
                 {booking.specialInstructions && (
                   <div className="booking-instructions">
                     <h4>Special Instructions:</h4>
                     <p>{booking.specialInstructions}</p>
                   </div>
                 )}
-                
+
                 <div className="booking-actions">
                   {user?.role === 'service_provider' && booking.bookingStatus === 'Pending' && (
                     <>
-                      <button 
+                      <button
                         className="accept-button"
                         onClick={() => handleUpdateStatus(booking._id, 'Confirmed')}
                       >
                         <i className="fas fa-check"></i> Accept
                       </button>
-                      <button 
+                      <button
                         className="reject-button"
                         onClick={() => handleUpdateStatus(booking._id, 'Rejected')}
                       >
@@ -235,35 +235,35 @@ function MyBookings() {
                       </button>
                     </>
                   )}
-                  
+
                   {user?.role === 'service_provider' && booking.bookingStatus === 'Confirmed' && (
-                    <button 
+                    <button
                       className="complete-button"
                       onClick={() => handleUpdateStatus(booking._id, 'Completed')}
                     >
                       <i className="fas fa-check-circle"></i> Mark as Completed
                     </button>
                   )}
-                  
+
                   {user?.role === 'user' && booking.bookingStatus === 'Pending' && (
-                    <button 
+                    <button
                       className="cancel-button"
                       onClick={() => handleUpdateStatus(booking._id, 'Cancelled')}
                     >
                       <i className="fas fa-ban"></i> Cancel Booking
                     </button>
                   )}
-                  
+
                   {booking.bookingStatus === 'Completed' && user?.role === 'user' && !booking.isReviewed && (
-                    <button 
+                    <button
                       className="review-button"
                       onClick={() => navigate(`/review/${booking._id}`)}
                     >
                       <i className="fas fa-star"></i> Leave Review
                     </button>
                   )}
-                  
-                  <button 
+
+                  <button
                     className="details-button"
                     onClick={() => navigate(`/booking/${booking._id}`)}
                   >

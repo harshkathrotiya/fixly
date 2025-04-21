@@ -1,20 +1,74 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../../context/authcontext';
+import { useAuth } from '../../context/AuthContext'; // Correct casing for AuthContext
 import AdminLayout from './AdminLayout';
+import Card from './shared/Card';
+import './AdminDashboard.css';
 
 function AdminDashboard() {
   const [stats, setStats] = useState({
     users: 0,
     providers: 0,
     listings: 0,
-    bookings: 0
+    bookings: 0,
+    revenue: 0,
+    pendingBookings: 0,
+    completedBookings: 0,
+    cancelledBookings: 0,
+    conversionRate: 0,
+    avgBookingValue: 0,
+    userGrowth: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [isAutoRefresh, setIsAutoRefresh] = useState(true);
   const navigate = useNavigate();
   const { token, user } = useAuth();
+
+  const fetchDashboardData = async () => {
+    setIsLoading(true);
+    try {
+      let dateParams = '';
+      if (dateRange.start && dateRange.end) {
+        dateParams = `?startDate=${dateRange.start}&endDate=${dateRange.end}`;
+      } else if (dateRange.start) {
+        dateParams = `?startDate=${dateRange.start}`;
+      } else if (dateRange.end) {
+        dateParams = `?endDate=${dateRange.end}`;
+      }
+
+      const response = await axios.get(
+        `http://localhost:5000/api/admin/dashboard${dateParams}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const dashboardData = response.data.data;
+
+      // Data for charts and recent activities removed
+      setStats({
+        users: dashboardData.counts.users,
+        providers: dashboardData.counts.providers,
+        listings: dashboardData.counts.listings,
+        bookings: dashboardData.counts.bookings,
+        revenue: dashboardData.financial.totalRevenue,
+        pendingBookings: dashboardData.counts.pendingBookings,
+        completedBookings: dashboardData.counts.completedBookings,
+        cancelledBookings: dashboardData.counts.cancelledBookings,
+        conversionRate: dashboardData.performance.conversionRate,
+        avgBookingValue: dashboardData.financial.avgBookingValue,
+        userGrowth: dashboardData.performance.userGrowth,
+      });
+      setLastUpdated(new Date());
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError('Failed to load dashboard data. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!user || user.userType !== 'admin') {
@@ -22,133 +76,216 @@ function AdminDashboard() {
       return;
     }
 
-    const fetchDashboardData = async () => {
-      setIsLoading(true);
-      try {
-        const [usersRes, providersRes, listingsRes, bookingsRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/users', { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get('http://localhost:5000/api/providers', { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get('http://localhost:5000/api/listings', { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get('http://localhost:5000/api/bookings', { headers: { Authorization: `Bearer ${token}` } }),
-        ]);
+    fetchDashboardData();
 
-        setStats({
-          users: usersRes.data.count || usersRes.data.data?.length || 0,
-          providers: providersRes.data.count || providersRes.data.data?.length || 0,
-          listings: listingsRes.data.count || listingsRes.data.data?.length || 0,
-          bookings: bookingsRes.data.count || bookingsRes.data.data?.length || 0,
-        });
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err);
-        setError('Failed to load dashboard data');
-      } finally {
-        setIsLoading(false);
+    let pollingInterval;
+    if (isAutoRefresh) {
+      pollingInterval = setInterval(() => {
+        fetchDashboardData();
+      }, 30000); // 30 seconds
+    }
+
+    return () => {
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
       }
     };
+  }, [token, user, navigate, isAutoRefresh]);
 
-    fetchDashboardData();
-  }, [token, user, navigate]);
+  useEffect(() => {
+    if (user && user.userType === 'admin') {
+      fetchDashboardData();
+    }
+  }, [dateRange.start, dateRange.end]);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div className="w-12 h-12 border-t-4 border-b-4 border-blue-500 rounded-full animate-spin"></div>
-      </div>
+      <AdminLayout title="Admin Dashboard">
+        <div className="flex items-center justify-center min-h-64 bg-gray-100">
+          <div className="text-center">
+            <div className="w-12 h-12 border-t-4 border-b-4 border-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading dashboard data...</p>
+          </div>
+        </div>
+      </AdminLayout>
     );
   }
 
-  const statCards = [
-    { 
-      label: 'Total Users', 
-      count: stats.users, 
-      bgColor: 'bg-indigo-100',
-      textColor: 'text-indigo-600',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-        </svg>
-      )
-    },
-    { 
-      label: 'Service Providers', 
-      count: stats.providers, 
-      bgColor: 'bg-green-100',
-      textColor: 'text-green-600',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
-      )
-    },
-    { 
-      label: 'Service Listings', 
-      count: stats.listings, 
-      bgColor: 'bg-blue-100',
-      textColor: 'text-blue-600',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
-      )
-    },
-    { 
-      label: 'Total Bookings', 
-      count: stats.bookings, 
-      bgColor: 'bg-yellow-100',
-      textColor: 'text-yellow-600',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      )
-    }
-  ];
+  if (error) {
+    return (
+      <AdminLayout title="Admin Dashboard">
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+          <p className="font-bold">Error</p>
+          <p>{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-2 bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded text-sm"
+          >
+            Retry
+          </button>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 2,
+    }).format(amount);
+  };
+
+  const handleRefresh = () => {
+    setIsLoading(true);
+    setError(null);
+    fetchDashboardData();
+  };
+
+  const handleClearFilters = () => {
+    setDateRange({ start: '', end: '' });
+    setIsLoading(true);
+    setError(null);
+    fetchDashboardData();
+  };
 
   return (
     <AdminLayout title="Admin Dashboard">
-      <div className="flex-1 overflow-y-auto">
-          {error && (
-            <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
+      <div className="admin-dashboard">
+        <div className="dashboard-header">
+          <div className="container mx-auto px-4 flex justify-between items-center">
+            <h1>Dashboard Overview</h1>
+            <div className="flex items-center gap-2">
+              <div className="text-sm text-gray-500 bg-white rounded-full px-3 py-1 shadow-sm">
+                <i className="fas fa-clock mr-1"></i>
+                Last updated: {lastUpdated.toLocaleTimeString()}
+                {isAutoRefresh && (
+                  <span className="ml-2 text-green-500">
+                    <i className="fas fa-sync-alt animate-spin mr-1"></i>
+                    Auto-refreshing
+                  </span>
+                )}
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="container mx-auto px-4">
+          <div className="filter-controls">
+            <div className="date-filters">
+              <div className="filter-group">
+                <label htmlFor="startDate">From</label>
+                <input
+                  type="date"
+                  id="startDate"
+                  value={dateRange.start}
+                  onChange={(e) => setDateRange((prev) => ({ ...prev, start: e.target.value }))}
+                />
+              </div>
+              <div className="filter-group">
+                <label htmlFor="endDate">To</label>
+                <input
+                  type="date"
+                  id="endDate"
+                  value={dateRange.end}
+                  onChange={(e) => setDateRange((prev) => ({ ...prev, end: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div className="filter-actions">
+              <button
+                onClick={handleClearFilters}
+                className="filter-btn clear-btn"
+                disabled={!dateRange.start && !dateRange.end}
+              >
+                <i className="fas fa-times"></i>
+                Clear Filters
+              </button>
+              <button
+                onClick={() => setIsAutoRefresh(!isAutoRefresh)}
+                className={`filter-btn ${isAutoRefresh ? 'auto-refresh-btn' : 'auto-refresh-btn paused'}`}
+              >
+                <i className={`fas fa-${isAutoRefresh ? 'pause' : 'play'}`}></i>
+                {isAutoRefresh ? 'Pause Auto-refresh' : 'Enable Auto-refresh'}
+              </button>
+              <button onClick={handleRefresh} className="filter-btn refresh-btn">
+                <i className="fas fa-sync-alt"></i>
+                Refresh Now
+              </button>
+            </div>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-xl shadow-sm p-4 mb-6 flex items-center" role="alert">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-4">
+                <i className="fas fa-exclamation-triangle text-red-500"></i>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-red-800">Error</h3>
+                <p className="text-sm text-red-700 mt-1">{error}</p>
+              </div>
+              <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-500">
+                <i className="fas fa-times"></i>
+              </button>
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {statCards.map((card, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 ease-in-out">
-                <div className="p-6">
-                  <div className="flex items-center">
-                    <div className={`${card.bgColor} ${card.textColor} p-3 rounded-full`}>
-                      {card.icon}
-                    </div>
-                    <div className="ml-5">
-                      <p className="text-sm font-medium text-gray-500">{card.label}</p>
-                      <p className="mt-1 text-2xl font-semibold text-gray-900">{card.count}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          {/* Stats Cards */}
+          <div className="stats-cards">
+            <Card
+              title="Total Users"
+              value={stats.users.toString()}
+              icon={<i className="fas fa-users"></i>}
+              color="blue"
+              trend={parseFloat(stats.userGrowth) >= 0 ? 'up' : 'down'}
+              trendValue={`${parseFloat(stats.userGrowth) >= 0 ? '+' : ''}${stats.userGrowth}%`}
+              subtitle="vs last month"
+              onClick={() => navigate('/admin/users')}
+            />
 
-          <div className="mt-8 bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-medium text-gray-900">Recent Activity</h2>
-              <button className="text-sm text-blue-600 hover:text-blue-700">View all</button>
-            </div>
-            <div className="border-t border-gray-200 pt-4">
-              <p className="text-sm text-gray-500">No recent activity to display.</p>
-            </div>
+            <Card
+              title="Service Providers"
+              value={stats.providers.toString()}
+              icon={<i className="fas fa-toolbox"></i>}
+              color="green"
+              trend="up"
+              trendValue="+3%"
+              subtitle="vs last month"
+              onClick={() => navigate('/admin/providers')}
+            />
+
+            <Card
+              title="Active Listings"
+              value={stats.listings.toString()}
+              icon={<i className="fas fa-list-alt"></i>}
+              color="purple"
+              trend="up"
+              trendValue="+8%"
+              subtitle="vs last month"
+              onClick={() => navigate('/admin/listings')}
+            />
+
+            <Card
+              title="Total Revenue"
+              value={formatCurrency(stats.revenue)}
+              icon={<i className="fas fa-rupee-sign"></i>}
+              color="indigo"
+              trend="up"
+              trendValue="+12%"
+              subtitle="vs last month"
+              onClick={() => navigate('/admin/earnings')}
+            />
+
+            <Card
+              title="Pending Bookings"
+              value={stats.pendingBookings.toString()}
+              icon={<i className="fas fa-clock"></i>}
+              color="yellow"
+              onClick={() => navigate('/admin/bookings?status=pending')}
+            />
           </div>
+        </div>
       </div>
     </AdminLayout>
   );

@@ -50,12 +50,24 @@ const ServiceListingSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  duration: {
+    type: Number,
+    default: 0
+  },
+  serviceLocation: {
+    type: String,
+    default: ''
+  },
   tags: [String],
   averageRating: {
     type: Number,
     default: 0
   },
   reviewCount: {
+    type: Number,
+    default: 0
+  },
+  bookingCount: {
     type: Number,
     default: 0
   }
@@ -67,7 +79,7 @@ ServiceListingSchema.pre('save', async function(next) {
     try {
       const ServiceProvider = mongoose.model('ServiceProvider');
       const provider = await ServiceProvider.findById(this.serviceProviderId);
-      
+
       if (provider) {
         const commissionRate = provider.commissionRate || 10; // Default 10% if not set
         this.commissionAmount = (this.servicePrice * commissionRate) / 100;

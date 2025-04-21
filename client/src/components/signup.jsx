@@ -75,16 +75,16 @@ function SignUp() {
   return (
     <div className="app-container">
       <Navbar />
-      
+
       <div className="main-content">
         <div className="signup-container">
           <h2>Create Your Account</h2>
-          
+
           {error && <div className="error-message">{error}</div>}
-          
+
           <form onSubmit={handleSignup}>
             {/* Removed account type selector */}
-            
+
             <div className="form-group">
               <label htmlFor="firstName">First Name</label>
               <input
@@ -95,7 +95,7 @@ function SignUp() {
                 required
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="lastName">Last Name</label>
               <input
@@ -106,7 +106,7 @@ function SignUp() {
                 required
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="username">Username</label>
               <input
@@ -117,7 +117,7 @@ function SignUp() {
                 required
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="email">Email</label>
               <input
@@ -128,7 +128,7 @@ function SignUp() {
                 required
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="phone">Phone</label>
               <input
@@ -139,7 +139,7 @@ function SignUp() {
                 required
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <input
@@ -150,7 +150,7 @@ function SignUp() {
                 required
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="street">Street Address</label>
               <input
@@ -161,7 +161,7 @@ function SignUp() {
                 required
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="city">City</label>
               <input
@@ -172,7 +172,7 @@ function SignUp() {
                 required
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="state">State</label>
               <input
@@ -183,7 +183,7 @@ function SignUp() {
                 required
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="zipCode">Zip Code</label>
               <input
@@ -194,7 +194,7 @@ function SignUp() {
                 required
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="country">Country</label>
               <input
@@ -205,45 +205,15 @@ function SignUp() {
                 required
               />
             </div>
-            
+
             <button type="submit">Sign Up</button>
           </form>
-          
+
           <div className="signup-footer">
             <p>Already have an account? <Link to="/login">Login</Link></p>
           </div>
         </div>
       </div>
-      
-      <footer className="main-footer">
-        <div className="footer-content">
-          <div className="footer-logo">
-            <h3>Fixly</h3>
-            <p>Your trusted platform for home services</p>
-          </div>
-          <div className="footer-links">
-            <div className="footer-section">
-              <h4>Quick Links</h4>
-              <ul>
-                <li><Link to="/">Home</Link></li>
-                <li><Link to="/services">Services</Link></li>
-                <li><Link to="/about">About Us</Link></li>
-                <li><Link to="/contact">Contact</Link></li>
-              </ul>
-            </div>
-            <div className="footer-section">
-              <h4>For Providers</h4>
-              <ul>
-                <li><Link to="/tasker">Become a Provider</Link></li>
-                <li><Link to="/provider/dashboard">Provider Dashboard</Link></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} Fixly. All rights reserved.</p>
-        </div>
-      </footer>
     </div>
   );
 }
