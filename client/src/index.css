@@ -450,3 +450,6 @@ textarea {
   font-size: var(--font-size-sm);
   border-left: 3px solid var(--error-color);
 }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

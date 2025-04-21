@@ -1,0 +1,18 @@
+/* Service page styles */
+@import url('../styles/global.css');
+
+.service-page {
+  font-family: 'Inter', sans-serif;
+  color: var(--text-color);
+  background-color: var(--surface-3);
+  min-height: 100vh;
+  background-image:
+    repeating-linear-gradient(
+      to right, transparent 0 100px,
+      #25283b22 100px 101px
+    ),
+    repeating-linear-gradient(
+      to bottom, transparent 0 100px,
+      #25283b22 100px 101px
+    );
+}

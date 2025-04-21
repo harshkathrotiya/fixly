@@ -5,8 +5,10 @@ const {
   getListings,
   getListingById,
   updateListing,
+  updateListingStatus,
   deleteListing,
-  getListingsByProviderId  // Add this import
+  getListingsByProviderId,
+  getProviderListings
 } = require('../../controllers/serviceListingController');
 
 const { protect, authorize } = require('../../middleware/auth');
@@ -23,6 +25,7 @@ router.post(
   '/',
   protect,
   authorize('service_provider'),
+  serviceImageUpload.single('serviceImage'),
   createListing
 );
 
@@ -41,12 +44,22 @@ router.delete(
 );
 
 router.put(
+  '/:id/status',
+  protect,
+  authorize('service_provider'),
+  updateListingStatus
+);
+
+router.put(
   '/:id/image',
   protect,
   authorize('service_provider'),
   serviceImageUpload.single('image'),
   uploadListingImage
 );
+
+// Get provider's own listings
+router.get('/provider', protect, authorize('service_provider'), getProviderListings);
 
 // Get listings by provider ID
 router.get('/provider/:providerId', getListingsByProviderId);

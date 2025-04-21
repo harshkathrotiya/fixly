@@ -6,6 +6,18 @@
 │   ├── package-lock.json
 │   ├── package.json
 │   ├── public
+│   │   ├── fontawesome
+│   │   │   ├── fa-brands-400.ttf
+│   │   │   ├── fa-brands-400.woff2
+│   │   │   ├── fa-regular-400.ttf
+│   │   │   ├── fa-regular-400.woff2
+│   │   │   ├── fa-solid-900.ttf
+│   │   │   ├── fa-solid-900.woff2
+│   │   │   ├── fa-v4compatibility.ttf
+│   │   │   └── fa-v4compatibility.woff2
+│   │   ├── index.html
+│   │   ├── placeholder-image.png
+│   │   ├── placeholder-service.svg
 │   │   └── vite.svg
 │   ├── README.md
 │   ├── src
@@ -13,15 +25,56 @@
 │   │   ├── assets
 │   │   │   └── react.svg
 │   │   ├── components
+│   │   │   ├── admin
+│   │   │   │   ├── AdminBookings.css
+│   │   │   │   ├── AdminDashboard.css
+│   │   │   │   ├── AdminLayout.css
+│   │   │   │   ├── AdminLayout.jsx
+│   │   │   │   ├── AdminListings.css
+│   │   │   │   ├── Bookings.jsx
+│   │   │   │   ├── Categories.jsx
+│   │   │   │   ├── Commissions.jsx
+│   │   │   │   ├── Complaints.jsx
+│   │   │   │   ├── CreateAdminUser.jsx
+│   │   │   │   ├── Dashboard.jsx
+│   │   │   │   ├── Listings.jsx
+│   │   │   │   ├── Providers.jsx
+│   │   │   │   ├── Reports.jsx
+│   │   │   │   ├── Services.jsx
+│   │   │   │   ├── Settings.jsx
+│   │   │   │   ├── shared
+│   │   │   │   │   ├── adminStyles.js
+│   │   │   │   │   ├── Badge.jsx
+│   │   │   │   │   ├── Breadcrumbs.jsx
+│   │   │   │   │   ├── Button.jsx
+│   │   │   │   │   ├── Card.jsx
+│   │   │   │   │   ├── categoryStyles.css
+│   │   │   │   │   ├── Chart.jsx
+│   │   │   │   │   ├── EmptyState.jsx
+│   │   │   │   │   ├── Modal.jsx
+│   │   │   │   │   ├── PageHeader.jsx
+│   │   │   │   │   ├── PieChart.jsx
+│   │   │   │   │   ├── StatsCard.jsx
+│   │   │   │   │   ├── styles.js
+│   │   │   │   │   ├── Table.jsx
+│   │   │   │   │   ├── TableLayout.jsx
+│   │   │   │   │   └── userStyles.css
+│   │   │   │   └── Users.jsx
 │   │   │   ├── appointments.jsx
 │   │   │   ├── authchoice.jsx
 │   │   │   ├── BookingDetails.jsx
+│   │   │   ├── Bookings.css
+│   │   │   ├── Bookings.jsx
+│   │   │   ├── ComplaintForm.css
+│   │   │   ├── ComplaintForm.jsx
 │   │   │   ├── CreateListing.css
 │   │   │   ├── CreateListing.jsx
 │   │   │   ├── EditListing.jsx
+│   │   │   ├── Footer.css
+│   │   │   ├── Footer.jsx
+│   │   │   ├── ForgotPassword.jsx
 │   │   │   ├── Home.css
 │   │   │   ├── Home.jsx
-│   │   │   ├── home2.jsx
 │   │   │   ├── images
 │   │   │   │   ├── carpentary.png
 │   │   │   │   ├── cleaning.png
@@ -31,18 +84,43 @@
 │   │   │   │   └── plumbing.png
 │   │   │   ├── joblisting.css
 │   │   │   ├── joblisting.jsx
+│   │   │   ├── ListingDetails.css
 │   │   │   ├── ListingDetails.jsx
 │   │   │   ├── login.css
 │   │   │   ├── login.jsx
+│   │   │   ├── MyBookings.css
+│   │   │   ├── MyBookings.jsx
 │   │   │   ├── Navbar.css
 │   │   │   ├── Navbar.jsx
-│   │   │   ├── ProviderDashboard.css
-│   │   │   ├── ProviderDashboard.jsx
-│   │   │   ├── ProviderProfile.css
-│   │   │   ├── ProviderProfile.jsx
+│   │   │   ├── PasswordReset.css
+│   │   │   ├── PaymentForm.css
+│   │   │   ├── PaymentForm.jsx
+│   │   │   ├── ProtectedAdminRoute.jsx
+│   │   │   ├── provider
+│   │   │   │   ├── AddService.css
+│   │   │   │   ├── AddService.jsx
+│   │   │   │   ├── CreateListingWrapper.jsx
+│   │   │   │   ├── EditListingWrapper.jsx
+│   │   │   │   ├── EditService.css
+│   │   │   │   ├── EditService.jsx
+│   │   │   │   ├── ProviderBookings.css
+│   │   │   │   ├── ProviderBookings.jsx
+│   │   │   │   ├── ProviderDashboard.css
+│   │   │   │   ├── ProviderDashboard.jsx
+│   │   │   │   ├── ProviderLayout.css
+│   │   │   │   ├── ProviderLayout.jsx
+│   │   │   │   ├── ProviderMyBookingsWrapper.jsx
+│   │   │   │   ├── ProviderProfile.css
+│   │   │   │   ├── ProviderProfile.jsx
+│   │   │   │   ├── ServiceManagement.css
+│   │   │   │   └── ServiceManagement.jsx
+│   │   │   ├── ResetPassword.jsx
 │   │   │   ├── review.css
 │   │   │   ├── review.jsx
+│   │   │   ├── ReviewForm.css
 │   │   │   ├── reviewform.jsx
+│   │   │   ├── Reviews.css
+│   │   │   ├── Reviews.jsx
 │   │   │   ├── ServiceDetails.css
 │   │   │   ├── ServiceDetails.jsx
 │   │   │   ├── services.css
@@ -56,31 +134,57 @@
 │   │   ├── index.css
 │   │   ├── main.jsx
 │   │   ├── styles
-│   │   │   └── global.css
+│   │   │   ├── admin
+│   │   │   │   ├── admin.css
+│   │   │   │   └── users.css
+│   │   │   ├── admin.css
+│   │   │   ├── global.css
+│   │   │   └── tailwind.css
 │   │   └── utils
 │   │       └── cloudinary.js
+│   ├── tailwind.config.js
 │   └── vite.config.js
 ├── docs
 │   ├── authapi.txt
+│   ├── bookingapi.txt
+│   ├── fixly_postman_collection.json
+│   ├── fixly_postman_environment.json
 │   ├── listingapi.txt
+│   ├── postman_testing_guide.md
 │   └── serviceproviderapi.txt
 ├── G_33_srs.pdf
-├── package-lock.json
-├── package.json
+├── README.md
 ├── server
 │   ├── config
 │   │   ├── cloudinary.js
 │   │   └── db.js
 │   ├── controllers
+│   │   ├── adminController.js
+│   │   ├── adminEarningsController.js
+│   │   ├── adminServicesController.js
 │   │   ├── authController.js
+│   │   ├── bookingController.js
+│   │   ├── commissionController.js
+│   │   ├── complaintController.js
+│   │   ├── paymentController.js
+│   │   ├── reportController.js
+│   │   ├── reviewController.js
 │   │   ├── serviceCategoryController.js
 │   │   ├── serviceListingController.js
-│   │   └── serviceProviderController.js
+│   │   ├── serviceProviderController.js
+│   │   └── userController.js
 │   ├── middleware
 │   │   ├── auth.js
 │   │   ├── errorHandler.js
 │   │   └── validateProvider.js
 │   ├── models
+│   │   ├── AdminEarnings.js
+│   │   ├── Booking.js
+│   │   ├── Commission.js
+│   │   ├── Complaint.js
+│   │   ├── Payment.js
+│   │   ├── Report.js
+│   │   ├── Review.js
 │   │   ├── ServiceCategory.js
 │   │   ├── ServiceListing.js
 │   │   ├── ServiceProvider.js
@@ -89,15 +193,26 @@
 │   ├── package.json
 │   ├── routes
 │   │   ├── api
+│   │   │   ├── admin.js
+│   │   │   ├── adminListings.js
 │   │   │   ├── auth.js
+│   │   │   ├── bookings.js
 │   │   │   ├── categories.js
+│   │   │   ├── commissions.js
+│   │   │   ├── complaints.js
 │   │   │   ├── listings.js
-│   │   │   └── providers.js
+│   │   │   ├── payments.js
+│   │   │   ├── providers.js
+│   │   │   ├── reports.js
+│   │   │   ├── reviews.js
+│   │   │   └── users.js
 │   │   └── index.js
+│   ├── scripts
 │   ├── server.js
+│   ├── test-email.js
 │   └── utils
 │       ├── asyncHandler.js
 │       └── sendEmail.js
 └── struct.txt
 
-19 directories, 82 files
+25 directories, 191 files

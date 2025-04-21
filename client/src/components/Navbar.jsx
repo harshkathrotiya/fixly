@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/authcontext";
+import { useAuth } from "../context/AuthContext";
 import "./Navbar.css";
 
 function Navbar() {
@@ -9,16 +9,16 @@ function Navbar() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userType, setUserType] = useState(null);
-  
+
   // Get auth context directly
-  const auth = useAuth();
+  const { user, logout } = useAuth();
 
   // Check authentication on mount and when auth changes
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('authToken');
       setIsAuthenticated(!!token);
-      
+
       if (token) {
         try {
           // Get user type if authenticated
@@ -32,30 +32,30 @@ function Navbar() {
         }
       }
     };
-    
+
     // Check immediately
     checkAuth();
-    
+
     // Set up event listeners
     const handleAuthChange = () => {
       checkAuth();
     };
-    
+
     window.addEventListener('auth-change', handleAuthChange);
-    
+
     // Clean up
     return () => {
       window.removeEventListener('auth-change', handleAuthChange);
     };
   }, [location.pathname]);
-  
+
   const handleLogout = () => {
     localStorage.removeItem('authToken');
-    
-    if (auth && auth.logout) {
-      auth.logout();
+
+    if (logout) {
+      logout();
     }
-    
+
     // Dispatch event to notify other components
     window.dispatchEvent(new Event('auth-change'));
     setIsAuthenticated(false);
@@ -73,11 +73,11 @@ function Navbar() {
         <Link to="/" className="navbar-logo">
           Fixly
         </Link>
-        
+
         <div className="menu-icon" onClick={toggleMenu}>
           <i className={isMenuOpen ? "fas fa-times" : "fas fa-bars"}></i>
         </div>
-        
+
         <ul className={isMenuOpen ? "nav-menu active" : "nav-menu"}>
           <li className="nav-item">
             <Link to="/" className={location.pathname === '/' ? 'nav-link active' : 'nav-link'} onClick={() => setIsMenuOpen(false)}>
@@ -99,14 +99,25 @@ function Navbar() {
               Contact
             </Link>
           </li>
+          {isAuthenticated && (
+            <li className="nav-item">
+              <Link to="/bookings" className={location.pathname === '/bookings' ? 'nav-link active' : 'nav-link'} onClick={() => setIsMenuOpen(false)}>
+                <i className="fas fa-calendar-alt"></i> My Bookings
+              </Link>
+            </li>
+          )}
         </ul>
-        
+
         <div className="nav-auth">
           {isAuthenticated ? (
             <>
               {userType === 'service_provider' ? (
                 <Link to="/provider/dashboard" className="auth-button dashboard-button">
                   Dashboard
+                </Link>
+              ) : userType === 'admin' ? (
+                <Link to="/admin" className="auth-button dashboard-button">
+                  Admin Dashboard
                 </Link>
               ) : null}
               <button onClick={handleLogout} className="auth-button logout-button">
