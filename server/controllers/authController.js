@@ -220,17 +220,23 @@ exports.updatePassword = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/forgotpassword
 // @access  Public
 exports.forgotPassword = asyncHandler(async (req, res) => {
+  console.log('Forgot password request received for email:', req.body.email);
+
   const user = await User.findOne({ email: req.body.email });
 
   if (!user) {
+    console.log('No user found with email:', req.body.email);
     return res.status(404).json({
       success: false,
       message: 'There is no user with that email'
     });
   }
 
+  console.log('User found, generating reset token');
+
   // Get reset token
   const resetToken = user.getResetPasswordToken();
+  console.log('Generated reset token:', resetToken);
 
   await user.save({ validateBeforeSave: false });
 
@@ -265,16 +271,22 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
 // @route   PUT /api/auth/resetpassword/:resettoken
 // @access  Public
 exports.resetPassword = asyncHandler(async (req, res) => {
+  console.log('Reset password request received with token:', req.params.resettoken);
+
   // Get hashed token
   const resetPasswordToken = crypto
     .createHash('sha256')
     .update(req.params.resettoken)
     .digest('hex');
 
+  console.log('Hashed token:', resetPasswordToken);
+
   const user = await User.findOne({
     resetPasswordToken,
     resetPasswordExpire: { $gt: Date.now() }
   });
+
+  console.log('User found:', user ? 'Yes' : 'No');
 
   if (!user) {
     return res.status(400).json({

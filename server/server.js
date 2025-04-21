@@ -31,6 +31,13 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+// Add redirect for reset password URLs
+app.get('/reset-password/:token', (req, res) => {
+  const { token } = req.params;
+  console.log('Redirecting reset password request with token:', token);
+  res.redirect(`http://localhost:5173/reset-password/${token}`);
+});
+
 // Mount routes
 app.use(routes);
 

@@ -37,6 +37,8 @@ import AdminProfile from './components/admin/AdminProfile';
 import About from './components/About';
 import Contact from './components/Contact';
 import MyBookings from './components/MyBookings';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 
 // Add this import
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
@@ -76,6 +78,8 @@ function App() {
           <Route path="/bookings" element={<MyBookings />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           {/* Admin routes */}
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/users" element={

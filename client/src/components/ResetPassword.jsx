@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from './Navbar';
@@ -13,21 +13,28 @@ function ResetPassword() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Log the token when component mounts
+  useEffect(() => {
+    console.log('Reset password component mounted with token:', token);
+  }, [token]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     if (newPassword !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    
+
     setIsLoading(true);
 
     try {
+      console.log('Resetting password with token:', token);
       const response = await axios.put(`http://localhost:5000/api/auth/resetpassword/${token}`, {
         password: newPassword
       });
+      console.log('Reset password response:', response.data);
 
       if (response.data.success) {
         setIsSubmitted(true);
@@ -35,7 +42,9 @@ function ResetPassword() {
         setError(response.data.message || 'Failed to reset password');
       }
     } catch (err) {
-      console.error('Reset password error:', err.response?.data);
+      console.error('Reset password error:', err);
+      console.error('Response data:', err.response?.data);
+      console.error('Status code:', err.response?.status);
       setError(err.response?.data?.message || 'An error occurred while resetting password');
     } finally {
       setIsLoading(false);
@@ -86,8 +95,8 @@ function ResetPassword() {
                   />
                 </div>
 
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="login-button"
                   disabled={isLoading}
                 >
