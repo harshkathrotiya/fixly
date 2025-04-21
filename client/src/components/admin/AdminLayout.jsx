@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from '../../context/AuthContext';
@@ -11,6 +11,7 @@ import '../../styles/admin/admin.css';
 const AdminLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -44,15 +45,12 @@ const AdminLayout = ({ children }) => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownOpen && !event.target.closest('.dropdown')) {
+      if (dropdownOpen && !event.target.closest('.user-menu')) {
         setDropdownOpen(false);
       }
     };
 
-    if (dropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -125,21 +123,27 @@ const AdminLayout = ({ children }) => {
             <div className="notification-bell">
               <i className="far fa-bell"></i>
             </div>
-            <div className="user-menu" onClick={toggleDropdown}>
-              <img
-                src={user?.profilePicture || "/placeholder-user.jpg"}
-                alt={user?.firstName ? `${user?.firstName} ${user?.lastName}` : 'Admin'}
-                onError={(e) => { e.target.src = '/placeholder-user.jpg'; }}
-              />
-              <span>{user?.firstName ? `${user?.firstName} ${user?.lastName || ''}` : 'Admin'}</span>
+            <div className="user-menu">
+              <div className="user-menu-trigger" onClick={toggleDropdown}>
+                <img
+                  src={user?.profilePicture || "/placeholder-user.jpg"}
+                  alt={user?.firstName ? `${user?.firstName} ${user?.lastName}` : 'Admin'}
+                  onError={(e) => { e.target.src = '/placeholder-user.jpg'; }}
+                />
+                <span>{user?.firstName ? `${user?.firstName} ${user?.lastName || ''}` : 'Admin'}</span>
+                <i className={`fas fa-chevron-${dropdownOpen ? 'up' : 'down'} ml-1`}></i>
+              </div>
               {dropdownOpen && (
                 <div className="user-dropdown">
-                  <Link to="/admin/profile" className="dropdown-item">
+                  <a href="/admin/profile" className="dropdown-item">
                     <i className="fas fa-user-circle"></i> My Profile
-                  </Link>
-                  <button onClick={handleLogout} className="dropdown-item">
+                  </a>
+                  <a href="#" onClick={(e) => {
+                    e.preventDefault();
+                    handleLogout();
+                  }} className="dropdown-item">
                     <i className="fas fa-sign-out-alt"></i> Logout
-                  </button>
+                  </a>
                 </div>
               )}
             </div>

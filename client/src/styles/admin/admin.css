@@ -262,10 +262,20 @@
 }
 
 .user-menu {
+  position: relative;
+}
+
+.user-menu-trigger {
   display: flex;
   align-items: center;
   cursor: pointer;
-  position: relative;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.user-menu-trigger:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .user-menu img {

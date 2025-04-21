@@ -225,8 +225,8 @@ const sliderImages = [
           <div className="footer-section">
             <h4>Contact Us</h4>
             <p><i className="fas fa-envelope"></i> support@fixly.com</p>
-            <p><i className="fas fa-phone"></i> +91 9876543210</p>
-            <p><i className="fas fa-map-marker-alt"></i> 123 Main Street, Mumbai, India</p>
+            <p><i className="fas fa-phone"></i> +91 9726988872</p>
+            <p><i className="fas fa-map-marker-alt"></i> DAU, Gandhinagar</p>
           </div>
         </div>
         <div className="footer-bottom">

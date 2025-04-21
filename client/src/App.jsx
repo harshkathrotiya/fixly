@@ -24,21 +24,19 @@ import AdminListings from './components/admin/Listings';
 import AdminBookings from './components/admin/Bookings';
 import AdminCategories from './components/admin/Categories';
 import CreateAdminUser from './components/admin/CreateAdminUser';
-import ProviderMyBookingsWrapper from './components/provider/ProviderMyBookingsWrapper';
-// Import the new components
-import PaymentForm from './components/PaymentForm';
-import ComplaintForm from './components/ComplaintForm';
-import Reviews from './components/Reviews';
+// Provider components
 import ProviderBookings from './components/provider/ProviderBookings';
 import ServiceManagement from './components/provider/ServiceManagement';
 import AddService from './components/provider/AddService';
 import EditService from './components/provider/EditService';
 import Commissions from './components/admin/Commissions';
 import Complaints from './components/admin/Complaints';
-import ResetPassword from './components/ResetPassword';
-import ForgotPassword from './components/ForgotPassword';
+import Reports from './components/admin/Reports';
+import Settings from './components/admin/Settings';
+import AdminProfile from './components/admin/AdminProfile';
 import About from './components/About';
 import Contact from './components/Contact';
+import MyBookings from './components/MyBookings';
 
 // Add this import
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
@@ -69,8 +67,13 @@ function App() {
           <Route path="/provider/create-listing" element={<CreateListingWrapper />} />
           <Route path="/provider/edit-listing/:id" element={<EditListingWrapper />} />
           <Route path="/provider/profile" element={<ProviderProfile />} />
+          <Route path="/provider/bookings" element={<ProviderBookings />} />
+          <Route path="/provider/services" element={<ServiceManagement />} />
+          <Route path="/provider/services/edit/:serviceId" element={<EditService />} />
+          <Route path="/provider/services/new" element={<AddService />} />
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/booking/:id" element={<BookingDetails />} />
+          <Route path="/bookings" element={<MyBookings />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           {/* Admin routes */}
@@ -88,6 +91,12 @@ function App() {
           <Route path="/admin/providers" element={<AdminProviders />} />
           <Route path="/admin/listings" element={<AdminListings />} />
           <Route path="/admin/bookings" element={<AdminBookings />} />
+          <Route path="/admin/categories" element={<AdminCategories />} />
+          <Route path="/admin/commissions" element={<Commissions />} />
+          <Route path="/admin/complaints" element={<Complaints />} />
+          <Route path="/admin/reports" element={<Reports />} />
+          <Route path="/admin/settings" element={<Settings />} />
+          <Route path="/admin/profile" element={<AdminProfile />} />
         </Routes>
       </Router>
     </AuthProvider>
