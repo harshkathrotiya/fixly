@@ -296,24 +296,32 @@ h1, h2, h3, h4 {
 
 /* Provider Card */
 .provider-card {
-  background: var(--white);
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  margin: var(--space-lg) 0;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-base);
+}
+
+.provider-card:hover {
+  transform: translateY(-2px);
 }
 
 .provider-info {
   display: flex;
-  align-items: center;
-  margin-bottom: 15px;
+  align-items: flex-start;
+  margin-bottom: var(--space-lg);
+  gap: var(--space-lg);
 }
 
 .provider-avatar {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-round);
   overflow: hidden;
-  margin-right: 15px;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
 }
 
 .provider-avatar img {
@@ -323,7 +331,10 @@ h1, h2, h3, h4 {
 }
 
 .provider-details {
-  flex-grow: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
 }
 
 .verification-badge {

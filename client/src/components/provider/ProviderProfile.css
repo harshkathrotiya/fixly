@@ -125,11 +125,11 @@
   box-shadow: var(--shadow-md);
   padding: var(--space-xl);
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: minmax(250px, 280px) 1fr;
   gap: var(--space-xl);
-  margin: var(--space-lg) 0 var(--space-xl);
+  margin: var(--space-lg) auto var(--space-xl);
   width: 100%;
-  max-width: 1400px;
+  max-width: 1200px;
 }
 
 /* Profile Sidebar */
