@@ -35,19 +35,19 @@ function Button({
   const getVariantClasses = () => {
     switch (variant) {
       case 'primary':
-        return 'admin-btn-primary';
+        return 'bg-primary text-white hover:bg-opacity-90';
       case 'secondary':
-        return 'admin-btn-secondary';
+        return 'bg-secondary text-white hover:bg-opacity-90';
       case 'success':
-        return 'admin-btn-success';
+        return 'bg-green-600 text-white hover:bg-green-700';
       case 'danger':
-        return 'admin-btn-danger';
+        return 'bg-red-600 text-white hover:bg-red-700';
       case 'warning':
-        return 'admin-btn-warning';
+        return 'bg-yellow-500 text-white hover:bg-yellow-600';
       case 'info':
-        return 'admin-btn-info';
+        return 'bg-blue-500 text-white hover:bg-blue-600';
       default:
-        return 'admin-btn-primary';
+        return 'bg-primary text-white hover:bg-opacity-90';
     }
   };
 
@@ -55,19 +55,30 @@ function Button({
   const getSizeClasses = () => {
     switch (size) {
       case 'sm':
-        return 'admin-btn-sm';
+        return 'py-1 px-3 text-sm';
       case 'md':
-        return '';
+        return 'py-2 px-4 text-base';
       case 'lg':
-        return 'admin-btn-lg';
+        return 'py-3 px-6 text-lg';
       default:
-        return '';
+        return 'py-2 px-4 text-base';
     }
   };
 
   // Combine all classes
-  const buttonClasses = `admin-btn ${getVariantClasses()} ${getSizeClasses()} ${className}`;
-
+  const buttonClasses = `
+    ${getVariantClasses()} 
+    ${getSizeClasses()} 
+    rounded 
+    font-medium 
+    transition-colors 
+    duration-200 
+    focus:outline-none 
+    focus:ring-2 
+    focus:ring-opacity-50 
+    ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} 
+    ${className}
+  `.trim().replace(/\s+/g, ' ');
   // Render loading spinner
   const renderSpinner = () => (
     <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -94,7 +105,7 @@ function Button({
     return (
       <Link
         to={to}
-        className={`${buttonClasses} ${disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
+        className={`${buttonClasses} ${disabled ? 'pointer-events-none' : ''} inline-block text-center`}
         {...rest}
       >
         {renderContent()}

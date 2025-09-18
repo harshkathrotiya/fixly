@@ -1,396 +1,407 @@
-/* CSS Variables for consistent theming */
 :root {
-  --primary-color: #4a80f0;
-  --primary-hover: #3861c2;
-  --secondary-color: #6c757d;
-  --secondary-hover: #5a6268;
-  --text-color: #25283B;
-  --light-bg: #ffffff;
-  --shadow-sm: 0 2px 15px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 5px 10px rgba(0, 0, 0, 0.1);
-  --border-radius: 8px;
-  --transition-speed: 0.3s;
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 1rem;
-  --spacing-md: 1.5rem;
-  --spacing-lg: 2rem;
-  --font-weight-medium: 500;
-  --font-weight-bold: 700;
-  --max-width: 1200px;
-
-  /* Button colors */
-  --success-color: #28a745;
-  --success-hover: #218838;
-  --danger-color: #dc3545;
-  --danger-hover: #c82333;
+    --primary-color: #4a80f0;
+    --primary-hover: #3861c2;
+    --secondary-color: #6c757d;
+    --secondary-hover: #5a6268;
+    --text-color: #25283B;
+    --light-bg: #ffffff;
+    --shadow-sm: 0 2px 15px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 5px 10px rgba(0, 0, 0, 0.1);
+    --border-radius: 8px;
+    --transition-speed: 0.3s;
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --font-weight-medium: 500;
+    --font-weight-bold: 700;
+    --max-width: 1200px;
+    /* Button colors */
+    --success-color: #28a745;
+    --success-hover: #218838;
+    --danger-color: #dc3545;
+    --danger-hover: #c82333;
 }
 
 /* Navbar container */
 .navbar {
-  background-color: var(--light-bg);
-  box-shadow: var(--shadow-sm);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  transition: background-color var(--transition-speed) ease, 
-              box-shadow var(--transition-speed) ease;
-  border-bottom: 1px solid var(--primary-color);
+    background-color: var(--light-bg);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: background-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+    border-bottom: 1px solid var(--primary-color);
 }
 
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
-  .navbar,
-  .navbar-logo,
-  .nav-link,
-  .auth-button {
-    transition: none;
-  }
+
+    .navbar,
+    .navbar-logo,
+    .nav-link,
+    .auth-button {
+        transition: none;
+    }
 }
 
 /* Main navbar layout - FIXED to use grid for better spacing */
 .navbar-container {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  max-width: var(--max-width);
-  margin: 0 auto;
-  gap: var(--spacing-lg);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    gap: var(--spacing-lg);
 }
 
 /* Logo styling - FIXED to remove absolute positioning */
 .navbar-logo {
-  font-size: 1.8rem;
-  font-weight: var(--font-weight-bold);
-  color: var(--primary-color);
-  text-decoration: none;
-  transition: color var(--transition-speed) ease;
-  white-space: nowrap; /* Prevent logo text from wrapping */
-  text-shadow: 0 1px 2px rgba(74, 128, 240, 0.5);
+    font-size: 1.8rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color var(--transition-speed) ease;
+    white-space: nowrap;
+    /* Prevent logo text from wrapping */
+    text-shadow: 0 1px 2px rgba(74, 128, 240, 0.5);
 }
 
 .navbar-logo:hover,
 .navbar-logo:focus {
-  color: var(--secondary-color);
+    color: var(--secondary-color);
 }
 
 /* Mobile menu icon */
 .menu-icon {
-  display: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--primary-color);
-  border: none;
-  background: transparent;
-  padding: var(--spacing-xs);
+    display: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--primary-color);
+    border: none;
+    background: transparent;
+    padding: var(--spacing-xs);
 }
 
 .menu-icon:focus {
-  outline: 2px solid var(--primary-color);
-  border-radius: var(--border-radius);
+    outline: 2px solid var(--primary-color);
+    border-radius: var(--border-radius);
 }
 
 /* Navigation menu - FIXED to center items and prevent overlapping */
 .nav-menu {
-  display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  transition: transform var(--transition-speed) ease,
-              opacity var(--transition-speed) ease;
-  justify-content: center; /* Center nav items */
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    transition: transform var(--transition-speed) ease, opacity var(--transition-speed) ease;
+    justify-content: center;
+    /* Center nav items */
 }
 
 .nav-item {
-  margin: 0 var(--spacing-sm);
+    margin: 0 var(--spacing-sm);
 }
 
 /* Navigation links */
 .nav-link {
-  color: var(--text-color);
-  text-decoration: none;
-  font-weight: var(--font-weight-medium);
-  padding: var(--spacing-xs) 0;
-  position: relative;
-  transition: color var(--transition-speed) ease;
-  display: inline-block;
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: var(--font-weight-medium);
+    padding: var(--spacing-xs) 0;
+    position: relative;
+    transition: color var(--transition-speed) ease;
+    display: inline-block;
 }
 
 .nav-link:hover,
 .nav-link:focus {
-  color: var(--primary-color);
-  text-shadow: 0 1px 2px rgba(74, 128, 240, 0.5);
+    color: var(--primary-color);
+    text-shadow: 0 1px 2px rgba(74, 128, 240, 0.5);
 }
 
 .nav-link:focus {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-  border-radius: var(--border-radius);
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: var(--border-radius);
 }
 
 .nav-link.active {
-  color: var(--primary-color);
+    color: var(--primary-color);
 }
 
 .nav-link.active::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: var(--primary-color);
-  transition: transform var(--transition-speed) ease;
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--primary-color);
+    transition: transform var(--transition-speed) ease;
 }
 
 /* Add subtle animation for links */
 .nav-link:not(.active)::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: var(--primary-color);
-  transform: scaleX(0);
-  transition: transform var(--transition-speed) ease;
-  transform-origin: right;
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--primary-color);
+    transform: scaleX(0);
+    transition: transform var(--transition-speed) ease;
+    transform-origin: right;
 }
 
 .nav-link:not(.active):hover::after {
-  transform: scaleX(1);
-  transform-origin: left;
+    transform: scaleX(1);
+    transform-origin: left;
 }
 
 /* Authentication section */
 .nav-auth {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  justify-self: end; /* Align to end of grid cell */
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    justify-self: end;
+    /* Align to end of grid cell */
 }
 
 /* Button base styles */
 .auth-button {
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--border-radius);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: background-color var(--transition-speed) ease,
-              color var(--transition-speed) ease,
-              transform 0.15s ease;
-  text-decoration: none;
-  font-size: 0.9rem;
-  text-align: center;
-  white-space: nowrap; /* Prevent button text from wrapping */
-  height: 38px; /* Set consistent height for all buttons */
-  display: inline-flex; /* Use flexbox for better alignment */
-  align-items: center; /* Center content vertically */
-  justify-content: center; /* Center content horizontally */
-  box-sizing: border-box; /* Include padding in height calculation */
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  box-shadow: 0 4px 12px rgba(74, 128, 240, 0.3);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease, transform 0.15s ease;
+    text-decoration: none;
+    font-size: 0.9rem;
+    text-align: center;
+    white-space: nowrap;
+    /* Prevent button text from wrapping */
+    height: 38px;
+    /* Set consistent height for all buttons */
+    display: inline-flex;
+    /* Use flexbox for better alignment */
+    align-items: center;
+    /* Center content vertically */
+    justify-content: center;
+    /* Center content horizontally */
+    box-sizing: border-box;
+    /* Include padding in height calculation */
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(74, 128, 240, 0.3);
 }
 
 .auth-button:hover,
 .auth-button:focus {
-  background-color: var(--primary-hover);
-  box-shadow: 0 6px 15px rgba(56, 97, 194, 0.5);
-  transform: translateY(-2px);
+    background-color: var(--primary-hover);
+    box-shadow: 0 6px 15px rgba(56, 97, 194, 0.5);
+    transform: translateY(-2px);
 }
 
 /* Button variations */
 .login-button {
-  background-color: transparent;
-  color: var(--primary-color);
-  border: 1px solid var(--primary-color);
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
 }
 
 /* Make sure all buttons have a border to maintain consistent height */
 .logout-button {
-  background-color: var(--danger-color);
-  color: white;
-  border: 1px solid var(--danger-color); /* Add border to maintain height */
+    background-color: var(--danger-color);
+    color: white;
+    border: 1px solid var(--danger-color);
+    /* Add border to maintain height */
 }
 
 .dashboard-button {
-  background-color: var(--success-color);
-  color: white;
-  border: 1px solid var(--success-color); /* Add border to maintain height */
+    background-color: var(--success-color);
+    color: white;
+    border: 1px solid var(--success-color);
+    /* Add border to maintain height */
 }
 
 .login-button:hover,
 .login-button:focus {
-  background-color: rgba(138, 145, 181, 0.1);
+    background-color: rgba(138, 145, 181, 0.1);
 }
 
 .signup-button {
-  background-color: var(--primary-color);
-  color: white;
-  border: 1px solid var(--primary-color);
+    background-color: var(--primary-color);
+    color: white;
+    border: 1px solid var(--primary-color);
 }
 
 .signup-button:hover,
 .signup-button:focus {
-  background-color: var(--primary-hover);
+    background-color: var(--primary-hover);
 }
 
 .tasker-button {
-  background-color: var(--secondary-color);
-  color: white;
-  border: 1px solid var(--secondary-color);
+    background-color: var(--secondary-color);
+    color: white;
+    border: 1px solid var(--secondary-color);
 }
 
 .tasker-button:hover,
 .tasker-button:focus {
-  background-color: var(--secondary-hover);
+    background-color: var(--secondary-hover);
 }
 
 .logout-button {
-  background-color: var(--danger-color);
-  color: white;
-  border: 1px solid var(--danger-color);
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    background-color: var(--danger-color);
+    color: white;
+    border: 1px solid var(--danger-color);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
 
 .logout-button:hover,
 .logout-button:focus {
-  background-color: var(--danger-hover);
-  box-shadow: 0 6px 15px rgba(200, 35, 51, 0.5);
+    background-color: var(--danger-hover);
+    box-shadow: 0 6px 15px rgba(200, 35, 51, 0.5);
 }
 
 .dashboard-button {
-  background-color: var(--success-color);
-  color: white;
-  border: 1px solid var(--success-color);
-  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    background-color: var(--success-color);
+    color: white;
+    border: 1px solid var(--success-color);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
 }
 
 .dashboard-button:hover,
 .dashboard-button:focus {
-  background-color: var(--success-hover);
-  box-shadow: 0 6px 15px rgba(33, 136, 56, 0.5);
+    background-color: var(--success-hover);
+    box-shadow: 0 6px 15px rgba(33, 136, 56, 0.5);
 }
 
 /* Responsive styles - COMPLETELY REWORKED */
 @media (max-width: 960px) {
-  /* Switch to column layout with proper spacing */
-  .navbar-container {
-    grid-template-columns: 1fr auto;
-    padding: 0 var(--spacing-sm);
-    gap: var(--spacing-sm);
-  }
-  
-  .menu-icon {
-    display: block;
-    justify-self: end;
-  }
-  
-  /* Fix mobile menu positioning */
-  .nav-menu {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    position: absolute;
-    top: 100%; /* Position right below the navbar */
-    left: 0;
-    opacity: 0;
-    visibility: hidden; /* Hide menu instead of moving off-screen */
-    transition: opacity var(--transition-speed) ease,
-                visibility var(--transition-speed) ease;
-    background-color: var(--light-bg);
-    box-shadow: var(--shadow-md);
-  }
-  
-  .nav-menu.active {
-    opacity: 1;
-    visibility: visible;
-    z-index: 1;
-    padding: var(--spacing-sm) 0;
-  }
-  
-  .nav-item {
-    margin: 0;
-    padding: var(--spacing-sm) var(--spacing-lg);
-    width: 100%;
-    text-align: center;
-  }
-  
-  /* Fix mobile auth buttons */
-  .nav-auth {
-    grid-column: 1 / -1;
-    grid-row: 3;
-    flex-direction: column;
-    width: 100%;
-    position: absolute;
-    top: calc(100% + 160px); /* Position below the nav menu items */
-    left: 0;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity var(--transition-speed) ease,
-                visibility var(--transition-speed) ease;
-    background-color: var(--light-bg);
-    box-shadow: var(--shadow-md);
-    padding-bottom: var(--spacing-sm);
-  }
-  
-  .nav-menu.active ~ .nav-auth {
-    opacity: 1;
-    visibility: visible;
-    z-index: 1;
-  }
-  
-  .auth-button {
-    width: 80%;
-    margin: var(--spacing-xs) auto;
-  }
+
+    /* Switch to column layout with proper spacing */
+    .navbar-container {
+        grid-template-columns: 1fr auto;
+        padding: 0 var(--spacing-sm);
+        gap: var(--spacing-sm);
+    }
+
+    .menu-icon {
+        display: block;
+        justify-self: end;
+    }
+
+    /* Fix mobile menu positioning */
+    .nav-menu {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        position: absolute;
+        top: 100%;
+        /* Position right below the navbar */
+        left: 0;
+        opacity: 0;
+        visibility: hidden;
+        /* Hide menu instead of moving off-screen */
+        transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
+        background-color: var(--light-bg);
+        box-shadow: var(--shadow-md);
+    }
+
+    .nav-menu.active {
+        opacity: 1;
+        visibility: visible;
+        z-index: 1;
+        padding: var(--spacing-sm) 0;
+    }
+
+    .nav-item {
+        margin: 0;
+        padding: var(--spacing-sm) var(--spacing-lg);
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Fix mobile auth buttons */
+    .nav-auth {
+        grid-column: 1 / -1;
+        grid-row: 3;
+        flex-direction: column;
+        width: 100%;
+        position: absolute;
+        top: calc(100% + 160px);
+        /* Position below the nav menu items */
+        left: 0;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
+        background-color: var(--light-bg);
+        box-shadow: var(--shadow-md);
+        padding-bottom: var(--spacing-sm);
+    }
+
+    .nav-menu.active~.nav-auth {
+        opacity: 1;
+        visibility: visible;
+        z-index: 1;
+    }
+
+    .auth-button {
+        width: 80%;
+        margin: var(--spacing-xs) auto;
+    }
 }
 
 /* Smaller screen adjustments with minimum sizes to prevent text overlap */
 @media (max-width: 768px) {
-  .navbar {
-    padding: var(--spacing-sm);
-    min-height: 60px; /* Ensure minimum height */
-  }
-  
-  .navbar-logo {
-    font-size: 1.5rem;
-    max-width: 200px; /* Limit logo width on small screens */
-    overflow: hidden;
-    text-overflow: ellipsis; /* Add ellipsis if text is too long */
-  }
-  
-  /* Ensure menu icon doesn't overlap with logo */
-  .menu-icon {
-    margin-left: auto;
-  }
+    .navbar {
+        padding: var(--spacing-sm);
+        min-height: 60px;
+        /* Ensure minimum height */
+    }
+
+    .navbar-logo {
+        font-size: 1.5rem;
+        max-width: 200px;
+        /* Limit logo width on small screens */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        /* Add ellipsis if text is too long */
+    }
+
+    /* Ensure menu icon doesn't overlap with logo */
+    .menu-icon {
+        margin-left: auto;
+    }
 }
 
 /* Extra small screens */
 @media (max-width: 480px) {
-  .navbar-logo {
-    font-size: 1.3rem;
-    max-width: 150px;
-  }
+    .navbar-logo {
+        font-size: 1.3rem;
+        max-width: 150px;
+    }
 }
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --light-bg: #1a1a1a;
-    --text-color: #f1f1f1;
-    --shadow-sm: 0 2px 15px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 5px 10px rgba(0, 0, 0, 0.3);
-    --primary-color: #5a8ff2;
-    --primary-hover: #4875d9;
-  }
-  
-  .login-button:hover,
-  .login-button:focus {
-    background-color: rgba(138, 145, 181, 0.2);
-  }
+    :root {
+        --light-bg: #1a1a1a;
+        --text-color: #f1f1f1;
+        --shadow-sm: 0 2px 15px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 5px 10px rgba(0, 0, 0, 0.3);
+        --primary-color: #5a8ff2;
+        --primary-hover: #4875d9;
+    }
+
+    .login-button:hover,
+    .login-button:focus {
+        background-color: rgba(138, 145, 181, 0.2);
+    }
 }

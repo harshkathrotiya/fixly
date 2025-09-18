@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "./Navbar.css";
 
+
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -12,7 +13,6 @@ function Navbar() {
 
   // Get auth context directly
   const { user, logout } = useAuth();
-
   // Check authentication on mount and when auth changes
   useEffect(() => {
     const checkAuth = async () => {
@@ -35,14 +35,11 @@ function Navbar() {
 
     // Check immediately
     checkAuth();
-
     // Set up event listeners
     const handleAuthChange = () => {
       checkAuth();
     };
-
     window.addEventListener('auth-change', handleAuthChange);
-
     // Clean up
     return () => {
       window.removeEventListener('auth-change', handleAuthChange);

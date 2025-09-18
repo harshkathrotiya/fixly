@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Navbar from "./Navbar";
 import "./signup.css";
+import Button from "./admin/shared/Button";
+
 
 function SignUp() {
   // Removed userType state and set a default value in the signup data

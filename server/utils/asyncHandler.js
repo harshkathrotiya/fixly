@@ -1,10 +1,12 @@
 /**
- * Async handler to wrap async route handlers and middleware
- * This eliminates the need for try/catch blocks in route handlers
- * @param {Function} fn - The async function to wrap
- * @returns {Function} - Express middleware function
+ * Wraps async route handlers and forwards errors to middleware
+ * Avoids repetitive try/catch in controllers
  */
-const asyncHandler = (fn) => (req, res, next) =>
-  Promise.resolve(fn(req, res, next)).catch(next);
+const asyncHandler = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch((err) => {
+    console.error(`[ASYNC ERROR] ${err.message}`);
+    next(err);
+  });
+};
 
 module.exports = asyncHandler;

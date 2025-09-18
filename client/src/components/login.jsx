@@ -4,6 +4,7 @@ import axios from "axios";
 import Navbar from "./Navbar";
 import "./login.css";
 import { useAuth } from "../context/AuthContext";
+import Button from "./admin/shared/Button";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -104,8 +105,8 @@ function Login() {
               />
             </div>
 
-            <button type="submit" className="login-button">Login</button>
-          </form>
+          <button type="submit" className="login-button">Login</button>
+
 
           <div className="login-footer">
             <p>Don't have an account? <Link to="/signup">Sign up</Link></p>

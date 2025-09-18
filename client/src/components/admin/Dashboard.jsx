@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { useAuth } from '../../context/AuthContext'; // Correct casing for AuthContext
-import AdminLayout from './AdminLayout';
-import Card from './shared/Card';
-import './AdminDashboard.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
+import AdminLayout from "./AdminLayout";
+import Card from "./shared/Card";
 
 function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -22,7 +21,7 @@ function AdminDashboard() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [isAutoRefresh, setIsAutoRefresh] = useState(true);
   const navigate = useNavigate();
@@ -31,7 +30,7 @@ function AdminDashboard() {
   const fetchDashboardData = async () => {
     setIsLoading(true);
     try {
-      let dateParams = '';
+      let dateParams = "";
       if (dateRange.start && dateRange.end) {
         dateParams = `?startDate=${dateRange.start}&endDate=${dateRange.end}`;
       } else if (dateRange.start) {
@@ -47,7 +46,6 @@ function AdminDashboard() {
 
       const dashboardData = response.data.data;
 
-      // Data for charts and recent activities removed
       setStats({
         users: dashboardData.counts.users,
         providers: dashboardData.counts.providers,
@@ -63,16 +61,16 @@ function AdminDashboard() {
       });
       setLastUpdated(new Date());
     } catch (err) {
-      console.error('Error fetching dashboard data:', err);
-      setError('Failed to load dashboard data. Please try again.');
+      console.error("Error fetching dashboard data:", err);
+      setError("Failed to load dashboard data. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!user || user.userType !== 'admin') {
-      navigate('/login');
+    if (!user || user.userType !== "admin") {
+      navigate("/login");
       return;
     }
 
@@ -82,7 +80,7 @@ function AdminDashboard() {
     if (isAutoRefresh) {
       pollingInterval = setInterval(() => {
         fetchDashboardData();
-      }, 30000); // 30 seconds
+      }, 30000);
     }
 
     return () => {
@@ -93,7 +91,7 @@ function AdminDashboard() {
   }, [token, user, navigate, isAutoRefresh]);
 
   useEffect(() => {
-    if (user && user.userType === 'admin') {
+    if (user && user.userType === "admin") {
       fetchDashboardData();
     }
   }, [dateRange.start, dateRange.end]);
@@ -114,7 +112,10 @@ function AdminDashboard() {
   if (error) {
     return (
       <AdminLayout title="Admin Dashboard">
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+        <div
+          className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded"
+          role="alert"
+        >
           <p className="font-bold">Error</p>
           <p>{error}</p>
           <button
@@ -129,9 +130,9 @@ function AdminDashboard() {
   }
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
       minimumFractionDigits: 2,
     }).format(amount);
   };
@@ -143,7 +144,7 @@ function AdminDashboard() {
   };
 
   const handleClearFilters = () => {
-    setDateRange({ start: '', end: '' });
+    setDateRange({ start: "", end: "" });
     setIsLoading(true);
     setError(null);
     fetchDashboardData();
@@ -151,10 +152,13 @@ function AdminDashboard() {
 
   return (
     <AdminLayout title="Admin Dashboard">
-      <div className="admin-dashboard">
-        <div className="dashboard-header">
+      <div className="bg-gray-50 py-6 min-h-screen">
+        {/* Header */}
+        <div className="bg-white shadow mb-6 py-4">
           <div className="container mx-auto px-4 flex justify-between items-center">
-            <h1>Dashboard Overview</h1>
+            <h1 className="text-2xl font-semibold text-gray-800">
+              Dashboard Overview
+            </h1>
             <div className="flex items-center gap-2">
               <div className="text-sm text-gray-500 bg-white rounded-full px-3 py-1 shadow-sm">
                 <i className="fas fa-clock mr-1"></i>
@@ -171,77 +175,96 @@ function AdminDashboard() {
         </div>
 
         <div className="container mx-auto px-4">
-          <div className="filter-controls">
-            <div className="date-filters">
-              <div className="filter-group">
-                <label htmlFor="startDate">From</label>
+          {/* Filters */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+            <div className="flex gap-4">
+              <div className="flex flex-col">
+                <label
+                  htmlFor="startDate"
+                  className="text-sm text-gray-600 mb-1"
+                >
+                  From
+                </label>
                 <input
                   type="date"
                   id="startDate"
                   value={dateRange.start}
-                  onChange={(e) => setDateRange((prev) => ({ ...prev, start: e.target.value }))}
+                  onChange={(e) =>
+                    setDateRange((prev) => ({
+                      ...prev,
+                      start: e.target.value,
+                    }))
+                  }
+                  className="border rounded px-3 py-2 text-sm"
                 />
               </div>
-              <div className="filter-group">
-                <label htmlFor="endDate">To</label>
+              <div className="flex flex-col">
+                <label
+                  htmlFor="endDate"
+                  className="text-sm text-gray-600 mb-1"
+                >
+                  To
+                </label>
                 <input
                   type="date"
                   id="endDate"
                   value={dateRange.end}
-                  onChange={(e) => setDateRange((prev) => ({ ...prev, end: e.target.value }))}
+                  onChange={(e) =>
+                    setDateRange((prev) => ({
+                      ...prev,
+                      end: e.target.value,
+                    }))
+                  }
+                  className="border rounded px-3 py-2 text-sm"
                 />
               </div>
             </div>
 
-            <div className="filter-actions">
+            <div className="flex gap-2">
               <button
                 onClick={handleClearFilters}
-                className="filter-btn clear-btn"
+                className="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded text-sm"
                 disabled={!dateRange.start && !dateRange.end}
               >
-                <i className="fas fa-times"></i>
-                Clear Filters
+                <i className="fas fa-times mr-1"></i>Clear Filters
               </button>
               <button
                 onClick={() => setIsAutoRefresh(!isAutoRefresh)}
-                className={`filter-btn ${isAutoRefresh ? 'auto-refresh-btn' : 'auto-refresh-btn paused'}`}
+                className={`py-2 px-4 rounded text-sm ${
+                  isAutoRefresh
+                    ? "bg-green-500 text-white hover:bg-green-600"
+                    : "bg-gray-400 text-white hover:bg-gray-500"
+                }`}
               >
-                <i className={`fas fa-${isAutoRefresh ? 'pause' : 'play'}`}></i>
-                {isAutoRefresh ? 'Pause Auto-refresh' : 'Enable Auto-refresh'}
+                <i
+                  className={`fas fa-${
+                    isAutoRefresh ? "pause" : "play"
+                  } mr-1`}
+                ></i>
+                {isAutoRefresh ? "Pause Auto-refresh" : "Enable Auto-refresh"}
               </button>
-              <button onClick={handleRefresh} className="filter-btn refresh-btn">
-                <i className="fas fa-sync-alt"></i>
-                Refresh Now
+              <button
+                onClick={handleRefresh}
+                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded text-sm"
+              >
+                <i className="fas fa-sync-alt mr-1"></i>Refresh Now
               </button>
             </div>
           </div>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl shadow-sm p-4 mb-6 flex items-center" role="alert">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-4">
-                <i className="fas fa-exclamation-triangle text-red-500"></i>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-red-800">Error</h3>
-                <p className="text-sm text-red-700 mt-1">{error}</p>
-              </div>
-              <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-500">
-                <i className="fas fa-times"></i>
-              </button>
-            </div>
-          )}
-
-          {/* Stats Cards */}
-          <div className="stats-cards">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <Card
               title="Total Users"
               value={stats.users.toString()}
               icon={<i className="fas fa-users"></i>}
               color="blue"
-              trend={parseFloat(stats.userGrowth) >= 0 ? 'up' : 'down'}
-              trendValue={`${parseFloat(stats.userGrowth) >= 0 ? '+' : ''}${stats.userGrowth}%`}
+              trend={parseFloat(stats.userGrowth) >= 0 ? "up" : "down"}
+              trendValue={`${
+                parseFloat(stats.userGrowth) >= 0 ? "+" : ""
+              }${stats.userGrowth}%`}
               subtitle="vs last month"
-              onClick={() => navigate('/admin/users')}
+              onClick={() => navigate("/admin/users")}
             />
 
             <Card
@@ -252,7 +275,7 @@ function AdminDashboard() {
               trend="up"
               trendValue="+3%"
               subtitle="vs last month"
-              onClick={() => navigate('/admin/providers')}
+              onClick={() => navigate("/admin/providers")}
             />
 
             <Card
@@ -263,7 +286,7 @@ function AdminDashboard() {
               trend="up"
               trendValue="+8%"
               subtitle="vs last month"
-              onClick={() => navigate('/admin/listings')}
+              onClick={() => navigate("/admin/listings")}
             />
 
             <Card
@@ -274,7 +297,7 @@ function AdminDashboard() {
               trend="up"
               trendValue="+12%"
               subtitle="vs last month"
-              onClick={() => navigate('/admin/earnings')}
+              onClick={() => navigate("/admin/earnings")}
             />
 
             <Card
@@ -282,7 +305,7 @@ function AdminDashboard() {
               value={stats.pendingBookings.toString()}
               icon={<i className="fas fa-clock"></i>}
               color="yellow"
-              onClick={() => navigate('/admin/bookings?status=pending')}
+              onClick={() => navigate("/admin/bookings?status=pending")}
             />
           </div>
         </div>
