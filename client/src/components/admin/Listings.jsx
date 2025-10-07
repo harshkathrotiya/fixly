@@ -178,11 +178,11 @@ function Listings() {
             <div className="provider-image-container">
               <img
                 className="provider-image"
-                src={provider.profileImage || '/placeholder-user.jpg'}
+                src={provider.profileImage || '/placeholder-user.svg'}
                 alt={`${provider.firstName || 'Provider'}`}
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = '/placeholder-user.jpg';
+                  e.target.src = '/placeholder-user.svg';
                 }}
               />
             </div>
@@ -304,12 +304,12 @@ function Listings() {
             <div className="flex items-center mb-3">
               <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 mr-3">
                 <img
-                  src={selectedListing.providerId?.userId?.profileImage || "/placeholder-user.jpg"}
+                  src={selectedListing.providerId?.userId?.profileImage || "/placeholder-user.svg"}
                   alt={`${selectedListing.providerId?.userId?.firstName || 'Provider'}`}
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = '/placeholder-user.jpg';
+                    e.target.src = '/placeholder-user.svg';
                   }}
                 />
               </div>

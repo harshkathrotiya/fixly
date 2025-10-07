@@ -3,7 +3,7 @@ import axios from "axios";
 import "./services.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/authcontext";
 import PlaceholderImg from "./images/plumbing.png";
 import { motion, AnimatePresence } from "framer-motion"; // Add framer-motion for animations
 
@@ -729,4 +729,3 @@ function getCategoryIcon(categoryName) {
 
 export default Services;
 
-// Remove this standalone code snippet that's causing the error

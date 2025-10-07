@@ -1,94 +1,55 @@
-// Fixes applied:
-// - Refactored hardcoded API URLs into environment variables.
-// - Added error handling for navigation.
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import Navbar from './Navbar';
+import './CreateListing.css';
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
-function BookingDetails() {
-  const { id } = useParams();
+function CreateListing() {
   const navigate = useNavigate();
-  const [booking, setBooking] = useState(null);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    const fetchBooking = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/bookings/${id}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
-        });
-        setBooking(response.data.data);
-      } catch (err) {
-        setError('Error fetching booking details');
-      }
-    };
-
-    fetchBooking();
-  }, [id]);
-
-  const handleStatusUpdate = async (status) => {
-    try {
-      await axios.put(
-        `${process.env.REACT_APP_API_URL}/bookings/${id}/status`,
-        { status },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` } }
-      );
-      setBooking({ ...booking, status });
-    } catch (err) {
-      setError('Error updating booking status');
-    }
-  };
-
-  if (!booking) {
-    return <div>Loading...</div>;
-  }
 
   return (
-    <div className="booking-details">
-      <h2>Booking Details</h2>
-      {error && <p className="error">{error}</p>}
+    <div className="create-listing-page">
+      <Navbar />
+      
+      <div className="create-listing-container">
+        <div className="create-listing-header">
+          <h1>Create New Service Listing</h1>
+          <p>Choose how you'd like to create your service listing</p>
+        </div>
 
-      <div className="booking-info">
-        <h3>Booking #{booking._id}</h3>
-        <p>Client: {booking.clientName}</p>
-        <p>Service: {booking.serviceTitle}</p>
-        <p>Date: {new Date(booking.bookingDate).toLocaleDateString()}</p>
-        <p>Time: {booking.bookingTime}</p>
-        <p>Status: {booking.status}</p>
-        <p>Address: {booking.address}</p>
-        <p>Contact: {booking.contactNumber}</p>
-        {booking.specialInstructions && (
-          <p>Special Instructions: {booking.specialInstructions}</p>
-        )}
+        <div className="create-options">
+          <div className="option-card" onClick={() => navigate('/provider/services/new')}>
+            <div className="option-icon">
+              <i className="fas fa-plus-circle"></i>
+            </div>
+            <h3>Create New Service</h3>
+            <p>Create a brand new service listing from scratch</p>
+          </div>
+
+          <div className="option-card" onClick={() => alert('Template feature coming soon!')}>
+            <div className="option-icon">
+              <i className="fas fa-copy"></i>
+            </div>
+            <h3>Use Template</h3>
+            <p>Start with a pre-built template for common services</p>
+          </div>
+
+          <div className="option-card" onClick={() => alert('Import feature coming soon!')}>
+            <div className="option-icon">
+              <i className="fas fa-file-import"></i>
+            </div>
+            <h3>Import from File</h3>
+            <p>Import multiple services from a CSV or Excel file</p>
+          </div>
+        </div>
+
+        <div className="back-button-container">
+          <button className="back-button" onClick={() => navigate(-1)}>
+            <i className="fas fa-arrow-left"></i> Back
+          </button>
+        </div>
       </div>
-
-      <div className="status-actions">
-        <button
-          onClick={() => handleStatusUpdate('accepted')}
-          disabled={booking.status === 'accepted'}
-        >
-          Accept
-        </button>
-        <button
-          onClick={() => handleStatusUpdate('completed')}
-          disabled={booking.status === 'completed'}
-        >
-          Mark as Completed
-        </button>
-        <button
-          onClick={() => handleStatusUpdate('cancelled')}
-          disabled={booking.status === 'cancelled'}
-        >
-          Cancel
-        </button>
-      </div>
-
-      <button onClick={() => navigate('/provider/dashboard').catch(() => setError('Navigation failed'))}>
-        Back to Dashboard
-      </button>
     </div>
   );
 }
 
-export default BookingDetails;
+export default CreateListing;

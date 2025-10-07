@@ -35,7 +35,7 @@ if (process.env.NODE_ENV === 'development') {
 app.get('/reset-password/:token', (req, res) => {
   const { token } = req.params;
   console.log('Redirecting reset password request with token:', token);
-  res.redirect(`http://localhost:5173/reset-password/${token}`);
+  res.redirect(`${process.env.FRONTEND_URL}/reset-password/${token}`);
 });
 
 // Mount routes

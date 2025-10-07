@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/authcontext';
 import './ProviderLayout.css';
 
 function ProviderLayout({ children }) {
@@ -33,9 +33,9 @@ function ProviderLayout({ children }) {
           <div className="provider-info">
             <div className="provider-avatar">
               <img
-                src={user?.profilePicture || "/placeholder-user.jpg"}
+                src={user?.profilePicture || "/placeholder-user.svg"}
                 alt={user?.firstName ? `${user?.firstName} ${user?.lastName}` : 'Provider'}
-                onError={(e) => { e.target.src = '/placeholder-user.jpg'; }}
+                onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-user.svg'; }}
               />
             </div>
             <div className="provider-details">
@@ -93,9 +93,9 @@ function ProviderLayout({ children }) {
             </div>
             <div className="user-menu">
               <img
-                src={user?.profilePicture || "/placeholder-user.jpg"}
+                src={user?.profilePicture || "/placeholder-user.svg"}
                 alt={user?.firstName ? `${user?.firstName} ${user?.lastName}` : 'Provider'}
-                onError={(e) => { e.target.src = '/placeholder-user.jpg'; }}
+                onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-user.svg'; }}
               />
               <span>{user?.firstName ? `${user?.firstName} ${user?.lastName || ''}` : 'Provider'}</span>
             </div>

@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import Navbar from "./Navbar";
 import "./login.css";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/authcontext";
 
 function Login() {
   const [email, setEmail] = useState("");

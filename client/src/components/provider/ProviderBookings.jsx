@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/authcontext';
 import ProviderLayout from './ProviderLayout';
 import './ProviderBookings.css';
 
@@ -216,10 +216,10 @@ function ProviderBookings() {
                   <div className="customer-info">
                     <div className="customer-avatar">
                       <img
-                        src={booking.customerId?.profilePicture || "/placeholder-user.jpg"}
+                        src={booking.customerId?.profilePicture || "/placeholder-user.svg"}
                         alt={booking.customerId ? `${booking.customerId.firstName} ${booking.customerId.lastName}` : 'Customer'}
                         className="avatar-img"
-                        onError={(e) => { e.target.src = '/placeholder-user.jpg'; }}
+                        onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-user.svg'; }}
                       />
                     </div>
                     <div className="customer-details">
@@ -361,9 +361,9 @@ function ProviderBookings() {
                   <div className="customer-profile">
                     <div className="customer-avatar large">
                       <img
-                        src={selectedBooking.customerId?.profilePicture || "/placeholder-user.jpg"}
+                        src={selectedBooking.customerId?.profilePicture || "/placeholder-user.svg"}
                         alt={selectedBooking.customerId ? `${selectedBooking.customerId.firstName} ${selectedBooking.customerId.lastName}` : 'Customer'}
-                        onError={(e) => { e.target.src = '/placeholder-user.jpg'; }}
+                        onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-user.svg'; }}
                       />
                     </div>
                     <div className="customer-details">

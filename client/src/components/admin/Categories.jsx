@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/authcontext';
 import AdminLayout from './AdminLayout';
 import Table from './shared/Table';
 import Modal from './shared/Modal';

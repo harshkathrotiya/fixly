@@ -9,7 +9,7 @@ import JobListing from "./components/joblisting";
 import ReviewForm from "./components/reviewform";
 import Services from "./components/services";
 import ServiceDetails from "./components/ServiceDetails";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./context/authcontext";
 import ProviderDashboard from "./components/provider/ProviderDashboard";
 import CreateListingWrapper from "./components/provider/CreateListingWrapper";
 import EditListingWrapper from "./components/provider/EditListingWrapper";

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/authcontext';
 import ProviderLayout from './ProviderLayout';
 import './ProviderDashboard.css';
 
@@ -210,10 +210,10 @@ function ProviderDashboard() {
                     <div className="booking-item-details">
                       <div className="customer-info">
                         <img
-                          src={booking.customerId?.profilePicture || "/placeholder-user.jpg"}
+                          src={booking.customerId?.profilePicture || "/placeholder-user.svg"}
                           alt={booking.customerId ? `${booking.customerId.firstName} ${booking.customerId.lastName}` : 'Customer'}
                           className="customer-avatar"
-                          onError={(e) => { e.target.src = '/placeholder-user.jpg'; }}
+                          onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-user.svg'; }}
                         />
                         <div className="customer-details">
                           <p className="customer-name">
@@ -273,7 +273,7 @@ function ProviderDashboard() {
                     <div className="service-image">
                       <img
                         src={listing.serviceImage || "/placeholder-service.jpg"}
-                        onError={(e) => { e.target.src = '/placeholder-service.jpg'; }}
+                        onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-service.jpg'; }}
                         alt={listing.serviceTitle}
                       />
                       <span className={`status-indicator ${listing.isActive ? 'active' : 'inactive'}`}>

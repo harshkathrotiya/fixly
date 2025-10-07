@@ -146,6 +146,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import "./joblisting.css";
+import Navbar from "./Navbar";
 
 export default function JobListing() {
   const navigate = useNavigate();
@@ -158,16 +159,17 @@ export default function JobListing() {
   useEffect(() => {
     const fetchCities = async () => {
       try {
-        const response = await fetch("https://indian-cities-api-nocbegfhqg.now.sh/cities?state=Gujarat");
-        
-        if (!response.ok) {
-          throw new Error("Failed to fetch cities");
-        }
-
-        const cityData = await response.json();
-        setCities(cityData.map(city => city.city)); // Extract city names
+        // Using a more reliable source for Indian cities
+        const indianCities = [
+          "Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar", 
+          "Jamnagar", "Gandhinagar", "Nadiad", "Mehsana", "Bharuch",
+          "Anand", "Morbi", "Surendranagar", "Junagadh", "Gandhidham"
+        ];
+        setCities(indianCities);
       } catch (error) {
         console.error("Error fetching cities:", error);
+        // Fallback to a default list of cities
+        setCities(["Ahmedabad", "Surat", "Vadodara", "Rajkot"]);
       }
     };
 
@@ -179,13 +181,18 @@ export default function JobListing() {
     setData({ ...data, [name]: value });
   };
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    axios.post("https://doorstepservice.onrender.com/jobs", data)
-      .then((response) => setJobdata(response.data.data))
-      .catch((error) => console.error("Error fetching job listings:", error));
+    
+    try {
+      // Use the local API instead of the external one
+      const response = await axios.post("http://localhost:5000/api/jobs/search", data);
+      setJobdata(response.data.data || []);
+    } catch (error) {
+      console.error("Error fetching job listings:", error);
+      setJobdata([]); // Clear data on error
+    }
   };
-
 
   const openBookingForm = (job) => {
     navigate("/BookingForm", { state: { job } }); // Navigate to Booking Page
@@ -193,57 +200,48 @@ export default function JobListing() {
 
   return (
     <>
-     <nav className="navbar">
-            <h2>Fixly</h2>
-            <div className="nav-links">
-              <Link to="/home2">Home</Link>
-              <Link to="/joblisting">Services</Link>
-              <Link to="/appointments">Appointments</Link>
-              <button onClick={() => { localStorage.removeItem("token"); navigate("/"); }} className="logout-btn">
-                Logout
-              </button>
+      <Navbar />
+      
+      <div className="job-listing-page">
+        <div className="search-container">
+          <form onSubmit={submit}>
+            <select name="city" value={data.city} onChange={inputChange} required>
+              <option value="">Select City</option>
+              {cities.map((city, index) => (
+                <option key={index} value={city}>{city}</option>
+              ))}
+            </select>
+
+            <select name="category" value={data.category} onChange={inputChange} required>
+              <option value="">Select Category</option>
+              {categories.map((category, index) => (
+                <option key={index} value={category}>{category}</option>
+              ))}
+            </select>
+
+            <button type="submit">Search</button>
+          </form>
+        </div>
+
+        <div className="jobs-container">
+          {jobdata.length > 0 ? (
+            jobdata.map((job, index) => (
+              <div key={job._id || index} className="job-card">
+                <h3>{job.jobtitle || job.title || 'Service Title'}</h3>
+                <p>Person Name: {job.person_name || job.name || 'Service Provider'}</p>
+                <p>Budget: ₹{job.budget || job.price || '0'}</p>
+                <p>Description: {job.description || job.details || 'No description available'}</p>
+                <p>Location: {job.city || job.location || 'Location not specified'}</p>
+                <button onClick={() => openBookingForm(job)} className="book-btn">Book</button>
+              </div>
+            ))
+          ) : (
+            <div className="no-jobs-message">
+              <p>No services found. Try adjusting your search criteria.</p>
             </div>
-      </nav>
-
-
-          <div className="search-container">
-            <form onSubmit={submit}>
-              <select name="city" value={data.city} onChange={inputChange} required>
-                <option value="">Select City</option>
-                {cities.map((city, index) => (
-                  <option key={index} value={city}>{city}</option>
-                ))}
-              </select>
-
-              <select name="category" value={data.category} onChange={inputChange} required>
-                <option value="">Select Category</option>
-                {categories.map((category, index) => (
-                  <option key={index} value={category}>{category}</option>
-                ))}
-              </select>
-
-              <button type="submit">Search</button>
-            </form>
-          </div>
-
-
-            <div className="jobs-container">
-            {jobdata.length > 0 ? (
-              jobdata.map((job, index) => (
-                <div key={index} className="job-card">
-                  <h3>{job.jobtitle}</h3>
-                  <p>Person Name: {job.person_name}</p>
-                  <p>Budget: Rs.{job.budget}</p>
-                  <p>Description: {job.description}</p>
-                  <p>Location: {job.city}</p>
-                  <button onClick={() => openBookingForm(job)} className="book-btn">Book</button>
-                </div>
-              ))
-            ) : (
-              <p>No Data found</p>
-            )}
-          </div>
-
+          )}
+        </div>
+      </div>
     </>
   );
 }

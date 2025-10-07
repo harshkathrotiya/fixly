@@ -216,7 +216,10 @@ function ServiceManagement() {
                   <img
                     src={service.serviceImage || '/placeholder-service.jpg'}
                     alt={service.serviceTitle || 'Service'}
-                    onError={(e) => { e.target.src = '/placeholder-service.jpg'; }}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/placeholder-service.jpg';
+                    }}
                   />
                   {!service.isActive && (
                     <div className="inactive-overlay">Inactive</div>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './MyBookings.css';
 import Navbar from './Navbar';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/authcontext';
 import PlaceholderImg from './images/plumbing.png';
 
 function MyBookings({ hideNavbar = false }) {
@@ -178,6 +178,7 @@ function MyBookings({ hideNavbar = false }) {
                       alt={booking.serviceListingId?.serviceTitle}
                       className="service-image"
                       onError={(e) => {
+                        e.target.onerror = null;
                         e.target.src = PlaceholderImg;
                       }}
                     />

@@ -266,6 +266,7 @@ function ServiceDetails() {
                   alt={listing.serviceTitle}
                   className="main-image"
                   onError={(e) => {
+                    e.target.onerror = null;
                     e.target.src = PlaceholderImg;
                   }}
                 />
@@ -304,6 +305,7 @@ function ServiceDetails() {
                         alt={`${listing.serviceTitle} ${index + 1}`}
                         className="thumbnail-image"
                         onError={(e) => {
+                          e.target.onerror = null;
                           e.target.src = PlaceholderImg;
                         }}
                       />
@@ -603,6 +605,7 @@ function ServiceDetails() {
                       src={service.serviceImage || service.images?.[0] || PlaceholderImg}
                       alt={service.serviceTitle}
                       onError={(e) => {
+                        e.target.onerror = null;
                         e.target.src = PlaceholderImg;
                       }}
                     />
@@ -610,7 +613,7 @@ function ServiceDetails() {
                   <div className="related-service-content">
                     <h3>{service.serviceTitle}</h3>
                     <div className="related-service-meta">
-                      <div className="related-service-price">${service.servicePrice}</div>
+                      <div className="related-service-price">₹{service.servicePrice}</div>
                       {service.averageRating > 0 && (
                         <div className="related-service-rating">
                           <i className="fas fa-star"></i>

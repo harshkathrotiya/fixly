@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../../context/AuthContext'; // Correct casing for AuthContext
+import { useAuth } from '../../context/authcontext'; // Correct casing for AuthContext
 import AdminLayout from './AdminLayout';
 import Card from './shared/Card';
 import './AdminDashboard.css';

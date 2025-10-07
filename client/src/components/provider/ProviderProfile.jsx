@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/authcontext';
 import { uploadToCloudinary } from '../../utils/cloudinary';
 import ProviderLayout from './ProviderLayout';
 import './ProviderProfile.css';

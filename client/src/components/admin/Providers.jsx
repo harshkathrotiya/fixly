@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/authcontext';
 import AdminLayout from './AdminLayout';
 import Table from './shared/Table';
 import Button from './shared/Button';
@@ -153,9 +153,12 @@ function Providers() {
           <div className="user-image-container">
             <img
               className="user-image"
-              src={provider.userId?.profilePicture || '/placeholder-user.jpg'}
+              src={provider.userId?.profilePicture || '/placeholder-user.svg'}
               alt={`${provider.userId?.firstName || ''} ${provider.userId?.lastName || ''}`}
-              onError={(e) => { e.target.src = '/placeholder-user.jpg'; }}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/placeholder-user.svg';
+              }}
             />
           </div>
           <div className="user-details">

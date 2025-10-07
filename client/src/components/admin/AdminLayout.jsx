@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/authcontext';
 import Breadcrumbs from './shared/Breadcrumbs';
 
 // Import CSS
@@ -70,9 +70,9 @@ const AdminLayout = ({ children }) => {
           <div className="admin-user-info">
             <div className="admin-avatar">
               <img
-                src={user?.profilePicture || "/placeholder-user.jpg"}
+                src={user?.profilePicture || "/placeholder-user.svg"}
                 alt={user?.firstName ? `${user?.firstName} ${user?.lastName}` : 'Admin'}
-                onError={(e) => { e.target.src = '/placeholder-user.jpg'; }}
+                onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-user.svg'; }}
               />
             </div>
             <div className="admin-user-details">
@@ -126,9 +126,9 @@ const AdminLayout = ({ children }) => {
             <div className="user-menu">
               <div className="user-menu-trigger" onClick={toggleDropdown}>
                 <img
-                  src={user?.profilePicture || "/placeholder-user.jpg"}
+                  src={user?.profilePicture || "/placeholder-user.svg"}
                   alt={user?.firstName ? `${user?.firstName} ${user?.lastName}` : 'Admin'}
-                  onError={(e) => { e.target.src = '/placeholder-user.jpg'; }}
+                  onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-user.svg'; }}
                 />
                 <span>{user?.firstName ? `${user?.firstName} ${user?.lastName || ''}` : 'Admin'}</span>
                 <i className={`fas fa-chevron-${dropdownOpen ? 'up' : 'down'} ml-1`}></i>
